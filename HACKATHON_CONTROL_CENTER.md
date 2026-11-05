@@ -32,6 +32,7 @@
 │ 10. Automated CI/CD       │ ✅ PASSED     │ GitHub Actions passing on main and develop branches   │
 │ 11. Deployment IaC        │ ✅ READY      │ render.yaml configured for zero-cost cloud hosting     │
 │ 12. Complete Spec Suite   │ ✅ COMPLETE   │ 12 architecture docs generated in docs/ directory      │
+│ 13. EterPay Anywhere Spec │ ✅ COMPLETE   │ Universal QR, multi-provider router & compliance docs  │
 └───────────────────────────┴───────────────┴────────────────────────────────────────────────────────┘
 ```
 

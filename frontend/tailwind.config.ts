@@ -9,6 +9,42 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* Mercury × Brex Master Surfaces */
+        onyx: {
+          DEFAULT: "var(--color-onyx)",
+          canvas: "var(--color-onyx)",
+        },
+        graphite: {
+          DEFAULT: "var(--color-graphite)",
+          card: "var(--color-graphite)",
+        },
+        obsidian: "var(--color-obsidian)",
+        abyss: "var(--color-abyss)",
+        carbon: "var(--color-carbon)",
+
+        /* Typography */
+        ivory: {
+          DEFAULT: "var(--color-ivory)",
+          2: "var(--color-ash)",
+        },
+        ash: "var(--color-ash)",
+
+        /* Chromatic Signatures */
+        cobalt: {
+          DEFAULT: "var(--color-cobalt)",
+          hover: "var(--color-cobalt-hover)",
+          soft: "var(--color-cobalt-soft)",
+        },
+        ember: {
+          DEFAULT: "var(--color-ember)",
+          soft: "var(--color-ember-soft)",
+        },
+        hairline: {
+          DEFAULT: "var(--color-hairline)",
+          hi: "var(--color-hairline-hi)",
+        },
+
+        /* Backwards-compatible tokens */
         paper: {
           DEFAULT: "var(--color-paper)",
           2: "var(--color-paper-2)",
@@ -35,6 +71,11 @@ const config: Config = {
         cyan: "var(--color-cyan)",
         danger: "var(--color-danger)",
         warning: "var(--color-warning)",
+        success: "var(--color-success)",
+      },
+      borderRadius: {
+        pill: "var(--radius-pill)",
+        card: "var(--radius-card)",
       },
     },
   },

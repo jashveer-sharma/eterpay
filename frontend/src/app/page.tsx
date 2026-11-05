@@ -18,20 +18,29 @@ import {
   Calculator,
   Layers,
   ArrowUpRight,
+  FileText,
+  CreditCard,
+  Building2,
+  User,
+  Plus,
+  Download,
+  ExternalLink,
+  Lock,
+  Wallet,
 } from "lucide-react";
 
-// â”€â”€â”€ AG Grid Community â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AG Grid Community ────────────────────────────────────────────────────────
 import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry, CommunityFeaturesModule, ColDef } from "@ag-grid-community/core";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 
-// â”€â”€â”€ PayPal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PayPal SDK ───────────────────────────────────────────────────────────────
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 ModuleRegistry.registerModules([CommunityFeaturesModule]);
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Types ───────────────────────────────────────────────────────────────────
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -81,12 +90,25 @@ interface LedgerRow {
   timestamp: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "";
+interface InvoiceItem {
+  id: string;
+  client: string;
+  service: string;
+  amount: number;
+  currency: string;
+  dueDate: string;
+  status: "PAID" | "PENDING" | "OVERDUE";
+}
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "";
 
 const PAYPAL_CLIENT_ID =
   process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "sb";
 
-// Mini sparkline renderer using SVG
+// Mini in-cell SVG sparkline renderer
 function Sparkline({ data, color }: { data: number[]; color: string }) {
   if (!data || data.length < 2) return <span className="text-muted">No data</span>;
   const min = Math.min(...data);
@@ -103,13 +125,13 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
   );
 }
 
-// Status badge renderer
+// Status badge renderer for AG Grid
 function StatusBadge({ value }: { value: string }) {
-  const isOk = value === "COMPLETED" || value === "CAPTURED";
+  const isOk = value === "COMPLETED" || value === "CAPTURED" || value === "PAID";
   return (
     <span
       className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-tight ${
-        isOk ? "bg-accent-soft text-accent" : "bg-warning/15 text-warning"
+        isOk ? "bg-success/15 text-success" : "bg-warning/15 text-warning"
       }`}
     >
       {value}
@@ -118,22 +140,29 @@ function StatusBadge({ value }: { value: string }) {
 }
 
 export default function DashboardPage() {
-  // â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Persona Mode: Personal vs Business ─────────────────────────────────────
+  const [persona, setPersona] = useState<"personal" | "business">("personal");
+
+  // ── Active Navigation Tab ──────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "pay" | "invoices" | "rates" | "grid" | "commerce" | "invest"
+  >("overview");
+
+  // ── Chat State ─────────────────────────────────────────────────────────────
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content:
-        "Welcome to EterPay: your AI cross-border financial copilot.\n\nTry asking:\n* 'I am traveling to Tokyo with 150000 INR. Help me plan my budget.'\n* 'Find me a universal travel adapter.'\n* 'Filter my transactions by Travel category.'\n* 'Convert 50000 INR to EUR.'",
+        "Welcome to EterPay: your global financial copilot.\n\nTry asking:\n* 'Plan my Tokyo trip with 150000 INR.'\n* 'Create an invoice for 15000 INR for Acme Corp.'\n* 'Filter transactions by Travel category.'\n* 'Convert 50000 INR to EUR.'",
     },
   ]);
   const [input, setInput] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "grid" | "commerce" | "invest">("overview");
   const [actionProposal, setActionProposal] = useState<ActionProposal | null>(null);
   const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null);
   const [paypalCapture, setPaypalCapture] = useState<{ id: string; status: string } | null>(null);
 
-  // Live data
+  // ── Live Data State ────────────────────────────────────────────────────────
   const [fxRates, setFxRates] = useState<FxRate[]>([]);
   const [fxDate, setFxDate] = useState<string>("");
   const [fxLoading, setFxLoading] = useState(true);
@@ -143,13 +172,26 @@ export default function DashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [ledgerRows, setLedgerRows] = useState<LedgerRow[]>([
-    { orderId: "8AB12345CD67", description: "Tokyo Metro Pass", category: "Travel", amount: "Â¥8,500", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-05 10:12" },
-    { orderId: "7XY98765LK12", description: "Airalo Japan eSIM 10GB", category: "Travel", amount: "â‚¹1,250", currency: "INR", status: "COMPLETED", timestamp: "2026-11-05 09:48" },
-    { orderId: "3MN54321QW99", description: "Ramen Dinner, Ichiran", category: "Dining", amount: "Â¥1,200", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-04 20:30" },
+    { orderId: "8AB12345CD67", description: "Tokyo Metro Pass", category: "Travel", amount: "¥8,500", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-05 10:12" },
+    { orderId: "7XY98765LK12", description: "Airalo Japan eSIM 10GB", category: "Travel", amount: "₹1,250", currency: "INR", status: "COMPLETED", timestamp: "2026-11-05 09:48" },
+    { orderId: "3MN54321QW99", description: "Ramen Dinner, Ichiran", category: "Dining", amount: "¥1,200", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-04 20:30" },
+    { orderId: "6BC98124MN44", description: "Client Retainer (Acme Corp)", category: "Business", amount: "₹45,000", currency: "INR", status: "COMPLETED", timestamp: "2026-11-03 14:15" },
   ]);
   const [gridFilter, setGridFilter] = useState<{ column: string; value: string } | null>(null);
 
-  // Interactive controls
+  // ── Invoices State (EterPay Business) ───────────────────────────────────────
+  const [invoices, setInvoices] = useState<InvoiceItem[]>([
+    { id: "INV-2026-001", client: "Acme Global Corp", service: "Fintech UI Architecture", amount: 45000, currency: "INR", dueDate: "2026-11-15", status: "PAID" },
+    { id: "INV-2026-002", client: "Nexus Media Tokyo", service: "Localization Consulting", amount: 18500, currency: "INR", dueDate: "2026-11-20", status: "PENDING" },
+    { id: "INV-2026-003", client: "Starlight Labs UK", service: "Payment Security Audit", amount: 32000, currency: "INR", dueDate: "2026-11-28", status: "PENDING" },
+  ]);
+
+  // ── Peer Transfer Quick Form ───────────────────────────────────────────────
+  const [transferRecipient, setTransferRecipient] = useState("Rahul Sharma");
+  const [transferAmount, setTransferAmount] = useState(2500);
+  const [transferCurrency, setTransferCurrency] = useState("INR");
+
+  // ── Interactive Controls ───────────────────────────────────────────────────
   const [shockPct, setShockPct] = useState<number>(-5);
   const [calcAmount, setCalcAmount] = useState<number>(10000);
   const [calcTarget, setCalcTarget] = useState<string>("USD");
@@ -157,22 +199,19 @@ export default function DashboardPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<AgGridReact>(null);
 
-  // â”€â”€â”€ Load Live Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Load Live Data ─────────────────────────────────────────────────────────
   const loadFxRates = useCallback(async () => {
     setFxLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/currency/rates?base=INR`);
       const data = await res.json();
       const rates: FxRate[] = Object.entries(data.rates as Record<string, number>).map(
-        ([currency, rate]) => ({
-          currency,
-          rate,
-        })
+        ([currency, rate]) => ({ currency, rate })
       );
       setFxRates(rates);
       setFxDate(data.date || "");
     } catch {
-      // keep empty
+      // Fallback in case of network issue
     } finally {
       setFxLoading(false);
     }
@@ -186,7 +225,7 @@ export default function DashboardPage() {
       setPortfolio(data.items || []);
       setPortfolioDisclaimer(data.simulation_disclaimer || "");
     } catch {
-      /* keep empty */
+      // Keep empty
     } finally {
       setPortfolioLoading(false);
     }
@@ -199,7 +238,7 @@ export default function DashboardPage() {
       const data = await res.json();
       setProducts(data.value || (Array.isArray(data) ? data : []));
     } catch {
-      /* keep empty */
+      // Keep empty
     } finally {
       setProductsLoading(false);
     }
@@ -226,7 +265,7 @@ export default function DashboardPage() {
     }
   }, [gridFilter]);
 
-  // â”€â”€â”€ Chat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Send Chat Message ──────────────────────────────────────────────────────
   const sendMessage = async (overrideText?: string) => {
     const textToSend = overrideText !== undefined ? overrideText : input;
     if (!textToSend.trim()) return;
@@ -240,7 +279,10 @@ export default function DashboardPage() {
       const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: textToSend, history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })) }),
+        body: JSON.stringify({
+          message: textToSend,
+          history: messages.slice(-8).map((m) => ({ role: m.role, content: m.content })),
+        }),
       });
       const data = await res.json();
 
@@ -261,7 +303,7 @@ export default function DashboardPage() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Connection error: check whether backend runs on port 8000" },
+        { role: "assistant", content: "Connection error: please verify backend is running on port 8000." },
       ]);
     } finally {
       setIsChatLoading(false);
@@ -272,7 +314,7 @@ export default function DashboardPage() {
     sendMessage(promptText);
   };
 
-  // â”€â”€â”€ PayPal Integration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── PayPal Integration ─────────────────────────────────────────────────────
   const createOrder = async () => {
     if (!actionProposal?.amount || !actionProposal?.currency) {
       return "mock-order-id";
@@ -306,7 +348,7 @@ export default function DashboardPage() {
       const capture = await res.json();
       setPaypalCapture({ id: data.orderID, status: capture.status || "CAPTURED" });
 
-      // Add to ledger
+      // Add to AG Grid ledger
       const newRow: LedgerRow = {
         orderId: data.orderID.slice(0, 12),
         description: actionProposal?.description || "PayPal Purchase",
@@ -333,109 +375,194 @@ export default function DashboardPage() {
     }
   };
 
-  // â”€â”€â”€ AG Grid Column Defs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── AG Grid Column Definitions ─────────────────────────────────────────────
   const ledgerColDefs: ColDef[] = [
-    { field: "orderId", headerName: "Order ID", width: 130, cellStyle: { fontFamily: "monospace", color: "var(--color-muted)" } },
+    { field: "orderId", headerName: "Order ID", width: 130, cellStyle: { fontFamily: "monospace", color: "var(--color-ash)" } },
     { field: "description", headerName: "Description", flex: 1, filter: "agTextColumnFilter" },
     {
-      field: "category", headerName: "Category", width: 110,
+      field: "category",
+      headerName: "Category",
+      width: 110,
       filter: "agTextColumnFilter",
       cellRenderer: (params: { value: string }) => (
-        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-periwinkle-soft text-periwinkle">
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cobalt/15 text-cobalt border border-cobalt/20">
           {params.value}
         </span>
       ),
     },
-    { field: "amount", headerName: "Amount", width: 110, cellStyle: { fontWeight: "600", color: "var(--color-ink)" } },
-    { field: "currency", headerName: "CCY", width: 70, cellStyle: { color: "var(--color-muted)" } },
+    { field: "amount", headerName: "Amount", width: 110, cellStyle: { fontWeight: "600", color: "var(--color-ivory)" } },
+    { field: "currency", headerName: "CCY", width: 70, cellStyle: { color: "var(--color-ash)" } },
     {
-      field: "status", headerName: "Status", width: 115,
+      field: "status",
+      headerName: "Status",
+      width: 115,
       cellRenderer: (params: { value: string }) => <StatusBadge value={params.value} />,
     },
-    { field: "timestamp", headerName: "Time", width: 130, cellStyle: { color: "var(--color-muted)", fontSize: "11px" } },
+    { field: "timestamp", headerName: "Time", width: 130, cellStyle: { color: "var(--color-ash)", fontSize: "11px" } },
   ];
 
   const selectedRate = fxRates.find((r) => r.currency === calcTarget)?.rate || 0.0119;
   const calcResult = (calcAmount * selectedRate).toFixed(2);
   const shockImpactInr = Math.round((30000 * shockPct) / 100);
 
-  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
-      <div className="flex flex-col h-screen bg-paper text-ink overflow-hidden">
+      <div className="flex flex-col h-screen bg-onyx text-ivory overflow-hidden">
 
-        {/* â”€â”€ Hallmark Dusk Navigation Header â”€â”€ */}
-        <header className="flex items-center justify-between px-6 py-3.5 border-b border-rule bg-paper-2/80 backdrop-blur-md shrink-0">
+        {/* ── Mercury Frosted Top Navigation Bar ──────────────────────────── */}
+        <header className="flex items-center justify-between px-6 py-3 border-b border-hairline bg-carbon/90 backdrop-blur-md shrink-0">
+          
+          {/* Brand Mark: Concentric Rings + Wordmark */}
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-periwinkle to-accent flex items-center justify-center font-bold text-accent-ink text-sm shadow-sm">
-              E
+            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cobalt to-indigo-400 flex items-center justify-center shadow-sm">
+              <div className="w-3.5 h-3.5 rounded-full border border-white/60 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+              </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="font-semibold text-lg tracking-tight text-white">EterPay</span>
-              <span className="text-[10px] text-muted">Global Financial Orchestrator</span>
+              <span className="font-semibold text-base tracking-tight text-ivory">EterPay</span>
+              <span className="hidden sm:inline text-[11px] text-ash">Global Financial Operating System</span>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-soft border border-accent/20 text-accent font-medium ml-2">
-              Sandbox Active
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cobalt/15 border border-cobalt/25 text-cobalt font-medium ml-1">
+              Sandbox Live
             </span>
           </div>
 
-          {/* Live Rates Ticker */}
-          <div className="hidden md:flex items-center gap-6 text-xs text-muted">
-            {fxLoading ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-muted" aria-hidden="true" />
-            ) : (
-              fxRates.slice(0, 4).map((r) => (
-                <div key={r.currency} className="flex items-center gap-1.5">
-                  <span className="px-1 py-0.5 rounded bg-paper-3 text-[10px] text-ink-2 font-mono">{r.currency}</span>
-                  <span className="text-ink-2 font-mono">{r.rate.toFixed(4)}</span>
-                </div>
-              ))
-            )}
-            {fxDate && <span className="text-[11px] text-muted">ECB Source: {fxDate}</span>}
+          {/* Central Module Navigation Pills */}
+          <nav className="hidden xl:flex items-center gap-1 text-xs">
+            {([
+              { id: "overview", label: "Overview", icon: Globe },
+              { id: "pay", label: "Pay & Transfer", icon: Send },
+              { id: "invoices", label: "Invoicing", icon: FileText },
+              { id: "rates", label: "Rates & FX", icon: Calculator },
+              { id: "grid", label: "Audit Ledger", icon: TrendingUp },
+              { id: "commerce", label: "Commerce", icon: ShoppingBag },
+              { id: "invest", label: "Invest & Risk", icon: Layers },
+            ] as const).map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition flex items-center gap-1.5 ${
+                  activeTab === id
+                    ? "bg-cobalt text-white shadow-sm"
+                    : "text-ash hover:text-ivory hover:bg-obsidian"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Right Controls: Persona Switcher & Primary Action */}
+          <div className="flex items-center gap-3 text-xs">
+            {/* Persona Switcher (Personal vs Business) */}
+            <div className="flex items-center p-0.5 rounded-full bg-obsidian border border-hairline">
+              <button
+                onClick={() => setPersona("personal")}
+                className={`px-3 py-1 rounded-full text-[11px] font-medium transition flex items-center gap-1 ${
+                  persona === "personal"
+                    ? "bg-graphite text-ivory shadow-sm border border-hairline"
+                    : "text-ash hover:text-ivory"
+                }`}
+              >
+                <User className="w-3 h-3" aria-hidden="true" />
+                Personal
+              </button>
+              <button
+                onClick={() => setPersona("business")}
+                className={`px-3 py-1 rounded-full text-[11px] font-medium transition flex items-center gap-1 ${
+                  persona === "business"
+                    ? "bg-graphite text-ivory shadow-sm border border-hairline"
+                    : "text-ash hover:text-ivory"
+                }`}
+              >
+                <Building2 className="w-3 h-3" aria-hidden="true" />
+                Business
+              </button>
+            </div>
+
+            {/* Mercury Cobalt Primary Action Button */}
             <button
-              onClick={loadFxRates}
-              title="Refresh ECB Rates"
-              className="p-1 rounded hover:bg-white/5 text-muted hover:text-white transition"
+              onClick={() => {
+                if (persona === "business") {
+                  handleQuickPrompt("Create an invoice for 25000 INR for Starlight Labs UK");
+                } else {
+                  handleQuickPrompt("Send 2500 INR to Rahul for hotel booking");
+                }
+              }}
+              className="px-4 py-1.5 rounded-full bg-cobalt hover:bg-cobalt-hover text-white font-medium text-xs transition flex items-center gap-1.5 shadow-sm"
             >
-              <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+              <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{persona === "business" ? "New Invoice" : "Send Money"}</span>
             </button>
           </div>
         </header>
 
-        {/* â”€â”€ Two-Column Dusk Financial Cockpit â”€â”€ */}
+        {/* ── Subheader Ticker Strip: Live ECB Exchange Rates ──────────────── */}
+        <div className="px-6 py-2 border-b border-hairline bg-onyx/80 flex items-center justify-between text-[11px] text-ash shrink-0">
+          <div className="flex items-center gap-6 overflow-x-auto">
+            <span className="font-medium text-ivory flex items-center gap-1">
+              <Globe className="w-3 h-3 text-cobalt" aria-hidden="true" /> Live ECB Reference Rates:
+            </span>
+            {fxLoading ? (
+              <span className="flex items-center gap-1.5 text-ash">
+                <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> Synchronizing rates...
+              </span>
+            ) : (
+              fxRates.slice(0, 5).map((r) => (
+                <div key={r.currency} className="flex items-center gap-1 font-mono">
+                  <span className="text-ivory">{r.currency}:</span>
+                  <span className="text-ash">{r.rate.toFixed(4)}</span>
+                </div>
+              ))
+            )}
+            {fxDate && <span className="text-muted hidden md:inline">Source: European Central Bank ({fxDate})</span>}
+          </div>
+          <button
+            onClick={loadFxRates}
+            title="Refresh Exchange Rates"
+            className="p-1 rounded hover:bg-obsidian text-ash hover:text-ivory transition"
+          >
+            <RefreshCw className="w-3 h-3" aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* ── Two-Column Cockpit (Mercury Graphite Cards) ──────────────────── */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
 
-          {/* â•â• Left Column: Conversational AI Copilot (5 cols) â•â• */}
-          <div className="lg:col-span-5 flex flex-col border-r border-rule bg-paper-2/70 backdrop-blur-md overflow-hidden">
+          {/* ════ Left Column: Conversational AI Copilot (5 cols) ════ */}
+          <div className="lg:col-span-5 flex flex-col border-r border-hairline bg-carbon/50 overflow-hidden">
             {/* Copilot Header */}
-            <div className="p-4 border-b border-rule flex items-center justify-between shrink-0">
+            <div className="p-4 border-b border-hairline flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-md bg-periwinkle-soft flex items-center justify-center text-periwinkle">
+                <div className="w-6 h-6 rounded-md bg-cobalt/15 flex items-center justify-center text-cobalt">
                   <Bot className="w-4 h-4" aria-hidden="true" />
                 </div>
                 <div>
-                  <h2 className="font-medium text-sm text-white">EterPay AI Copilot</h2>
-                  <p className="text-[11px] text-muted">Multi-currency routing and tool dispatch</p>
+                  <h2 className="font-medium text-xs text-ivory">EterPay AI Copilot</h2>
+                  <p className="text-[10px] text-ash">Multi-tier model routing and structured tool calling</p>
                 </div>
               </div>
-              <span className="text-[11px] text-accent flex items-center gap-1.5 bg-accent-soft px-2 py-0.5 rounded-full border border-accent/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse motion-reduce:animate-none"></span>
+              <span className="text-[10px] text-cobalt flex items-center gap-1.5 bg-cobalt/15 px-2.5 py-0.5 rounded-full border border-cobalt/25 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-cobalt animate-pulse motion-reduce:animate-none"></span>
                 Gemini 1.5 Flash
               </span>
             </div>
 
-            {/* Quick Action Capsules */}
-            <div className="p-3 border-b border-rule flex gap-2 overflow-x-auto text-xs shrink-0">
+            {/* Quick Action Pills (Mercury Style) */}
+            <div className="p-3 border-b border-hairline flex gap-2 overflow-x-auto text-xs shrink-0">
               {[
                 { label: "Plan Tokyo Trip", prompt: "I am traveling to Tokyo with 150000 INR. Help me plan my budget." },
-                { label: "Shop Adapter", prompt: "Find me a universal travel adapter." },
-                { label: "Filter Ledger", prompt: "Filter my transactions by Travel category." },
+                { label: "Send to Rahul", prompt: "Send 2500 INR to Rahul for hotel booking." },
+                { label: "Create Invoice", prompt: "Create an invoice for 15000 INR for Acme Corp." },
+                { label: "Filter Travel", prompt: "Filter my transactions by Travel category." },
                 { label: "Convert INR to EUR", prompt: "Convert 50000 INR to EUR." },
               ].map((q) => (
                 <button
                   key={q.label}
                   onClick={() => handleQuickPrompt(q.prompt)}
-                  className="px-3 py-1 rounded-full bg-paper-3 hover:bg-rule text-ink-2 hover:text-white border border-rule whitespace-nowrap transition text-[11px]"
+                  className="px-3 py-1 rounded-full bg-obsidian hover:bg-graphite text-ash hover:text-ivory border border-hairline whitespace-nowrap transition text-[11px]"
                 >
                   {q.label}
                 </button>
@@ -450,15 +577,15 @@ export default function DashboardPage() {
                   className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {m.role === "assistant" && (
-                    <div className="w-6 h-6 rounded-full bg-paper-3 border border-rule flex items-center justify-center shrink-0 mt-0.5 text-accent">
+                    <div className="w-6 h-6 rounded-full bg-obsidian border border-hairline flex items-center justify-center shrink-0 mt-0.5 text-cobalt">
                       <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                     </div>
                   )}
                   <div
                     className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-relaxed whitespace-pre-line ${
                       m.role === "user"
-                        ? "bg-accent text-accent-ink font-medium shadow-sm"
-                        : "hallmark-glass text-ink rounded-tl-sm"
+                        ? "bg-cobalt text-white font-medium shadow-sm"
+                        : "mercury-card text-ivory rounded-tl-sm"
                     }`}
                   >
                     {m.content}
@@ -468,43 +595,45 @@ export default function DashboardPage() {
 
               {isChatLoading && (
                 <div className="flex gap-3 justify-start">
-                  <div className="w-6 h-6 rounded-full bg-paper-3 flex items-center justify-center shrink-0">
-                    <Loader2 className="w-3.5 h-3.5 text-accent animate-spin" aria-hidden="true" />
+                  <div className="w-6 h-6 rounded-full bg-obsidian flex items-center justify-center shrink-0">
+                    <Loader2 className="w-3.5 h-3.5 text-cobalt animate-spin" aria-hidden="true" />
                   </div>
-                  <div className="p-3 rounded-2xl hallmark-glass text-muted text-xs">
-                    Synthesizing response and evaluating tools…
+                  <div className="p-3 rounded-2xl mercury-card text-ash text-xs">
+                    Evaluating financial tools and dispatching intent...
                   </div>
                 </div>
               )}
 
-              {/* â”€â”€ Deterministic Payment Gate (Hallmark Smoked Glass Lit) â”€â”€ */}
+              {/* ── Brex Ember Spark Card: Deterministic Payment Gate ─────── */}
               {actionProposal && actionProposal.requires_approval && !paypalCapture && (
-                <div className="p-4 rounded-xl hallmark-glass-lit text-xs space-y-3.5 border-l-2 border-l-accent">
+                <div className="p-4 brex-ember-gate text-xs space-y-3.5 border-l-2 border-l-ember">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-accent flex items-center gap-1.5 text-xs">
+                    <span className="font-semibold text-ember flex items-center gap-1.5 text-xs">
                       <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Deterministic Payment Gate
                     </span>
-                    <span className="text-[10px] text-muted">Human Authorization Required</span>
+                    <span className="text-[10px] text-ash bg-obsidian px-2 py-0.5 rounded-full border border-hairline">
+                      Human Approval Required
+                    </span>
                   </div>
-                  <div className="text-sm font-semibold text-white">{actionProposal.title}</div>
-                  <div className="text-xs text-ink-2 leading-relaxed">{actionProposal.description}</div>
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-paper border border-rule">
+                  <div className="text-sm font-semibold text-ivory">{actionProposal.title}</div>
+                  <div className="text-xs text-ash leading-relaxed">{actionProposal.description}</div>
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-onyx border border-hairline">
                     {actionProposal.merchant && (
-                      <span className="text-muted">
-                        Merchant: <strong className="text-white ml-1">{actionProposal.merchant}</strong>
+                      <span className="text-ash">
+                        Merchant: <strong className="text-ivory ml-1">{actionProposal.merchant}</strong>
                       </span>
                     )}
                     {actionProposal.amount && (
-                      <span className="text-muted">
+                      <span className="text-ash">
                         Total:{" "}
-                        <strong className="text-accent text-sm ml-1">
+                        <strong className="text-ember text-sm ml-1">
                           ${actionProposal.amount.toFixed(2)} {actionProposal.currency}
                         </strong>
                       </span>
                     )}
                   </div>
 
-                  {/* Real PayPal Buttons */}
+                  {/* Real PayPal JS SDK Smart Button */}
                   <div className="pt-1">
                     <PayPalButtons
                       style={{ layout: "horizontal", color: "gold", shape: "rect", label: "pay", height: 38 }}
@@ -513,19 +642,19 @@ export default function DashboardPage() {
                       onError={() =>
                         setMessages((prev) => [
                           ...prev,
-                          { role: "assistant", content: "PayPal authorization error: check sandbox environment." },
+                          { role: "assistant", content: "PayPal authorization error: check sandbox credentials." },
                         ])
                       }
                     />
                   </div>
-                  <div className="text-[10px] text-muted text-center">
+                  <div className="text-[10px] text-ash text-center">
                     PayPal Orders v2 Sandbox: zero real capital at risk, backend idempotency enforced
                   </div>
                 </div>
               )}
 
               {paypalCapture && (
-                <div className="p-3.5 rounded-xl border border-accent/30 bg-accent-soft text-xs flex items-center gap-2 text-accent font-medium">
+                <div className="p-3.5 rounded-xl border border-success/30 bg-success/10 text-xs flex items-center gap-2 text-success font-medium">
                   <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
                   Transaction verified: Order {paypalCapture.id.slice(0, 12)} (Status: {paypalCapture.status})
                 </div>
@@ -535,20 +664,20 @@ export default function DashboardPage() {
             </div>
 
             {/* Input Bar */}
-            <div className="p-3 border-t border-rule bg-paper-2 shrink-0">
+            <div className="p-3 border-t border-hairline bg-carbon shrink-0">
               <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Plan an international trip, query live FX, or prepare checkout…"
-                  className="flex-1 bg-paper-3 border border-rule rounded-xl px-4 py-2.5 text-xs text-white placeholder-muted focus:outline-none focus:border-periwinkle"
+                  placeholder="Plan a trip, draft an invoice, convert currency, or prepare checkout..."
+                  className="flex-1 bg-obsidian border border-hairline rounded-full px-4 py-2.5 text-xs text-ivory placeholder-muted focus:outline-none focus:border-cobalt"
                   disabled={isChatLoading}
                 />
                 <button
                   type="submit"
                   disabled={isChatLoading}
-                  className="px-3.5 py-2.5 bg-accent text-accent-ink font-semibold rounded-xl hover:bg-emerald-400 transition disabled:opacity-40"
+                  className="px-4 py-2.5 bg-cobalt hover:bg-cobalt-hover text-white font-medium rounded-full transition disabled:opacity-40"
                 >
                   {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Send className="w-4 h-4" aria-hidden="true" />}
                 </button>
@@ -556,157 +685,312 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* â•â• Right Column: Financial Workbench (7 cols) â•â• */}
-          <div className="lg:col-span-7 flex flex-col bg-paper overflow-hidden">
-            {/* Dusk Navigation Tabs */}
-            <div className="flex border-b border-rule px-6 pt-3 bg-paper-2/60 gap-8 text-xs shrink-0">
+          {/* ════ Right Column: Financial Workbench (7 cols) ════ */}
+          <div className="lg:col-span-7 flex flex-col bg-onyx overflow-hidden">
+            {/* Workbench Tab Selector (for smaller screens) */}
+            <div className="xl:hidden flex border-b border-hairline px-6 pt-3 bg-carbon/60 gap-4 text-xs overflow-x-auto shrink-0">
               {([
-                { id: "overview", icon: Globe, label: "Treasury and Rates" },
-                { id: "grid", icon: TrendingUp, label: "AG Grid Ledger" },
-                { id: "commerce", icon: ShoppingBag, label: "Agentic Commerce" },
-                { id: "invest", icon: Layers, label: "Portfolio and Risk" },
-              ] as const).map(({ id, icon: Icon, label }) => (
+                { id: "overview", label: "Overview" },
+                { id: "pay", label: "Pay" },
+                { id: "invoices", label: "Invoices" },
+                { id: "rates", label: "Rates" },
+                { id: "grid", label: "Ledger" },
+                { id: "commerce", label: "Commerce" },
+                { id: "invest", label: "Invest" },
+              ] as const).map(({ id, label }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`pb-3 font-medium transition border-b-2 flex items-center gap-2 ${
+                  className={`pb-2.5 font-medium transition border-b-2 text-xs ${
                     activeTab === id
-                      ? "border-accent text-accent"
-                      : "border-transparent text-muted hover:text-white"
+                      ? "border-cobalt text-cobalt"
+                      : "border-transparent text-ash hover:text-ivory"
                   }`}
                 >
-                  <Icon className="w-4 h-4" aria-hidden="true" /> {label}
+                  {label}
                 </button>
               ))}
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-              {/* â”€â”€ 1. Treasury & Rates Tab â”€â”€ */}
+              {/* ── 1. Overview Tab ────────────────────────────────────────── */}
               {activeTab === "overview" && (
                 <div className="space-y-6">
-                  {/* Executive Balance Stage (Smoked Glass Cards) */}
+                  {/* Executive Balance Stage (Graphite Cards) */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl hallmark-glass">
-                      <div className="text-xs text-muted font-medium">Liquid Treasury</div>
-                      <div className="text-2xl font-bold mt-1 text-white tracking-tight">â‚¹1,50,000 <span className="text-xs font-normal text-muted">INR</span></div>
-                      <div className="text-xs text-accent mt-1.5 flex items-center gap-1">
-                        â‰ˆ ${fxRates.find(r => r.currency === "USD") ? (150000 * (fxRates.find(r => r.currency === "USD")!.rate)).toFixed(2) : "…"} USD
-                      </div>
-                    </div>
-                    <div className="p-4 rounded-xl hallmark-glass">
-                      <div className="text-xs text-muted font-medium">Tokyo Travel Allocation</div>
-                      <div className="text-2xl font-bold mt-1 text-periwinkle tracking-tight">
-                        Â¥{fxRates.find(r => r.currency === "JPY") ? Math.round(150000 * (fxRates.find(r => r.currency === "JPY")!.rate)).toLocaleString() : "…"} <span className="text-xs font-normal text-muted">JPY</span>
-                      </div>
-                      <div className="text-xs text-ink-2 mt-1.5">Live ECB reference rate</div>
-                    </div>
-                    <div className="p-4 rounded-xl hallmark-glass">
-                      <div className="text-xs text-muted font-medium">Fee Markups Eliminated</div>
-                      <div className="text-2xl font-bold mt-1 text-accent tracking-tight">â‚¹5,700 <span className="text-xs font-normal text-muted">INR</span></div>
-                      <div className="text-xs text-muted mt-1.5">vs standard 4.5% bank spread</div>
-                    </div>
+                    {persona === "personal" ? (
+                      <>
+                        <div className="p-5 mercury-card">
+                          <div className="text-xs text-ash font-medium flex items-center justify-between">
+                            <span>Liquid Treasury</span>
+                            <Wallet className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
+                          </div>
+                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight">₹1,50,000 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-xs text-cobalt mt-1.5 flex items-center gap-1">
+                            ≈ ${fxRates.find(r => r.currency === "USD") ? (150000 * (fxRates.find(r => r.currency === "USD")!.rate)).toFixed(2) : "..."} USD
+                          </div>
+                        </div>
+                        <div className="p-5 mercury-card">
+                          <div className="text-xs text-ash font-medium flex items-center justify-between">
+                            <span>Tokyo Travel Allocation</span>
+                            <Globe className="w-3.5 h-3.5 text-indigo-400" aria-hidden="true" />
+                          </div>
+                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight">
+                            ¥{fxRates.find(r => r.currency === "JPY") ? Math.round(150000 * (fxRates.find(r => r.currency === "JPY")!.rate)).toLocaleString() : "..."} <span className="text-xs font-normal text-ash">JPY</span>
+                          </div>
+                          <div className="text-xs text-ash mt-1.5">Live ECB reference rate</div>
+                        </div>
+                        <div className="p-5 mercury-card">
+                          <div className="text-xs text-ash font-medium flex items-center justify-between">
+                            <span>Fee Markups Eliminated</span>
+                            <ShieldCheck className="w-3.5 h-3.5 text-success" aria-hidden="true" />
+                          </div>
+                          <div className="text-2xl font-semibold mt-1.5 text-success tracking-tight">₹5,700 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-xs text-ash mt-1.5">vs standard 4.5% bank spread</div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="p-5 mercury-card">
+                          <div className="text-xs text-ash font-medium flex items-center justify-between">
+                            <span>Gross Merchant Volume</span>
+                            <Building2 className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
+                          </div>
+                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight">₹95,500 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-xs text-cobalt mt-1.5">+18.4% vs previous 30 days</div>
+                        </div>
+                        <div className="p-5 mercury-card">
+                          <div className="text-xs text-ash font-medium flex items-center justify-between">
+                            <span>Outstanding Invoices</span>
+                            <FileText className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
+                          </div>
+                          <div className="text-2xl font-semibold mt-1.5 text-warning tracking-tight">₹50,500 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-xs text-ash mt-1.5">2 pending client receipts</div>
+                        </div>
+                        <div className="p-5 mercury-card">
+                          <div className="text-xs text-ash font-medium flex items-center justify-between">
+                            <span>Dispute Rate</span>
+                            <ShieldCheck className="w-3.5 h-3.5 text-success" aria-hidden="true" />
+                          </div>
+                          <div className="text-2xl font-semibold mt-1.5 text-success tracking-tight">0.00%</div>
+                          <div className="text-xs text-ash mt-1.5">PayPal Protection active</div>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Interactive Currency Converter */}
-                  <div className="p-5 rounded-xl hallmark-glass space-y-3.5">
+                  <div className="p-5 mercury-card space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-sm text-white flex items-center gap-2">
-                        <Calculator className="w-4 h-4 text-periwinkle" aria-hidden="true" /> Live ECB Currency Calculator
+                      <h3 className="font-medium text-sm text-ivory flex items-center gap-2">
+                        <Calculator className="w-4 h-4 text-cobalt" aria-hidden="true" /> Live European Central Bank Calculator
                       </h3>
-                      <span className="text-[10px] text-accent bg-accent-soft px-2 py-0.5 rounded-full border border-accent/20">
+                      <span className="text-[10px] text-cobalt bg-cobalt/15 px-2.5 py-0.5 rounded-full border border-cobalt/25 font-medium">
                         Zero Bank Margins
                       </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
                       <div>
-                        <label className="text-[11px] text-muted block mb-1">Source Amount (INR)</label>
+                        <label className="text-[11px] text-ash block mb-1">Source Amount (INR)</label>
                         <input
                           type="number"
                           value={calcAmount}
                           onChange={(e) => setCalcAmount(Number(e.target.value) || 0)}
-                          className="w-full bg-paper-3 border border-rule rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-periwinkle"
+                          className="w-full bg-obsidian border border-hairline rounded-full px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-muted block mb-1">Target Currency</label>
+                        <label className="text-[11px] text-ash block mb-1">Target Currency</label>
                         <select
                           value={calcTarget}
                           onChange={(e) => setCalcTarget(e.target.value)}
-                          className="w-full bg-paper-3 border border-rule rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-periwinkle"
+                          className="w-full bg-obsidian border border-hairline rounded-full px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt"
                         >
                           {fxRates.map((r) => (
-                            <option key={r.currency} value={r.currency} className="bg-paper-3">
+                            <option key={r.currency} value={r.currency} className="bg-graphite">
                               {r.currency}
                             </option>
                           ))}
                         </select>
                       </div>
-                      <div className="md:col-span-2 p-3 rounded-lg bg-paper border border-rule flex items-center justify-between">
+                      <div className="md:col-span-2 p-3.5 rounded-xl bg-onyx border border-hairline flex items-center justify-between">
                         <div>
-                          <div className="text-[10px] text-muted">Converted Equivalent</div>
-                          <div className="text-base font-semibold text-accent">
+                          <div className="text-[10px] text-ash">Converted Equivalent</div>
+                          <div className="text-base font-semibold text-ivory">
                             {Number(calcResult).toLocaleString()} {calcTarget}
                           </div>
                         </div>
-                        <div className="text-right text-[11px] text-muted">
+                        <div className="text-right text-[11px] text-ash">
                           <div>Rate: {selectedRate.toFixed(4)}</div>
-                          <div className="text-periwinkle">Bank Fee Saved: â‚¹{(calcAmount * 0.045).toFixed(0)}</div>
+                          <div className="text-cobalt font-medium">Bank Fee Saved: ₹{(calcAmount * 0.045).toFixed(0)}</div>
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Live FX Rates Table */}
-                  <div className="p-5 rounded-xl hallmark-glass space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-sm text-white">Live ECB Reference Rates (INR Base)</h3>
-                      <span className="text-[11px] text-muted font-mono">
-                        {fxDate ? `Synchronized ${fxDate}` : "Querying ECB…"}
-                      </span>
-                    </div>
-                    {fxLoading ? (
-                      <div className="flex items-center gap-2 text-xs text-muted py-4">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Retrieving exchange rates…
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-rule text-xs">
-                        <div className="grid grid-cols-4 py-2 font-medium text-muted">
-                          <span>CURRENCY</span>
-                          <span>1 INR VALUE</span>
-                          <span>150000 INR VALUE</span>
-                          <span>SPREAD</span>
-                        </div>
-                        {fxRates.map((r) => (
-                          <div key={r.currency} className="grid grid-cols-4 py-2.5 items-center">
-                            <span className="font-medium text-white flex items-center gap-1.5">
-                              <span className="px-1.5 py-0.5 rounded bg-paper-3 text-[10px] font-mono text-ink-2">{r.currency}</span>
-                            </span>
-                            <span className="font-mono text-ink-2">{r.rate.toFixed(4)}</span>
-                            <span className="font-medium text-accent">
-                              {(150000 * r.rate).toLocaleString(undefined, { maximumFractionDigits: 0 })} {r.currency}
-                            </span>
-                            <span className="text-muted font-mono">0.0% Interbank</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
 
-              {/* â”€â”€ 2. AG Grid Ledger Tab â”€â”€ */}
+              {/* ── 2. Pay & Transfer Tab ──────────────────────────────────── */}
+              {activeTab === "pay" && (
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-sm text-ivory flex items-center gap-2">
+                      <Send className="w-4 h-4 text-cobalt" aria-hidden="true" /> Peer Payment & Money Movement
+                    </h3>
+                    <span className="text-xs text-ash">Deterministic approval gate enforced</span>
+                  </div>
+
+                  <div className="p-6 mercury-card space-y-4">
+                    <div className="text-xs text-ash leading-relaxed">
+                      Prepare a peer transfer to another EterPay or PayPal sandbox recipient. The AI copilot will compute applicable currency conversions and present an explicit approval gate before funds move.
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[11px] text-ash block mb-1">Recipient Name / Email</label>
+                        <input
+                          type="text"
+                          value={transferRecipient}
+                          onChange={(e) => setTransferRecipient(e.target.value)}
+                          className="w-full bg-obsidian border border-hairline rounded-full px-4 py-2 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-ash block mb-1">Amount</label>
+                        <input
+                          type="number"
+                          value={transferAmount}
+                          onChange={(e) => setTransferAmount(Number(e.target.value) || 0)}
+                          className="w-full bg-obsidian border border-hairline rounded-full px-4 py-2 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-ash block mb-1">Currency</label>
+                        <select
+                          value={transferCurrency}
+                          onChange={(e) => setTransferCurrency(e.target.value)}
+                          className="w-full bg-obsidian border border-hairline rounded-full px-4 py-2 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                        >
+                          <option value="INR" className="bg-graphite">INR (Indian Rupee)</option>
+                          <option value="USD" className="bg-graphite">USD (US Dollar)</option>
+                          <option value="EUR" className="bg-graphite">EUR (Euro)</option>
+                          <option value="JPY" className="bg-graphite">JPY (Japanese Yen)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleQuickPrompt(`Send ${transferAmount} ${transferCurrency} to ${transferRecipient} for payment`)}
+                      className="px-5 py-2.5 rounded-full bg-cobalt hover:bg-cobalt-hover text-white font-medium text-xs transition flex items-center gap-1.5 shadow-sm"
+                    >
+                      <span>Prepare Transfer via Copilot</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── 3. Invoicing Tab ───────────────────────────────────────── */}
+              {activeTab === "invoices" && (
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-sm text-ivory flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-cobalt" aria-hidden="true" /> Smart Invoicing & Accounts Receivable
+                    </h3>
+                    <button
+                      onClick={() => handleQuickPrompt("Create an invoice for 20000 INR for Nexus Media Tokyo due in 14 days")}
+                      className="px-3.5 py-1.5 rounded-full bg-cobalt hover:bg-cobalt-hover text-white text-xs font-medium transition flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" aria-hidden="true" /> New Invoice with AI
+                    </button>
+                  </div>
+
+                  <div className="p-5 mercury-card space-y-4">
+                    <div className="divide-y divide-hairline text-xs">
+                      <div className="grid grid-cols-6 py-2 font-medium text-ash">
+                        <span>INVOICE ID</span>
+                        <span className="col-span-2">CLIENT & SERVICE</span>
+                        <span>DUE DATE</span>
+                        <span>AMOUNT</span>
+                        <span className="text-right">ACTION</span>
+                      </div>
+                      {invoices.map((inv) => (
+                        <div key={inv.id} className="grid grid-cols-6 py-3 items-center">
+                          <span className="font-mono text-ivory">{inv.id}</span>
+                          <div className="col-span-2">
+                            <div className="font-medium text-ivory">{inv.client}</div>
+                            <div className="text-[11px] text-ash">{inv.service}</div>
+                          </div>
+                          <span className="text-ash">{inv.dueDate}</span>
+                          <div>
+                            <span className="font-semibold text-ivory">₹{inv.amount.toLocaleString()}</span>{" "}
+                            <span className="text-[10px] text-ash">{inv.currency}</span>
+                          </div>
+                          <div className="text-right flex items-center justify-end gap-2">
+                            <StatusBadge value={inv.status} />
+                            <button
+                              onClick={() => handleQuickPrompt(`Show invoice details for ${inv.id}`)}
+                              title="Download PDF"
+                              className="p-1 rounded hover:bg-obsidian text-ash hover:text-ivory"
+                            >
+                              <Download className="w-3.5 h-3.5" aria-hidden="true" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── 4. Rates & FX Tab ──────────────────────────────────────── */}
+              {activeTab === "rates" && (
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-sm text-ivory flex items-center gap-2">
+                      <Calculator className="w-4 h-4 text-cobalt" aria-hidden="true" /> European Central Bank Reference Exchange
+                    </h3>
+                    <span className="text-xs text-ash font-mono">
+                      {fxDate ? `Synchronized ${fxDate}` : "Querying ECB..."}
+                    </span>
+                  </div>
+
+                  <div className="p-5 mercury-card space-y-3">
+                    <div className="divide-y divide-hairline text-xs">
+                      <div className="grid grid-cols-4 py-2 font-medium text-ash">
+                        <span>CURRENCY</span>
+                        <span>1 INR VALUE</span>
+                        <span>150,000 INR EQUIVALENT</span>
+                        <span>INTERBANK SPREAD</span>
+                      </div>
+                      {fxRates.map((r) => (
+                        <div key={r.currency} className="grid grid-cols-4 py-2.5 items-center">
+                          <span className="font-medium text-ivory flex items-center gap-1.5">
+                            <span className="px-1.5 py-0.5 rounded bg-obsidian text-[10px] font-mono text-ash">{r.currency}</span>
+                          </span>
+                          <span className="font-mono text-ash">{r.rate.toFixed(4)}</span>
+                          <span className="font-medium text-ivory">
+                            {(150000 * r.rate).toLocaleString(undefined, { maximumFractionDigits: 0 })} {r.currency}
+                          </span>
+                          <span className="text-cobalt font-mono">0.0% Interbank</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── 5. AG Grid Ledger Tab ──────────────────────────────────── */}
               {activeTab === "grid" && (
                 <div className="space-y-3.5">
                   <div className="flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <h3 className="font-medium text-sm text-white flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-accent" aria-hidden="true" />
-                        Transaction Audit Ledger (AG Grid Community)
+                      <h3 className="font-medium text-sm text-ivory flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-cobalt" aria-hidden="true" />
+                        Transaction Audit Ledger (AG Grid Community v32)
                       </h3>
                       {/* Filter Capsules */}
                       <div className="flex items-center gap-1.5">
-                        {["ALL", "Travel", "Dining", "Commerce"].map((cat) => (
+                        {["ALL", "Travel", "Dining", "Commerce", "Business"].map((cat) => (
                           <button
                             key={cat}
                             onClick={() => {
@@ -721,10 +1005,10 @@ export default function DashboardPage() {
                                 gridRef.current?.api?.setFilterModel(model);
                               }
                             }}
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] transition ${
+                            className={`px-3 py-0.5 rounded-full text-[11px] transition ${
                               (!gridFilter && cat === "ALL") || gridFilter?.value === cat
-                                ? "bg-accent text-accent-ink font-semibold"
-                                : "bg-paper-3 text-muted hover:text-white border border-rule"
+                                ? "bg-cobalt text-white font-semibold"
+                                : "bg-obsidian text-ash hover:text-ivory border border-hairline"
                             }`}
                           >
                             {cat}
@@ -735,15 +1019,15 @@ export default function DashboardPage() {
 
                     {gridFilter && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-accent bg-accent-soft px-2 py-0.5 rounded-full border border-accent/20">
-                          AI Filter: {gridFilter.column} is &quot;{gridFilter.value}&quot;
+                        <span className="text-xs text-cobalt bg-cobalt/15 px-2.5 py-0.5 rounded-full border border-cobalt/25 font-medium">
+                          AI Filter: {gridFilter.column} = &quot;{gridFilter.value}&quot;
                         </span>
                         <button
                           onClick={() => {
                             setGridFilter(null);
                             gridRef.current?.api?.setFilterModel(null);
                           }}
-                          className="text-muted hover:text-white"
+                          className="text-ash hover:text-ivory"
                         >
                           <XCircle className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
@@ -752,7 +1036,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div
-                    className="ag-theme-alpine-dark rounded-xl overflow-hidden border border-rule shadow-md"
+                    className="ag-theme-alpine-dark rounded-xl overflow-hidden border border-hairline shadow-md"
                     style={{ height: 380 }}
                   >
                     <AgGridReact
@@ -767,46 +1051,46 @@ export default function DashboardPage() {
                       suppressCellFocus={true}
                     />
                   </div>
-                  <div className="text-[11px] text-muted flex items-center justify-between">
+                  <div className="text-[11px] text-ash flex items-center justify-between">
                     <span>AG Grid Community v32 (Client-side row model, dynamic AI filter execution)</span>
-                    <span className="text-accent font-medium">All rows verified</span>
+                    <span className="text-success font-medium">All rows verified</span>
                   </div>
                 </div>
               )}
 
-              {/* â”€â”€ 3. Agentic Commerce Tab (Channel3) â”€â”€ */}
+              {/* ── 6. Agentic Commerce Tab (Channel3) ─────────────────────── */}
               {activeTab === "commerce" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-sm text-white flex items-center gap-2">
-                      <ShoppingBag className="w-4 h-4 text-accent" aria-hidden="true" /> Travel Essentials (Channel3 Product Graph)
+                    <h3 className="font-medium text-sm text-ivory flex items-center gap-2">
+                      <ShoppingBag className="w-4 h-4 text-cobalt" aria-hidden="true" /> Travel Essentials (Channel3 Product Graph)
                     </h3>
-                    <span className="text-xs text-muted">AI destination curation</span>
+                    <span className="text-xs text-ash">AI destination curation</span>
                   </div>
 
                   {productsLoading ? (
-                    <div className="flex items-center gap-2 text-xs text-muted py-6">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Querying product catalog…
+                    <div className="flex items-center gap-2 text-xs text-ash py-6">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Querying product catalog...
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {products.map((p) => (
-                        <div key={p.id} className="p-4 rounded-xl hallmark-glass space-y-3 hover:border-rule-2 transition">
-                          <div className="w-full h-28 rounded-lg bg-paper-2 overflow-hidden flex items-center justify-center">
+                        <div key={p.id} className="p-4 mercury-card space-y-3">
+                          <div className="w-full h-28 rounded-lg bg-obsidian overflow-hidden flex items-center justify-center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
                           </div>
-                          <div className="font-medium text-xs text-white leading-snug">{p.title}</div>
+                          <div className="font-medium text-xs text-ivory leading-snug">{p.title}</div>
                           <div className="flex items-center gap-1 text-[11px] text-warning">
-                            <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {p.rating} (<span className="text-muted">{p.retailer}</span>)
+                            <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {p.rating} (<span className="text-ash">{p.retailer}</span>)
                           </div>
                           <div className="flex items-center justify-between pt-1">
-                            <span className="font-semibold text-accent text-sm">â‚¹{p.price_inr.toLocaleString()}</span>
-                            <span className="text-[11px] text-muted">${p.price_usd} USD</span>
+                            <span className="font-semibold text-ivory text-sm">₹{p.price_inr.toLocaleString()}</span>
+                            <span className="text-[11px] text-ash">${p.price_usd} USD</span>
                           </div>
                           <button
                             onClick={() => handleQuickPrompt(`Buy the ${p.title} for $${p.price_usd}`)}
-                            className="w-full py-2 rounded-lg bg-paper-3 hover:bg-accent hover:text-black font-medium text-xs transition flex items-center justify-center gap-1.5 border border-rule"
+                            className="w-full py-2 rounded-full bg-obsidian hover:bg-cobalt hover:text-white font-medium text-xs transition flex items-center justify-center gap-1.5 border border-hairline"
                           >
                             <span>Prepare Checkout</span>
                             <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -818,7 +1102,7 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* â”€â”€ 4. Portfolio & Risk Tab â”€â”€ */}
+              {/* ── 7. Portfolio & Risk Tab ─────────────────────────────────── */}
               {activeTab === "invest" && (
                 <div className="space-y-4">
                   {/* Mandatory FEMA / Simulation Disclaimer Badge */}
@@ -831,33 +1115,33 @@ export default function DashboardPage() {
                   </div>
 
                   {portfolioLoading ? (
-                    <div className="flex items-center gap-2 text-xs text-muted py-6">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Querying simulated holdings…
+                    <div className="flex items-center gap-2 text-xs text-ash py-6">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Querying simulated holdings...
                     </div>
                   ) : (
-                    <div className="p-5 rounded-xl hallmark-glass space-y-4">
-                      <h3 className="font-medium text-sm text-white">Simulated Currency Portfolio</h3>
-                      <div className="divide-y divide-rule text-xs">
-                        <div className="grid grid-cols-5 py-2 font-medium text-muted">
+                    <div className="p-5 mercury-card space-y-4">
+                      <h3 className="font-medium text-sm text-ivory">Simulated Currency Portfolio</h3>
+                      <div className="divide-y divide-hairline text-xs">
+                        <div className="grid grid-cols-5 py-2 font-medium text-ash">
                           <span>CURRENCY</span>
                           <span>ALLOCATION</span>
                           <span>VALUE INR</span>
-                          <span>UNREALIZED P&amp;L</span>
+                          <span>UNREALIZED P&L</span>
                           <span>7-DAY TREND</span>
                         </div>
                         {portfolio.map((item) => (
                           <div key={item.currency} className="grid grid-cols-5 py-3 items-center">
-                            <span className="font-medium text-white flex items-center gap-1.5">
-                              <span className="px-1.5 py-0.5 rounded bg-paper-3 text-[10px] font-mono text-ink-2">{item.currency}</span>
+                            <span className="font-medium text-ivory flex items-center gap-1.5">
+                              <span className="px-1.5 py-0.5 rounded bg-obsidian text-[10px] font-mono text-ash">{item.currency}</span>
                             </span>
-                            <span className="text-ink-2">{item.allocation_pct}%</span>
-                            <span className="text-white font-medium">â‚¹{item.value_inr.toLocaleString()}</span>
-                            <span className={item.unrealized_pnl_pct >= 0 ? "text-accent font-medium" : "text-danger font-medium"}>
+                            <span className="text-ash">{item.allocation_pct}%</span>
+                            <span className="text-ivory font-medium">₹{item.value_inr.toLocaleString()}</span>
+                            <span className={item.unrealized_pnl_pct >= 0 ? "text-success font-medium" : "text-danger font-medium"}>
                               {item.unrealized_pnl_pct >= 0 ? "+" : ""}{item.unrealized_pnl_pct}%
                             </span>
                             <Sparkline
                               data={item.sparkline}
-                              color={item.unrealized_pnl_pct >= 0 ? "var(--color-accent)" : "var(--color-danger)"}
+                              color={item.unrealized_pnl_pct >= 0 ? "var(--color-success)" : "var(--color-danger)"}
                             />
                           </div>
                         ))}
@@ -866,16 +1150,16 @@ export default function DashboardPage() {
                   )}
 
                   {/* Macro FX Stress Test Slider */}
-                  <div className="p-5 rounded-xl hallmark-glass space-y-4">
-                    <h3 className="font-medium text-sm text-white">Macro FX Stress-Test Simulator</h3>
-                    <p className="text-xs text-muted leading-relaxed">
+                  <div className="p-5 mercury-card space-y-4">
+                    <h3 className="font-medium text-sm text-ivory">Macro FX Stress-Test Simulator</h3>
+                    <p className="text-xs text-ash leading-relaxed">
                       Simulate how macroeconomic volatility or central bank interest rate decisions affect foreign exchange balances prior to travel.
                     </p>
                     <div className="space-y-2.5">
                       <div className="flex justify-between text-xs">
-                        <span className="text-ink-2">Simulated JPY Shock: {shockPct > 0 ? "+" : ""}{shockPct}.0%</span>
-                        <span className={`font-medium ${shockImpactInr >= 0 ? "text-accent" : "text-danger"}`}>
-                          {shockImpactInr >= 0 ? "+" : ""}â‚¹{shockImpactInr.toLocaleString()} INR Projected Impact
+                        <span className="text-ash">Simulated JPY Shock: {shockPct > 0 ? "+" : ""}{shockPct}.0%</span>
+                        <span className={`font-medium ${shockImpactInr >= 0 ? "text-success" : "text-danger"}`}>
+                          {shockImpactInr >= 0 ? "+" : ""}₹{shockImpactInr.toLocaleString()} INR Projected Impact
                         </span>
                       </div>
                       <input
@@ -884,10 +1168,10 @@ export default function DashboardPage() {
                         max="20"
                         value={shockPct}
                         onChange={(e) => setShockPct(Number(e.target.value))}
-                        className="w-full accent-accent cursor-pointer"
+                        className="w-full accent-cobalt cursor-pointer"
                       />
                     </div>
-                    <div className="text-[11px] text-muted text-center pt-1">
+                    <div className="text-[11px] text-ash text-center pt-1">
                       Scenario stress testing only: zero actual fiat currency transactions executed
                     </div>
                   </div>
