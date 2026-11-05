@@ -1,5 +1,8 @@
 import os
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "EterPay"
@@ -38,7 +41,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", str(BACKEND_DIR / ".env")),
         env_file_encoding="utf-8",
         extra="ignore"
     )

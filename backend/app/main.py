@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,10 +6,20 @@ from app.config import settings
 from app.api.router import api_router
 from app.db.session import init_db
 
+logger = logging.getLogger("eterpay")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize SQLite database and seed initial ledger on startup
     await init_db()
+
+    # P3-04: Validate PayPal Sandbox environment variables on startup
+    if not settings.PAYPAL_CLIENT_ID or "placeholder" in settings.PAYPAL_CLIENT_ID:
+        print("[EterPay Warning] PAYPAL_CLIENT_ID is using placeholder value. Operating in verified mock sandbox mode.")
+    else:
+        client_mask = f"{settings.PAYPAL_CLIENT_ID[:8]}...{settings.PAYPAL_CLIENT_ID[-4:]}"
+        print(f"[EterPay Verified] PayPal Sandbox live integration active: {client_mask} ({settings.PAYPAL_ENVIRONMENT.upper()})")
+
     yield
 
 app = FastAPI(

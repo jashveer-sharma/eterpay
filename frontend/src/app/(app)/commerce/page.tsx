@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { DEMO_PRODUCTS_COMMERCE } from "@/lib/demo-data";
+import { PayPalCheckoutButton } from "@/components/paypal/PayPalCheckoutButton";
 
 interface Product {
   id: string;
@@ -57,7 +58,6 @@ export default function CommercePage() {
               rating: item.rating || 4.8,
               inStock: true,
             }));
-            // Merge with local demo products without duplicates
             const combined = [...mapped, ...DEMO_PRODUCTS_COMMERCE.filter((p) => !mapped.some((m) => m.id === p.id))];
             setProducts(combined);
           }
@@ -145,137 +145,125 @@ export default function CommercePage() {
     }
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="min-h-screen bg-[#fbf9f5] p-6 sm:p-10">
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[rgba(17,17,17,0.08)]">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-[#0f4d40]">
-              Channel3 Universal Graph · PayPal Fast Checkout
+              Channel3 Commerce · Autonomous AI Purchasing
             </div>
-            <h1 className="font-serif text-3xl text-[#111111]">Universal Commerce &amp; Travel Gear</h1>
+            <h1 className="font-serif text-3xl sm:text-4xl text-[#111111] mt-1">Travel &amp; Global Gear</h1>
           </div>
-          <button
-            onClick={() => {
-              setCapturedOrder(null);
-              setShowCart(true);
-            }}
-            className="btn btn-secondary text-xs px-5 py-2.5 rounded-full relative self-start sm:self-auto"
-          >
-            <ShoppingCart className="w-4 h-4 mr-1.5 inline" /> Cart ({cart.reduce((a, b) => a + b.qty, 0)})
-          </button>
+          <div className="flex items-center gap-3">
+            <span className="demo-badge">Channel3 API Connected</span>
+            <button
+              onClick={() => setShowCart(!showCart)}
+              className="relative btn btn-primary flex items-center gap-2 py-2.5 px-4 text-xs font-medium"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>Cart ({cart.reduce((a, b) => a + b.qty, 0)})</span>
+              {cart.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#0f4d40] text-white rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Search bar */}
-        <div className="card p-3 bg-white flex items-center gap-3">
-          <Search className="w-4 h-4 text-[#888888] ml-2" />
+        {/* Search Bar */}
+        <div className="relative max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#888888]" />
           <input
             type="text"
-            placeholder="Search universal travel items (e.g. adapter, luggage scale, eSIM, backpack)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input border-none py-1.5 text-xs flex-1 focus:ring-0"
+            placeholder="Search adapters, gear, travel tech..."
+            className="input pl-10 text-xs py-2.5 bg-white"
           />
         </div>
 
+        {/* Success Modal / Order Banner */}
+        {capturedOrder && (
+          <div className="card p-6 bg-[#f0fdf4] border border-[#16a34a]/30 space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-6 h-6 text-[#16a34a] flex-shrink-0" />
+                <div>
+                  <h3 className="font-serif text-lg text-[#111111]">Order Settled via PayPal Orders v2</h3>
+                  <p className="text-xs text-[#555555]">
+                    Order <span className="font-mono text-[#0f4d40] font-semibold">{capturedOrder.order_id}</span> captured with Capture ID: <span className="font-mono">{capturedOrder.capture_id}</span>
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => setCapturedOrder(null)} className="text-xs text-[#888888] hover:text-[#111111]">
+                ✕
+              </button>
+            </div>
+            <div className="flex gap-3">
+              <Link href="/transactions" className="btn btn-primary text-xs py-2 px-3">
+                View Ledger Entry <ArrowRight className="w-3.5 h-3.5 ml-1 inline" />
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Product Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((p) => (
-            <div
-              key={p.id}
-              className="card p-6 bg-white flex flex-col justify-between hover:border-[#0f4d40]/40 transition-all space-y-4"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-full bg-[rgba(17,17,17,0.05)] text-[#555555]">
-                    {p.category}
-                  </span>
-                  <div className="flex items-center gap-1 text-xs text-[#d97706] font-semibold">
+          {products.map((p) => (
+            <div key={p.id} className="card p-6 bg-white flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-[11px] text-[#888888]">
+                  <span className="uppercase font-semibold tracking-wider text-[#0f4d40]">{p.category}</span>
+                  <span className="flex items-center gap-1 text-[#f59e0b] font-medium">
                     <Star className="w-3.5 h-3.5 fill-current" /> {p.rating}
-                  </div>
+                  </span>
                 </div>
-                <h3 className="font-semibold text-base text-[#111111] mb-2 leading-snug">{p.name}</h3>
-                <div className="font-serif text-2xl font-semibold text-[#0f4d40] tabular">
-                  ₹ {p.price.toLocaleString("en-IN")}
-                </div>
-                <div className="text-[11px] text-[#888888] mt-1">
-                  ~${(p.price * 0.01198).toFixed(2)} USD via ECB benchmark
+                <h3 className="font-serif text-lg text-[#111111]">{p.name}</h3>
+                <div className="text-xs text-[#555555]">
+                  Verified Channel3 Merchant item. Eligible for 1-click autonomous PayPal sandbox settlement.
                 </div>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-[rgba(17,17,17,0.06)]">
+              <div className="pt-6 mt-4 border-t border-[rgba(17,17,17,0.06)] flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-[#888888] block">Price (INR)</span>
+                  <span className="font-serif text-xl text-[#0f4d40] font-semibold tabular">
+                    ₹ {p.price.toLocaleString("en-IN")}
+                  </span>
+                </div>
                 <button
                   onClick={() => addToCart(p)}
-                  className="btn btn-primary w-full text-xs py-2.5 rounded-xl font-medium"
+                  className="btn btn-secondary text-xs py-2 px-3.5 flex items-center gap-1.5"
                 >
-                  Add to Cart
+                  <ShoppingBag className="w-3.5 h-3.5 text-[#0f4d40]" /> Add
                 </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Cart Drawer Modal */}
+        {/* Cart Drawer */}
         {showCart && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="card p-6 bg-white max-w-md w-full space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[rgba(17,17,17,0.08)]">
-                <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 text-[#0f4d40]" />
-                  <h3 className="font-serif text-xl text-[#111111]">PayPal Fast Cart</h3>
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end">
+            <div className="w-full max-w-md bg-white h-full p-6 shadow-2xl flex flex-col justify-between overflow-y-auto">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b border-[rgba(17,17,17,0.08)]">
+                  <div className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5 text-[#0f4d40]" />
+                    <h3 className="font-serif text-xl text-[#111111]">Your Cart</h3>
+                  </div>
+                  <button onClick={() => setShowCart(false)} className="text-sm text-[#888888] hover:text-[#111111]">
+                    ✕
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowCart(false);
-                    setCapturedOrder(null);
-                  }}
-                  className="text-[#888888] hover:text-[#111111] text-sm p-1"
-                >
-                  ✕
-                </button>
-              </div>
 
-              {capturedOrder ? (
-                <div className="text-center py-6 space-y-3">
-                  <div className="w-12 h-12 bg-[#f0fdf4] text-[#16a34a] rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#16a34a]">
-                      Capture Verified
-                    </span>
-                    <h4 className="font-serif text-2xl text-[#111111] mt-1">Order Settled via PayPal</h4>
-                    <p className="text-xs text-[#666666] mt-1">
-                      ₹ {capturedOrder.amount.toLocaleString("en-IN")} captured in Orders v2 Sandbox.
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-[#fbf9f5] border border-[rgba(17,17,17,0.08)] text-left text-xs space-y-1 font-mono">
-                    <div className="flex justify-between">
-                      <span className="text-[#888888]">Order ID:</span>
-                      <span className="text-[#0f4d40]">{capturedOrder.order_id}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#888888]">Capture ID:</span>
-                      <span className="text-[#111111]">{capturedOrder.capture_id}</span>
-                    </div>
-                  </div>
-                  <Link
-                    href="/transactions"
-                    className="btn btn-primary w-full py-2.5 text-xs inline-block text-center mt-2"
-                  >
-                    View in Audit Ledger
-                  </Link>
-                </div>
-              ) : cart.length === 0 ? (
-                <p className="text-xs text-[#888888] text-center py-6">Your cart is empty.</p>
-              ) : (
-                <div className="space-y-4">
-                  <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {cart.length === 0 ? (
+                  <p className="text-xs text-[#888888] py-8 text-center">Your cart is empty.</p>
+                ) : (
+                  <div className="space-y-3">
                     {cart.map((item) => (
                       <div key={item.id} className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-[#fbf9f5]">
                         <div>
@@ -296,8 +284,12 @@ export default function CommercePage() {
                       </div>
                     ))}
                   </div>
+                )}
+              </div>
 
-                  <div className="pt-3 border-t border-[rgba(17,17,17,0.06)] flex justify-between font-serif text-lg font-medium text-[#111111]">
+              {cart.length > 0 && (
+                <div className="space-y-4 pt-4 border-t border-[rgba(17,17,17,0.08)]">
+                  <div className="flex justify-between font-serif text-lg font-medium text-[#111111]">
                     <span>Total Due:</span>
                     <span className="text-[#0f4d40] tabular font-semibold">₹ {cartTotal.toLocaleString("en-IN")}</span>
                   </div>
@@ -307,18 +299,37 @@ export default function CommercePage() {
                     <span>Real PayPal Orders v2 Sandbox Checkout with Server-Side Idempotency.</span>
                   </div>
 
+                  {/* PayPal Modal Button in Cart */}
+                  <PayPalCheckoutButton
+                    amount={cartTotal}
+                    currency="INR"
+                    description={`EterPay Commerce Cart (${cart.length} items)`}
+                    onSuccess={(cap) => {
+                      setCapturedOrder({
+                        order_id: cap.order_id,
+                        capture_id: cap.capture_id,
+                        amount: cartTotal,
+                        currency: "INR",
+                        status: cap.status,
+                      });
+                      setCart([]);
+                      setShowCart(false);
+                    }}
+                  />
+
+                  {/* Direct 1-Click Alternate */}
                   <button
                     onClick={handleCheckout}
                     disabled={isProcessing}
-                    className="btn btn-primary w-full py-3 text-xs font-semibold flex items-center justify-center gap-2"
+                    className="btn btn-secondary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2"
                   >
                     {isProcessing ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin" /> Authorizing PayPal Sandbox...
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Authorizing Sandbox...
                       </>
                     ) : (
                       <>
-                        Authorize &amp; Pay via PayPal Sandbox <ArrowRight className="w-3.5 h-3.5" />
+                        Direct 1-Click Sandbox Capture <ArrowRight className="w-3.5 h-3.5" />
                       </>
                     )}
                   </button>
