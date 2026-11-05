@@ -3,28 +3,61 @@
 @tailwind utilities;
 
 @import '@ag-grid-community/styles/ag-grid.css';
-@import '@ag-grid-community/styles/ag-theme-quartz.css';
+@import '@ag-grid-community/styles/ag-theme-alpine.css';
 
+/* Hallmark Anti-Slop Design Tokens & Floor */
 :root {
-  --background: #090A0F;
-  --foreground: #FFFFFF;
+  --color-paper: #090a0f;
+  --color-paper-2: #0d0f17;
+  --color-paper-3: #121520;
+  --color-ink: #f0f4f8;
+  --color-ink-2: #c5d0dc;
+  --color-muted: #7e8b9b;
+  --color-rule: #181c28;
+  --color-rule-2: #242b3d;
+  --color-accent: #00e676;
+  --color-accent-ink: #000000;
+  --color-accent-wash: rgba(0, 230, 118, 0.12);
+  --color-cyan: #00b0ff;
+  --color-danger: #ff1744;
+  --color-warning: #ffd600;
+
+  --radius-card: 12px;
+  --radius-inner: 8px;
+  --rule-hair: 1px;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  overflow-x: hidden;
+html, body {
+  color: var(--color-ink);
+  background: var(--color-paper);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom AG Grid Dark Neon Overrides */
-.ag-theme-quartz-dark {
-  --ag-background-color: #0d0f17;
-  --ag-header-background-color: #121520;
-  --ag-odd-row-background-color: #0d0f17;
-  --ag-border-color: #1b1f2e;
-  --ag-header-foreground-color: #8b949e;
-  --ag-foreground-color: #ffffff;
-  --ag-selected-row-background-color: rgba(0, 230, 118, 0.15);
+/* Hallmark Focus Ring */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Custom AG Grid Alpine Dark Overrides matching Hallmark Terminal/Dusk */
+.ag-theme-alpine-dark {
+  --ag-background-color: var(--color-paper-2);
+  --ag-header-background-color: var(--color-paper-3);
+  --ag-odd-row-background-color: var(--color-paper-2);
+  --ag-border-color: var(--color-rule);
+  --ag-header-foreground-color: var(--color-muted);
+  --ag-foreground-color: var(--color-ink);
+  --ag-selected-row-background-color: var(--color-accent-wash);
   --ag-row-hover-color: #161a29;
+  --ag-font-size: 12px;
+  --ag-font-family: inherit;
+  --ag-row-border-color: var(--color-rule);
+}
+
+.ag-theme-alpine-dark .ag-header-cell {
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
 }

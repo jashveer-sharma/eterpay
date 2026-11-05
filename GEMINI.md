@@ -50,3 +50,4 @@ The following workspace skills are available in `.agents/skills/` and will be lo
 * `free-ai-orchestration`: Multi-tier free model routing (Gemini + Groq + rule engine).
 * `fintech-security-audit`: PCI-DSS compliance, signature verification, anti-injection.
 * `token-optimization`: Context management and efficient development patterns.
+* `hallmark`: Anti-slop design system, typography floor, and fintech theme materials (Terminal & Dusk).
