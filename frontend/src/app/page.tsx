@@ -16,6 +16,7 @@ import {
   Star,
   CheckCircle2,
   XCircle,
+  Calculator,
 } from "lucide-react";
 
 // ─── AG Grid Community ─────────────────────────────────────────────────────────
@@ -154,6 +155,11 @@ export default function DashboardPage() {
   ]);
   const [gridFilter, setGridFilter] = useState<{ column: string; value: string } | null>(null);
 
+  // Interactive controls
+  const [shockPct, setShockPct] = useState<number>(-5);
+  const [calcAmount, setCalcAmount] = useState<number>(10000);
+  const [calcTarget, setCalcTarget] = useState<string>("USD");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<AgGridReact>(null);
 
@@ -173,7 +179,7 @@ export default function DashboardPage() {
       setFxRates(rates);
       setFxDate(data.date || "");
     } catch {
-      // keep empty — backend shows ECB fallback
+      // keep empty
     } finally {
       setFxLoading(false);
     }
@@ -198,7 +204,7 @@ export default function DashboardPage() {
     try {
       const res = await fetch(`${API_BASE}/api/commerce/search?q=travel`);
       const data = await res.json();
-      setProducts(data.value || []);
+      setProducts(data.value || (Array.isArray(data) ? data : []));
     } catch {
       /* keep empty */
     } finally {
@@ -289,8 +295,8 @@ export default function DashboardPage() {
         }),
       });
       const data = await res.json();
-      setPaypalOrderId(data.id);
-      return data.id as string;
+      setPaypalOrderId(data.id || data.order_id);
+      return (data.id || data.order_id) as string;
     } catch {
       return "error";
     }
@@ -335,7 +341,7 @@ export default function DashboardPage() {
 
   // ─── AG Grid Column Defs ──────────────────────────────────────────────────
   const ledgerColDefs: ColDef[] = [
-    { field: "orderId", headerName: "Order ID", width: 120, cellStyle: { fontFamily: "monospace", color: "#A0AEC0" } },
+    { field: "orderId", headerName: "Order ID", width: 130, cellStyle: { fontFamily: "monospace", color: "#A0AEC0" } },
     { field: "description", headerName: "Description", flex: 1, filter: "agTextColumnFilter" },
     {
       field: "category", headerName: "Category", width: 110,
@@ -354,6 +360,10 @@ export default function DashboardPage() {
     },
     { field: "timestamp", headerName: "Time", width: 130, cellStyle: { color: "#8B949E", fontSize: "11px" } },
   ];
+
+  const selectedRate = fxRates.find((r) => r.currency === calcTarget)?.rate || 0.0119;
+  const calcResult = (calcAmount * selectedRate).toFixed(2);
+  const shockImpactInr = Math.round((30000 * shockPct) / 100);
 
   // ─── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -589,10 +599,57 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
+                  {/* Interactive Currency Converter */}
+                  <div className="p-4 rounded-xl bg-[#10121A] border border-[#181C28] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                        <Calculator className="w-4 h-4 text-[#00E676]" /> Live ECB Currency Calculator
+                      </h3>
+                      <span className="text-[10px] text-[#00E676] font-mono">Real-time ECB Reference</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
+                      <div>
+                        <label className="text-[10px] text-[#8B949E] block mb-1">Source Amount (INR)</label>
+                        <input
+                          type="number"
+                          value={calcAmount}
+                          onChange={(e) => setCalcAmount(Number(e.target.value) || 0)}
+                          className="w-full bg-[#121520] border border-[#202638] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#00E676]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[#8B949E] block mb-1">Target Currency</label>
+                        <select
+                          value={calcTarget}
+                          onChange={(e) => setCalcTarget(e.target.value)}
+                          className="w-full bg-[#121520] border border-[#202638] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#00E676]"
+                        >
+                          {fxRates.map((r) => (
+                            <option key={r.currency} value={r.currency}>
+                              {r.flag} {r.currency}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="md:col-span-2 p-3 rounded-lg bg-[#090A0F] border border-[#181C28] flex items-center justify-between">
+                        <div>
+                          <div className="text-[10px] text-[#8B949E]">Converted Result</div>
+                          <div className="text-lg font-bold text-[#00E676]">
+                            {Number(calcResult).toLocaleString()} {calcTarget}
+                          </div>
+                        </div>
+                        <div className="text-right text-[10px] text-[#8B949E]">
+                          <div>Rate: {selectedRate.toFixed(4)}</div>
+                          <div className="text-[#00B0FF]">Est. Bank Markup Saved: ₹{(calcAmount * 0.045).toFixed(0)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Live FX Rate Table */}
                   <div className="p-5 rounded-xl bg-[#10121A] border border-[#181C28] space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-sm text-white">Live FX Rates (INR base · ECB)</h3>
+                      <h3 className="font-bold text-sm text-white">Live FX Rates (INR base · European Central Bank)</h3>
                       <span className="text-xs text-[#00E676] font-mono flex items-center gap-1">
                         <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
                         {fxDate ? `Updated ${fxDate}` : "Connecting…"}
@@ -632,14 +689,44 @@ export default function DashboardPage() {
               {activeTab === "grid" && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#00E676]" />
-                      Transaction Audit Ledger (AG Grid Community)
-                    </h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-[#00E676]" />
+                        Transaction Audit Ledger (AG Grid Community)
+                      </h3>
+                      {/* Quick Filter Pills */}
+                      <div className="hidden sm:flex items-center gap-1">
+                        {["ALL", "Travel", "Dining", "Commerce"].map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => {
+                              if (cat === "ALL") {
+                                setGridFilter(null);
+                                gridRef.current?.api?.setFilterModel(null);
+                              } else {
+                                setGridFilter({ column: "category", value: cat });
+                                const model: Record<string, { type: string; filter: string }> = {
+                                  category: { type: "contains", filter: cat },
+                                };
+                                gridRef.current?.api?.setFilterModel(model);
+                              }
+                            }}
+                            className={`px-2 py-0.5 rounded text-[10px] transition ${
+                              (!gridFilter && cat === "ALL") || gridFilter?.value === cat
+                                ? "bg-[#00E676] text-black font-bold"
+                                : "bg-[#181C28] text-[#8B949E] hover:text-white"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {gridFilter && (
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-[#00E676] font-mono">
-                          AI Filter: {gridFilter.column} = &quot;{gridFilter.value}&quot;
+                          Filter: {gridFilter.column} = &quot;{gridFilter.value}&quot;
                         </span>
                         <button
                           onClick={() => {
@@ -774,10 +861,19 @@ export default function DashboardPage() {
                     </p>
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs">
-                        <span>Simulate JPY Shock: -5.0%</span>
-                        <span className="text-[#FF1744] font-mono">-₹1,500 INR Impact</span>
+                        <span>Simulate JPY Shock: {shockPct > 0 ? "+" : ""}{shockPct}.0%</span>
+                        <span className={`font-mono font-bold ${shockImpactInr >= 0 ? "text-[#00E676]" : "text-[#FF1744]"}`}>
+                          {shockImpactInr >= 0 ? "+" : ""}₹{shockImpactInr.toLocaleString()} INR Impact
+                        </span>
                       </div>
-                      <input type="range" min="-20" max="20" defaultValue="-5" className="w-full accent-[#00E676]" />
+                      <input
+                        type="range"
+                        min="-20"
+                        max="20"
+                        value={shockPct}
+                        onChange={(e) => setShockPct(Number(e.target.value))}
+                        className="w-full accent-[#00E676]"
+                      />
                     </div>
                     <div className="text-[10px] text-[#555E6D] text-center">
                       Educational simulation only · No real transactions executed
