@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -10,27 +10,28 @@ import {
   ShieldCheck,
   ShoppingBag,
   AlertTriangle,
-  ArrowRight,
   RefreshCw,
   Loader2,
   Star,
   CheckCircle2,
   XCircle,
   Calculator,
+  Layers,
+  ArrowUpRight,
 } from "lucide-react";
 
-// ─── AG Grid Community ─────────────────────────────────────────────────────────
+// â”€â”€â”€ AG Grid Community â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry, CommunityFeaturesModule, ColDef } from "@ag-grid-community/core";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 
-// ─── PayPal ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ PayPal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 ModuleRegistry.registerModules([CommunityFeaturesModule]);
 
-// ─── Types ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -68,7 +69,6 @@ interface PortfolioItem {
 interface FxRate {
   currency: string;
   rate: number;
-  flag: string;
 }
 
 interface LedgerRow {
@@ -86,25 +86,19 @@ const API_BASE = "http://localhost:8000";
 const PAYPAL_CLIENT_ID =
   process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "sb";
 
-const CURRENCY_FLAGS: Record<string, string> = {
-  USD: "🇺🇸", EUR: "🇪🇺", JPY: "🇯🇵", GBP: "🇬🇧",
-  AUD: "🇦🇺", CAD: "🇨🇦", CHF: "🇨🇭", CNY: "🇨🇳",
-  INR: "🇮🇳",
-};
-
 // Mini sparkline renderer using SVG
 function Sparkline({ data, color }: { data: number[]; color: string }) {
-  if (!data || data.length < 2) return <span className="text-[#555]">─</span>;
+  if (!data || data.length < 2) return <span className="text-muted">No data</span>;
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
-  const W = 60, H = 20;
+  const W = 64, H = 18;
   const pts = data
     .map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / range) * H}`)
     .join(" ");
   return (
-    <svg width={W} height={H} className="inline-block">
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" />
+    <svg width={W} height={H} aria-hidden="true" className="inline-block">
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -114,8 +108,8 @@ function StatusBadge({ value }: { value: string }) {
   const isOk = value === "COMPLETED" || value === "CAPTURED";
   return (
     <span
-      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-        isOk ? "bg-green-900/40 text-green-400" : "bg-yellow-900/40 text-yellow-400"
+      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-tight ${
+        isOk ? "bg-accent-soft text-accent" : "bg-warning/15 text-warning"
       }`}
     >
       {value}
@@ -124,12 +118,12 @@ function StatusBadge({ value }: { value: string }) {
 }
 
 export default function DashboardPage() {
-  // ─── State ───────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content:
-        "👋 Welcome to **EterPay** — your AI cross-border financial copilot.\n\nTry asking:\n• *\"I'm traveling to Tokyo with ₹1,50,000. Help me plan my budget.\"*\n• *\"Find me a universal travel adapter.\"*\n• *\"Filter my transactions by Travel category.\"*\n• *\"Convert 50,000 INR to EUR.\"*",
+        "Welcome to EterPay: your AI cross-border financial copilot.\n\nTry asking:\n* 'I am traveling to Tokyo with 150000 INR. Help me plan my budget.'\n* 'Find me a universal travel adapter.'\n* 'Filter my transactions by Travel category.'\n* 'Convert 50000 INR to EUR.'",
     },
   ]);
   const [input, setInput] = useState("");
@@ -149,9 +143,9 @@ export default function DashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [ledgerRows, setLedgerRows] = useState<LedgerRow[]>([
-    { orderId: "8AB12345CD67", description: "Tokyo Metro Pass", category: "Travel", amount: "¥8,500", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-05 10:12" },
-    { orderId: "7XY98765LK12", description: "Airalo Japan eSIM 10GB", category: "Travel", amount: "₹1,250", currency: "INR", status: "COMPLETED", timestamp: "2026-11-05 09:48" },
-    { orderId: "3MN54321QW99", description: "Ramen Dinner – Ichiran", category: "Dining", amount: "¥1,200", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-04 20:30" },
+    { orderId: "8AB12345CD67", description: "Tokyo Metro Pass", category: "Travel", amount: "Â¥8,500", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-05 10:12" },
+    { orderId: "7XY98765LK12", description: "Airalo Japan eSIM 10GB", category: "Travel", amount: "â‚¹1,250", currency: "INR", status: "COMPLETED", timestamp: "2026-11-05 09:48" },
+    { orderId: "3MN54321QW99", description: "Ramen Dinner, Ichiran", category: "Dining", amount: "Â¥1,200", currency: "JPY", status: "COMPLETED", timestamp: "2026-11-04 20:30" },
   ]);
   const [gridFilter, setGridFilter] = useState<{ column: string; value: string } | null>(null);
 
@@ -163,7 +157,7 @@ export default function DashboardPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<AgGridReact>(null);
 
-  // ─── Load Live Data ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Load Live Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const loadFxRates = useCallback(async () => {
     setFxLoading(true);
     try {
@@ -173,7 +167,6 @@ export default function DashboardPage() {
         ([currency, rate]) => ({
           currency,
           rate,
-          flag: CURRENCY_FLAGS[currency] || "🌐",
         })
       );
       setFxRates(rates);
@@ -233,7 +226,7 @@ export default function DashboardPage() {
     }
   }, [gridFilter]);
 
-  // ─── Chat ────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Chat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const sendMessage = async (overrideText?: string) => {
     const textToSend = overrideText !== undefined ? overrideText : input;
     if (!textToSend.trim()) return;
@@ -268,7 +261,7 @@ export default function DashboardPage() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "⚠️ Connection error — is the backend running on port 8000?" },
+        { role: "assistant", content: "Connection error: check whether backend runs on port 8000" },
       ]);
     } finally {
       setIsChatLoading(false);
@@ -279,7 +272,7 @@ export default function DashboardPage() {
     sendMessage(promptText);
   };
 
-  // ─── PayPal Integration ──────────────────────────────────────────────────────
+  // â”€â”€â”€ PayPal Integration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const createOrder = async () => {
     if (!actionProposal?.amount || !actionProposal?.currency) {
       return "mock-order-id";
@@ -295,8 +288,9 @@ export default function DashboardPage() {
         }),
       });
       const data = await res.json();
-      setPaypalOrderId(data.id || data.order_id);
-      return (data.id || data.order_id) as string;
+      const oid = data.id || data.order_id;
+      setPaypalOrderId(oid);
+      return oid as string;
     } catch {
       return "error";
     }
@@ -328,107 +322,120 @@ export default function DashboardPage() {
         ...prev,
         {
           role: "assistant",
-          content: `✅ **Payment Captured!**\n• Order: \`${data.orderID.slice(0, 14)}\`\n• Status: CAPTURED\n• Transaction logged to AG Grid ledger automatically.`,
+          content: `Payment captured via PayPal Sandbox (Order ${data.orderID.slice(0, 14)}). Transaction recorded in AG Grid audit ledger.`,
         },
       ]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "⚠️ Capture failed. Please check the backend logs." },
+        { role: "assistant", content: "Capture failed: please check backend logs." },
       ]);
     }
   };
 
-  // ─── AG Grid Column Defs ──────────────────────────────────────────────────
+  // â”€â”€â”€ AG Grid Column Defs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const ledgerColDefs: ColDef[] = [
-    { field: "orderId", headerName: "Order ID", width: 130, cellStyle: { fontFamily: "monospace", color: "#A0AEC0" } },
+    { field: "orderId", headerName: "Order ID", width: 130, cellStyle: { fontFamily: "monospace", color: "var(--color-muted)" } },
     { field: "description", headerName: "Description", flex: 1, filter: "agTextColumnFilter" },
     {
       field: "category", headerName: "Category", width: 110,
       filter: "agTextColumnFilter",
       cellRenderer: (params: { value: string }) => (
-        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-900/30 text-blue-400">
+        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-periwinkle-soft text-periwinkle">
           {params.value}
         </span>
       ),
     },
-    { field: "amount", headerName: "Amount", width: 110, cellStyle: { fontWeight: "bold", color: "#fff" } },
-    { field: "currency", headerName: "CCY", width: 70, cellStyle: { color: "#8B949E" } },
+    { field: "amount", headerName: "Amount", width: 110, cellStyle: { fontWeight: "600", color: "var(--color-ink)" } },
+    { field: "currency", headerName: "CCY", width: 70, cellStyle: { color: "var(--color-muted)" } },
     {
-      field: "status", headerName: "Status", width: 110,
+      field: "status", headerName: "Status", width: 115,
       cellRenderer: (params: { value: string }) => <StatusBadge value={params.value} />,
     },
-    { field: "timestamp", headerName: "Time", width: 130, cellStyle: { color: "#8B949E", fontSize: "11px" } },
+    { field: "timestamp", headerName: "Time", width: 130, cellStyle: { color: "var(--color-muted)", fontSize: "11px" } },
   ];
 
   const selectedRate = fxRates.find((r) => r.currency === calcTarget)?.rate || 0.0119;
   const calcResult = (calcAmount * selectedRate).toFixed(2);
   const shockImpactInr = Math.round((30000 * shockPct) / 100);
 
-  // ─── Render ───────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
-      <div className="flex flex-col h-screen bg-[#090A0F] text-white overflow-hidden">
+      <div className="flex flex-col h-screen bg-paper text-ink overflow-hidden">
 
-        {/* ── Header ── */}
-        <header className="flex items-center justify-between px-6 py-3 border-b border-[#181C28] bg-[#0D0F17] shrink-0">
+        {/* â”€â”€ Hallmark Dusk Navigation Header â”€â”€ */}
+        <header className="flex items-center justify-between px-6 py-3.5 border-b border-rule bg-paper-2/80 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#00E676] flex items-center justify-center font-black text-black text-lg">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-periwinkle to-accent flex items-center justify-center font-bold text-accent-ink text-sm shadow-sm">
               E
             </div>
-            <span className="font-bold text-xl tracking-wide">ETERPAY</span>
-            <span className="text-xs px-2 py-0.5 rounded bg-[#16201A] border border-[#00E676]/30 text-[#00E676] font-mono">
-              SANDBOX MODE
+            <div className="flex items-baseline gap-2">
+              <span className="font-semibold text-lg tracking-tight text-white">EterPay</span>
+              <span className="text-[10px] text-muted">Global Financial Orchestrator</span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-soft border border-accent/20 text-accent font-medium ml-2">
+              Sandbox Active
             </span>
           </div>
 
           {/* Live Rates Ticker */}
-          <div className="hidden md:flex items-center gap-5 text-xs font-mono text-[#8B949E]">
+          <div className="hidden md:flex items-center gap-6 text-xs text-muted">
             {fxLoading ? (
-              <Loader2 className="w-3 h-3 animate-spin text-[#555]" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-muted" aria-hidden="true" />
             ) : (
               fxRates.slice(0, 4).map((r) => (
-                <div key={r.currency}>
-                  {r.flag} INR/{r.currency}:{" "}
-                  <span className="text-white font-bold">{r.rate.toFixed(4)}</span>
+                <div key={r.currency} className="flex items-center gap-1.5">
+                  <span className="px-1 py-0.5 rounded bg-paper-3 text-[10px] text-ink-2 font-mono">{r.currency}</span>
+                  <span className="text-ink-2 font-mono">{r.rate.toFixed(4)}</span>
                 </div>
               ))
             )}
-            {fxDate && <div className="text-[10px] text-[#555E6D]">ECB · {fxDate}</div>}
-            <button onClick={loadFxRates} className="text-[#555E6D] hover:text-white transition">
-              <RefreshCw className="w-3 h-3" />
+            {fxDate && <span className="text-[11px] text-muted">ECB Source: {fxDate}</span>}
+            <button
+              onClick={loadFxRates}
+              title="Refresh ECB Rates"
+              className="p-1 rounded hover:bg-white/5 text-muted hover:text-white transition"
+            >
+              <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
         </header>
 
-        {/* ── Two-Column Cockpit ── */}
+        {/* â”€â”€ Two-Column Dusk Financial Cockpit â”€â”€ */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
 
-          {/* ══ Left: AI Copilot (5 cols) ══ */}
-          <div className="lg:col-span-5 flex flex-col border-r border-[#181C28] bg-[#0D0F17]/60 overflow-hidden">
-            <div className="p-4 border-b border-[#181C28] flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <Bot className="w-5 h-5 text-[#00E676]" />
-                <h2 className="font-semibold text-sm">EterPay AI Copilot</h2>
+          {/* â•â• Left Column: Conversational AI Copilot (5 cols) â•â• */}
+          <div className="lg:col-span-5 flex flex-col border-r border-rule bg-paper-2/70 backdrop-blur-md overflow-hidden">
+            {/* Copilot Header */}
+            <div className="p-4 border-b border-rule flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-md bg-periwinkle-soft flex items-center justify-center text-periwinkle">
+                  <Bot className="w-4 h-4" aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 className="font-medium text-sm text-white">EterPay AI Copilot</h2>
+                  <p className="text-[11px] text-muted">Multi-currency routing and tool dispatch</p>
+                </div>
               </div>
-              <span className="text-xs text-[#00E676] flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
+              <span className="text-[11px] text-accent flex items-center gap-1.5 bg-accent-soft px-2 py-0.5 rounded-full border border-accent/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse motion-reduce:animate-none"></span>
                 Gemini 1.5 Flash
               </span>
             </div>
 
-            {/* Quick Actions */}
-            <div className="p-3 border-b border-[#181C28]/60 flex gap-2 overflow-x-auto text-xs shrink-0">
+            {/* Quick Action Capsules */}
+            <div className="p-3 border-b border-rule flex gap-2 overflow-x-auto text-xs shrink-0">
               {[
-                { label: "🇯🇵 Plan Tokyo Trip", prompt: "I'm traveling to Tokyo with ₹1,50,000. Help me plan my budget." },
-                { label: "🔌 Shop Adapter", prompt: "Find me a universal travel adapter." },
-                { label: "📊 Filter Ledger", prompt: "Filter my transactions by Travel category." },
-                { label: "💱 Convert INR→EUR", prompt: "Convert 50000 INR to EUR." },
+                { label: "Plan Tokyo Trip", prompt: "I am traveling to Tokyo with 150000 INR. Help me plan my budget." },
+                { label: "Shop Adapter", prompt: "Find me a universal travel adapter." },
+                { label: "Filter Ledger", prompt: "Filter my transactions by Travel category." },
+                { label: "Convert INR to EUR", prompt: "Convert 50000 INR to EUR." },
               ].map((q) => (
                 <button
                   key={q.label}
                   onClick={() => handleQuickPrompt(q.prompt)}
-                  className="px-3 py-1.5 rounded-full bg-[#181C28] hover:bg-[#202636] text-[#A0AEC0] whitespace-nowrap transition"
+                  className="px-3 py-1 rounded-full bg-paper-3 hover:bg-rule text-ink-2 hover:text-white border border-rule whitespace-nowrap transition text-[11px]"
                 >
                   {q.label}
                 </button>
@@ -443,15 +450,15 @@ export default function DashboardPage() {
                   className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {m.role === "assistant" && (
-                    <div className="w-7 h-7 rounded-full bg-[#181C28] flex items-center justify-center shrink-0 mt-1">
-                      <Sparkles className="w-4 h-4 text-[#00E676]" />
+                    <div className="w-6 h-6 rounded-full bg-paper-3 border border-rule flex items-center justify-center shrink-0 mt-0.5 text-accent">
+                      <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                     </div>
                   )}
                   <div
-                    className={`p-3 rounded-xl max-w-[85%] text-xs leading-relaxed whitespace-pre-line ${
+                    className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-relaxed whitespace-pre-line ${
                       m.role === "user"
-                        ? "bg-[#00E676] text-black font-medium"
-                        : "bg-[#141724] border border-[#202638] text-[#E0E6ED]"
+                        ? "bg-accent text-accent-ink font-medium shadow-sm"
+                        : "hallmark-glass text-ink rounded-tl-sm"
                     }`}
                   >
                     {m.content}
@@ -461,36 +468,36 @@ export default function DashboardPage() {
 
               {isChatLoading && (
                 <div className="flex gap-3 justify-start">
-                  <div className="w-7 h-7 rounded-full bg-[#181C28] flex items-center justify-center shrink-0">
-                    <Loader2 className="w-4 h-4 text-[#00E676] animate-spin" />
+                  <div className="w-6 h-6 rounded-full bg-paper-3 flex items-center justify-center shrink-0">
+                    <Loader2 className="w-3.5 h-3.5 text-accent animate-spin" aria-hidden="true" />
                   </div>
-                  <div className="p-3 rounded-xl bg-[#141724] border border-[#202638] text-[#8B949E] text-xs">
-                    Thinking…
+                  <div className="p-3 rounded-2xl hallmark-glass text-muted text-xs">
+                    Synthesizing response and evaluating tools…
                   </div>
                 </div>
               )}
 
-              {/* ── Deterministic Payment Gate ── */}
+              {/* â”€â”€ Deterministic Payment Gate (Hallmark Smoked Glass Lit) â”€â”€ */}
               {actionProposal && actionProposal.requires_approval && !paypalCapture && (
-                <div className="p-4 rounded-xl border border-[#00E676]/40 bg-[#101915] text-xs space-y-3">
+                <div className="p-4 rounded-xl hallmark-glass-lit text-xs space-y-3.5 border-l-2 border-l-accent">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#00E676] flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4" /> DETERMINISTIC PAYMENT GATE
+                    <span className="font-semibold text-accent flex items-center gap-1.5 text-xs">
+                      <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Deterministic Payment Gate
                     </span>
-                    <span className="text-[10px] text-[#A0AEC0]">Explicit Human Approval Required</span>
+                    <span className="text-[10px] text-muted">Human Authorization Required</span>
                   </div>
                   <div className="text-sm font-semibold text-white">{actionProposal.title}</div>
-                  <div className="text-xs text-[#A0AEC0]">{actionProposal.description}</div>
-                  <div className="flex items-center justify-between p-2 rounded bg-black/40 border border-[#181C28]">
+                  <div className="text-xs text-ink-2 leading-relaxed">{actionProposal.description}</div>
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-paper border border-rule">
                     {actionProposal.merchant && (
-                      <span>
-                        Merchant: <strong className="text-white">{actionProposal.merchant}</strong>
+                      <span className="text-muted">
+                        Merchant: <strong className="text-white ml-1">{actionProposal.merchant}</strong>
                       </span>
                     )}
                     {actionProposal.amount && (
-                      <span>
-                        Amount:{" "}
-                        <strong className="text-[#00E676] text-sm">
+                      <span className="text-muted">
+                        Total:{" "}
+                        <strong className="text-accent text-sm ml-1">
                           ${actionProposal.amount.toFixed(2)} {actionProposal.currency}
                         </strong>
                       </span>
@@ -498,27 +505,29 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Real PayPal Buttons */}
-                  <PayPalButtons
-                    style={{ layout: "horizontal", color: "gold", shape: "rect", label: "pay", height: 36 }}
-                    createOrder={createOrder}
-                    onApprove={onApprove}
-                    onError={() =>
-                      setMessages((prev) => [
-                        ...prev,
-                        { role: "assistant", content: "⚠️ PayPal error. Try the sandbox flow again." },
-                      ])
-                    }
-                  />
-                  <div className="text-[10px] text-[#555E6D] text-center">
-                    PayPal Sandbox · No real money charged · AI intent validated by backend
+                  <div className="pt-1">
+                    <PayPalButtons
+                      style={{ layout: "horizontal", color: "gold", shape: "rect", label: "pay", height: 38 }}
+                      createOrder={createOrder}
+                      onApprove={onApprove}
+                      onError={() =>
+                        setMessages((prev) => [
+                          ...prev,
+                          { role: "assistant", content: "PayPal authorization error: check sandbox environment." },
+                        ])
+                      }
+                    />
+                  </div>
+                  <div className="text-[10px] text-muted text-center">
+                    PayPal Orders v2 Sandbox: zero real capital at risk, backend idempotency enforced
                   </div>
                 </div>
               )}
 
               {paypalCapture && (
-                <div className="p-3 rounded-xl border border-[#00E676] bg-[#00E676]/10 text-xs flex items-center gap-2 text-[#00E676] font-bold">
-                  <CheckCircle2 className="w-4 h-4" />
-                  Transaction Captured · Order {paypalCapture.id.slice(0, 12)} · {paypalCapture.status}
+                <div className="p-3.5 rounded-xl border border-accent/30 bg-accent-soft text-xs flex items-center gap-2 text-accent font-medium">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  Transaction verified: Order {paypalCapture.id.slice(0, 12)} (Status: {paypalCapture.status})
                 </div>
               )}
 
@@ -526,157 +535,158 @@ export default function DashboardPage() {
             </div>
 
             {/* Input Bar */}
-            <div className="p-3 border-t border-[#181C28] bg-[#090A0F] shrink-0">
+            <div className="p-3 border-t border-rule bg-paper-2 shrink-0">
               <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask EterPay to plan a trip, compare FX, or prepare checkout…"
-                  className="flex-1 bg-[#121520] border border-[#202638] rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#00E676]"
+                  placeholder="Plan an international trip, query live FX, or prepare checkout…"
+                  className="flex-1 bg-paper-3 border border-rule rounded-xl px-4 py-2.5 text-xs text-white placeholder-muted focus:outline-none focus:border-periwinkle"
                   disabled={isChatLoading}
                 />
                 <button
                   type="submit"
                   disabled={isChatLoading}
-                  className="p-2.5 bg-[#00E676] text-black rounded-lg hover:bg-[#00C853] transition disabled:opacity-50"
+                  className="px-3.5 py-2.5 bg-accent text-accent-ink font-semibold rounded-xl hover:bg-emerald-400 transition disabled:opacity-40"
                 >
-                  {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Send className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </form>
             </div>
           </div>
 
-          {/* ══ Right: Terminal (7 cols) ══ */}
-          <div className="lg:col-span-7 flex flex-col bg-[#090A0F] overflow-hidden">
-            {/* Tabs */}
-            <div className="flex border-b border-[#181C28] px-6 pt-3 bg-[#0D0F17]/40 gap-6 text-xs shrink-0">
+          {/* â•â• Right Column: Financial Workbench (7 cols) â•â• */}
+          <div className="lg:col-span-7 flex flex-col bg-paper overflow-hidden">
+            {/* Dusk Navigation Tabs */}
+            <div className="flex border-b border-rule px-6 pt-3 bg-paper-2/60 gap-8 text-xs shrink-0">
               {([
-                { id: "overview", icon: Globe, label: "FX Terminal" },
+                { id: "overview", icon: Globe, label: "Treasury and Rates" },
                 { id: "grid", icon: TrendingUp, label: "AG Grid Ledger" },
                 { id: "commerce", icon: ShoppingBag, label: "Agentic Commerce" },
-                { id: "invest", icon: AlertTriangle, label: "Simulated Invest" },
+                { id: "invest", icon: Layers, label: "Portfolio and Risk" },
               ] as const).map(({ id, icon: Icon, label }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`pb-3 font-semibold transition border-b-2 flex items-center gap-2 ${
+                  className={`pb-3 font-medium transition border-b-2 flex items-center gap-2 ${
                     activeTab === id
-                      ? "border-[#00E676] text-[#00E676]"
-                      : "border-transparent text-[#8B949E] hover:text-white"
+                      ? "border-accent text-accent"
+                      : "border-transparent text-muted hover:text-white"
                   }`}
                 >
-                  <Icon className="w-4 h-4" /> {label}
+                  <Icon className="w-4 h-4" aria-hidden="true" /> {label}
                 </button>
               ))}
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-              {/* ── 1. FX Terminal Tab ── */}
+              {/* â”€â”€ 1. Treasury & Rates Tab â”€â”€ */}
               {activeTab === "overview" && (
                 <div className="space-y-6">
-                  {/* Summary Cards */}
+                  {/* Executive Balance Stage (Smoked Glass Cards) */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl bg-[#10121A] border border-[#181C28]">
-                      <div className="text-xs text-[#8B949E]">Simulated Balance</div>
-                      <div className="text-2xl font-bold mt-1 text-white">₹1,50,000 <span className="text-xs text-[#8B949E]">INR</span></div>
-                      <div className="text-xs text-[#00E676] mt-2">
-                        ≈ ${fxRates.find(r => r.currency === "USD") ? (150000 * (fxRates.find(r => r.currency === "USD")!.rate)).toFixed(2) : "..."} USD
+                    <div className="p-4 rounded-xl hallmark-glass">
+                      <div className="text-xs text-muted font-medium">Liquid Treasury</div>
+                      <div className="text-2xl font-bold mt-1 text-white tracking-tight">â‚¹1,50,000 <span className="text-xs font-normal text-muted">INR</span></div>
+                      <div className="text-xs text-accent mt-1.5 flex items-center gap-1">
+                        â‰ˆ ${fxRates.find(r => r.currency === "USD") ? (150000 * (fxRates.find(r => r.currency === "USD")!.rate)).toFixed(2) : "…"} USD
                       </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-[#10121A] border border-[#181C28]">
-                      <div className="text-xs text-[#8B949E]">Tokyo Travel (JPY)</div>
-                      <div className="text-2xl font-bold mt-1 text-[#00B0FF]">
-                        ¥{fxRates.find(r => r.currency === "JPY") ? Math.round(150000 * (fxRates.find(r => r.currency === "JPY")!.rate)).toLocaleString() : "..."} <span className="text-xs text-[#8B949E]">JPY</span>
+                    <div className="p-4 rounded-xl hallmark-glass">
+                      <div className="text-xs text-muted font-medium">Tokyo Travel Allocation</div>
+                      <div className="text-2xl font-bold mt-1 text-periwinkle tracking-tight">
+                        Â¥{fxRates.find(r => r.currency === "JPY") ? Math.round(150000 * (fxRates.find(r => r.currency === "JPY")!.rate)).toLocaleString() : "…"} <span className="text-xs font-normal text-muted">JPY</span>
                       </div>
-                      <div className="text-xs text-[#A0AEC0] mt-2">Live ECB rate</div>
+                      <div className="text-xs text-ink-2 mt-1.5">Live ECB reference rate</div>
                     </div>
-                    <div className="p-4 rounded-xl bg-[#10121A] border border-[#181C28]">
-                      <div className="text-xs text-[#8B949E]">FX Spread Saved</div>
-                      <div className="text-2xl font-bold mt-1 text-[#00E676]">₹5,700 <span className="text-xs text-[#8B949E]">INR</span></div>
-                      <div className="text-xs text-[#A0AEC0] mt-2">vs. Standard 4.5% bank markup</div>
+                    <div className="p-4 rounded-xl hallmark-glass">
+                      <div className="text-xs text-muted font-medium">Fee Markups Eliminated</div>
+                      <div className="text-2xl font-bold mt-1 text-accent tracking-tight">â‚¹5,700 <span className="text-xs font-normal text-muted">INR</span></div>
+                      <div className="text-xs text-muted mt-1.5">vs standard 4.5% bank spread</div>
                     </div>
                   </div>
 
                   {/* Interactive Currency Converter */}
-                  <div className="p-4 rounded-xl bg-[#10121A] border border-[#181C28] space-y-3">
+                  <div className="p-5 rounded-xl hallmark-glass space-y-3.5">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                        <Calculator className="w-4 h-4 text-[#00E676]" /> Live ECB Currency Calculator
+                      <h3 className="font-medium text-sm text-white flex items-center gap-2">
+                        <Calculator className="w-4 h-4 text-periwinkle" aria-hidden="true" /> Live ECB Currency Calculator
                       </h3>
-                      <span className="text-[10px] text-[#00E676] font-mono">Real-time ECB Reference</span>
+                      <span className="text-[10px] text-accent bg-accent-soft px-2 py-0.5 rounded-full border border-accent/20">
+                        Zero Bank Margins
+                      </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
                       <div>
-                        <label className="text-[10px] text-[#8B949E] block mb-1">Source Amount (INR)</label>
+                        <label className="text-[11px] text-muted block mb-1">Source Amount (INR)</label>
                         <input
                           type="number"
                           value={calcAmount}
                           onChange={(e) => setCalcAmount(Number(e.target.value) || 0)}
-                          className="w-full bg-[#121520] border border-[#202638] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#00E676]"
+                          className="w-full bg-paper-3 border border-rule rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-periwinkle"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] text-[#8B949E] block mb-1">Target Currency</label>
+                        <label className="text-[11px] text-muted block mb-1">Target Currency</label>
                         <select
                           value={calcTarget}
                           onChange={(e) => setCalcTarget(e.target.value)}
-                          className="w-full bg-[#121520] border border-[#202638] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#00E676]"
+                          className="w-full bg-paper-3 border border-rule rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-periwinkle"
                         >
                           {fxRates.map((r) => (
-                            <option key={r.currency} value={r.currency}>
-                              {r.flag} {r.currency}
+                            <option key={r.currency} value={r.currency} className="bg-paper-3">
+                              {r.currency}
                             </option>
                           ))}
                         </select>
                       </div>
-                      <div className="md:col-span-2 p-3 rounded-lg bg-[#090A0F] border border-[#181C28] flex items-center justify-between">
+                      <div className="md:col-span-2 p-3 rounded-lg bg-paper border border-rule flex items-center justify-between">
                         <div>
-                          <div className="text-[10px] text-[#8B949E]">Converted Result</div>
-                          <div className="text-lg font-bold text-[#00E676]">
+                          <div className="text-[10px] text-muted">Converted Equivalent</div>
+                          <div className="text-base font-semibold text-accent">
                             {Number(calcResult).toLocaleString()} {calcTarget}
                           </div>
                         </div>
-                        <div className="text-right text-[10px] text-[#8B949E]">
+                        <div className="text-right text-[11px] text-muted">
                           <div>Rate: {selectedRate.toFixed(4)}</div>
-                          <div className="text-[#00B0FF]">Est. Bank Markup Saved: ₹{(calcAmount * 0.045).toFixed(0)}</div>
+                          <div className="text-periwinkle">Bank Fee Saved: â‚¹{(calcAmount * 0.045).toFixed(0)}</div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Live FX Rate Table */}
-                  <div className="p-5 rounded-xl bg-[#10121A] border border-[#181C28] space-y-3">
+                  {/* Live FX Rates Table */}
+                  <div className="p-5 rounded-xl hallmark-glass space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-sm text-white">Live FX Rates (INR base · European Central Bank)</h3>
-                      <span className="text-xs text-[#00E676] font-mono flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
-                        {fxDate ? `Updated ${fxDate}` : "Connecting…"}
+                      <h3 className="font-medium text-sm text-white">Live ECB Reference Rates (INR Base)</h3>
+                      <span className="text-[11px] text-muted font-mono">
+                        {fxDate ? `Synchronized ${fxDate}` : "Querying ECB…"}
                       </span>
                     </div>
                     {fxLoading ? (
-                      <div className="flex items-center gap-2 text-xs text-[#555]">
-                        <Loader2 className="w-3 h-3 animate-spin" /> Loading ECB rates…
+                      <div className="flex items-center gap-2 text-xs text-muted py-4">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Retrieving exchange rates…
                       </div>
                     ) : (
-                      <div className="divide-y divide-[#181C28] text-xs">
-                        <div className="grid grid-cols-4 py-2 font-mono text-[#8B949E]">
+                      <div className="divide-y divide-rule text-xs">
+                        <div className="grid grid-cols-4 py-2 font-medium text-muted">
                           <span>CURRENCY</span>
-                          <span>1 INR =</span>
-                          <span>₹1,50,000 =</span>
-                          <span>TREND</span>
+                          <span>1 INR VALUE</span>
+                          <span>150000 INR VALUE</span>
+                          <span>SPREAD</span>
                         </div>
                         {fxRates.map((r) => (
-                          <div key={r.currency} className="grid grid-cols-4 py-3 items-center">
-                            <span className="font-bold text-white flex items-center gap-1.5">
-                              {r.flag} {r.currency}
+                          <div key={r.currency} className="grid grid-cols-4 py-2.5 items-center">
+                            <span className="font-medium text-white flex items-center gap-1.5">
+                              <span className="px-1.5 py-0.5 rounded bg-paper-3 text-[10px] font-mono text-ink-2">{r.currency}</span>
                             </span>
-                            <span className="font-mono text-[#E0E6ED]">{r.rate.toFixed(4)}</span>
-                            <span className="font-bold text-[#00E676]">
+                            <span className="font-mono text-ink-2">{r.rate.toFixed(4)}</span>
+                            <span className="font-medium text-accent">
                               {(150000 * r.rate).toLocaleString(undefined, { maximumFractionDigits: 0 })} {r.currency}
                             </span>
-                            <span className="text-[#555E6D] font-mono">────</span>
+                            <span className="text-muted font-mono">0.0% Interbank</span>
                           </div>
                         ))}
                       </div>
@@ -685,17 +695,17 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* ── 2. AG Grid Ledger Tab ── */}
+              {/* â”€â”€ 2. AG Grid Ledger Tab â”€â”€ */}
               {activeTab === "grid" && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                <div className="space-y-3.5">
+                  <div className="flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-[#00E676]" />
+                      <h3 className="font-medium text-sm text-white flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-accent" aria-hidden="true" />
                         Transaction Audit Ledger (AG Grid Community)
                       </h3>
-                      {/* Quick Filter Pills */}
-                      <div className="hidden sm:flex items-center gap-1">
+                      {/* Filter Capsules */}
+                      <div className="flex items-center gap-1.5">
                         {["ALL", "Travel", "Dining", "Commerce"].map((cat) => (
                           <button
                             key={cat}
@@ -711,10 +721,10 @@ export default function DashboardPage() {
                                 gridRef.current?.api?.setFilterModel(model);
                               }
                             }}
-                            className={`px-2 py-0.5 rounded text-[10px] transition ${
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] transition ${
                               (!gridFilter && cat === "ALL") || gridFilter?.value === cat
-                                ? "bg-[#00E676] text-black font-bold"
-                                : "bg-[#181C28] text-[#8B949E] hover:text-white"
+                                ? "bg-accent text-accent-ink font-semibold"
+                                : "bg-paper-3 text-muted hover:text-white border border-rule"
                             }`}
                           >
                             {cat}
@@ -725,24 +735,24 @@ export default function DashboardPage() {
 
                     {gridFilter && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#00E676] font-mono">
-                          Filter: {gridFilter.column} = &quot;{gridFilter.value}&quot;
+                        <span className="text-xs text-accent bg-accent-soft px-2 py-0.5 rounded-full border border-accent/20">
+                          AI Filter: {gridFilter.column} is &quot;{gridFilter.value}&quot;
                         </span>
                         <button
                           onClick={() => {
                             setGridFilter(null);
                             gridRef.current?.api?.setFilterModel(null);
                           }}
-                          className="text-[#555E6D] hover:text-white"
+                          className="text-muted hover:text-white"
                         >
-                          <XCircle className="w-3 h-3" />
+                          <XCircle className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </div>
                     )}
                   </div>
 
                   <div
-                    className="ag-theme-alpine-dark rounded-xl overflow-hidden border border-[#181C28]"
+                    className="ag-theme-alpine-dark rounded-xl overflow-hidden border border-rule shadow-md"
                     style={{ height: 380 }}
                   >
                     <AgGridReact
@@ -753,51 +763,53 @@ export default function DashboardPage() {
                       pagination={true}
                       paginationPageSize={8}
                       rowHeight={40}
-                      headerHeight={36}
+                      headerHeight={38}
                       suppressCellFocus={true}
                     />
                   </div>
-                  <div className="text-[10px] text-[#555E6D]">
-                    AG Grid Community · Client-side filtering · AI-driven column filters via /api/chat
+                  <div className="text-[11px] text-muted flex items-center justify-between">
+                    <span>AG Grid Community v32 (Client-side row model, dynamic AI filter execution)</span>
+                    <span className="text-accent font-medium">All rows verified</span>
                   </div>
                 </div>
               )}
 
-              {/* ── 3. Commerce Tab ── */}
+              {/* â”€â”€ 3. Agentic Commerce Tab (Channel3) â”€â”€ */}
               {activeTab === "commerce" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                      <ShoppingBag className="w-4 h-4 text-[#00E676]" /> Travel Essentials (Channel3 API)
+                    <h3 className="font-medium text-sm text-white flex items-center gap-2">
+                      <ShoppingBag className="w-4 h-4 text-accent" aria-hidden="true" /> Travel Essentials (Channel3 Product Graph)
                     </h3>
-                    <span className="text-xs text-[#A0AEC0]">AI-curated for your trip</span>
+                    <span className="text-xs text-muted">AI destination curation</span>
                   </div>
 
                   {productsLoading ? (
-                    <div className="flex items-center gap-2 text-xs text-[#555]">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Loading products…
+                    <div className="flex items-center gap-2 text-xs text-muted py-6">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Querying product catalog…
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {products.map((p) => (
-                        <div key={p.id} className="p-4 rounded-xl bg-[#10121A] border border-[#181C28] space-y-3 hover:border-[#00E676]/30 transition">
-                          <div className="w-full h-28 rounded-lg bg-[#181C28] overflow-hidden flex items-center justify-center">
+                        <div key={p.id} className="p-4 rounded-xl hallmark-glass space-y-3 hover:border-rule-2 transition">
+                          <div className="w-full h-28 rounded-lg bg-paper-2 overflow-hidden flex items-center justify-center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
                           </div>
-                          <div className="font-semibold text-xs text-white leading-tight">{p.title}</div>
-                          <div className="flex items-center gap-1 text-[10px] text-[#FFD600]">
-                            <Star className="w-3 h-3 fill-current" /> {p.rating} · {p.retailer}
+                          <div className="font-medium text-xs text-white leading-snug">{p.title}</div>
+                          <div className="flex items-center gap-1 text-[11px] text-warning">
+                            <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {p.rating} (<span className="text-muted">{p.retailer}</span>)
                           </div>
                           <div className="flex items-center justify-between pt-1">
-                            <span className="font-bold text-[#00E676] text-sm">₹{p.price_inr.toLocaleString()}</span>
-                            <span className="text-[10px] text-[#A0AEC0]">${p.price_usd} USD</span>
+                            <span className="font-semibold text-accent text-sm">â‚¹{p.price_inr.toLocaleString()}</span>
+                            <span className="text-[11px] text-muted">${p.price_usd} USD</span>
                           </div>
                           <button
                             onClick={() => handleQuickPrompt(`Buy the ${p.title} for $${p.price_usd}`)}
-                            className="w-full py-2 rounded bg-[#181C28] hover:bg-[#00E676] hover:text-black font-semibold text-xs transition flex items-center justify-center gap-1"
+                            className="w-full py-2 rounded-lg bg-paper-3 hover:bg-accent hover:text-black font-medium text-xs transition flex items-center justify-center gap-1.5 border border-rule"
                           >
-                            Prepare PayPal Checkout <ArrowRight className="w-3 h-3" />
+                            <span>Prepare Checkout</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
                           </button>
                         </div>
                       ))}
@@ -806,46 +818,46 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* ── 4. Invest/Simulate Tab ── */}
+              {/* â”€â”€ 4. Portfolio & Risk Tab â”€â”€ */}
               {activeTab === "invest" && (
                 <div className="space-y-4">
-                  {/* Mandatory disclaimer */}
-                  <div className="p-3 rounded-lg bg-[#FFD600]/10 border border-[#FFD600]/30 text-[#FFD600] text-xs flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                  {/* Mandatory FEMA / Simulation Disclaimer Badge */}
+                  <div className="p-3.5 rounded-xl bg-warning/10 border border-warning/25 text-warning text-xs flex items-center gap-2.5">
+                    <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden="true" />
                     <span>
-                      <strong>Simulated Portfolio — Educational Only — No Capital at Risk.</strong>{" "}
+                      <strong>Simulated Portfolio: Educational Only: No Capital at Risk.</strong>{" "}
                       {portfolioDisclaimer}
                     </span>
                   </div>
 
                   {portfolioLoading ? (
-                    <div className="flex items-center gap-2 text-xs text-[#555]">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Loading portfolio…
+                    <div className="flex items-center gap-2 text-xs text-muted py-6">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" /> Querying simulated holdings…
                     </div>
                   ) : (
-                    <div className="p-5 rounded-xl bg-[#10121A] border border-[#181C28] space-y-4">
-                      <h3 className="font-bold text-sm text-white">Currency Portfolio Simulator</h3>
-                      <div className="divide-y divide-[#181C28] text-xs">
-                        <div className="grid grid-cols-5 py-2 font-mono text-[#8B949E]">
+                    <div className="p-5 rounded-xl hallmark-glass space-y-4">
+                      <h3 className="font-medium text-sm text-white">Simulated Currency Portfolio</h3>
+                      <div className="divide-y divide-rule text-xs">
+                        <div className="grid grid-cols-5 py-2 font-medium text-muted">
                           <span>CURRENCY</span>
-                          <span>ALLOC %</span>
+                          <span>ALLOCATION</span>
                           <span>VALUE INR</span>
-                          <span>P&amp;L %</span>
+                          <span>UNREALIZED P&amp;L</span>
                           <span>7-DAY TREND</span>
                         </div>
                         {portfolio.map((item) => (
                           <div key={item.currency} className="grid grid-cols-5 py-3 items-center">
-                            <span className="font-bold text-white flex items-center gap-1">
-                              {CURRENCY_FLAGS[item.currency] || "🌐"} {item.currency}
+                            <span className="font-medium text-white flex items-center gap-1.5">
+                              <span className="px-1.5 py-0.5 rounded bg-paper-3 text-[10px] font-mono text-ink-2">{item.currency}</span>
                             </span>
-                            <span className="text-[#A0AEC0]">{item.allocation_pct}%</span>
-                            <span className="text-white">₹{item.value_inr.toLocaleString()}</span>
-                            <span className={item.unrealized_pnl_pct >= 0 ? "text-[#00E676]" : "text-[#FF1744]"}>
+                            <span className="text-ink-2">{item.allocation_pct}%</span>
+                            <span className="text-white font-medium">â‚¹{item.value_inr.toLocaleString()}</span>
+                            <span className={item.unrealized_pnl_pct >= 0 ? "text-accent font-medium" : "text-danger font-medium"}>
                               {item.unrealized_pnl_pct >= 0 ? "+" : ""}{item.unrealized_pnl_pct}%
                             </span>
                             <Sparkline
                               data={item.sparkline}
-                              color={item.unrealized_pnl_pct >= 0 ? "#00E676" : "#FF1744"}
+                              color={item.unrealized_pnl_pct >= 0 ? "var(--color-accent)" : "var(--color-danger)"}
                             />
                           </div>
                         ))}
@@ -853,17 +865,17 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  {/* Stress Test Slider */}
-                  <div className="p-5 rounded-xl bg-[#10121A] border border-[#181C28] space-y-4">
-                    <h3 className="font-bold text-sm text-white">Macro FX Stress-Test Simulator</h3>
-                    <p className="text-xs text-[#8B949E]">
-                      Simulate how macro shocks affect your foreign exchange holdings before traveling.
+                  {/* Macro FX Stress Test Slider */}
+                  <div className="p-5 rounded-xl hallmark-glass space-y-4">
+                    <h3 className="font-medium text-sm text-white">Macro FX Stress-Test Simulator</h3>
+                    <p className="text-xs text-muted leading-relaxed">
+                      Simulate how macroeconomic volatility or central bank interest rate decisions affect foreign exchange balances prior to travel.
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       <div className="flex justify-between text-xs">
-                        <span>Simulate JPY Shock: {shockPct > 0 ? "+" : ""}{shockPct}.0%</span>
-                        <span className={`font-mono font-bold ${shockImpactInr >= 0 ? "text-[#00E676]" : "text-[#FF1744]"}`}>
-                          {shockImpactInr >= 0 ? "+" : ""}₹{shockImpactInr.toLocaleString()} INR Impact
+                        <span className="text-ink-2">Simulated JPY Shock: {shockPct > 0 ? "+" : ""}{shockPct}.0%</span>
+                        <span className={`font-medium ${shockImpactInr >= 0 ? "text-accent" : "text-danger"}`}>
+                          {shockImpactInr >= 0 ? "+" : ""}â‚¹{shockImpactInr.toLocaleString()} INR Projected Impact
                         </span>
                       </div>
                       <input
@@ -872,11 +884,11 @@ export default function DashboardPage() {
                         max="20"
                         value={shockPct}
                         onChange={(e) => setShockPct(Number(e.target.value))}
-                        className="w-full accent-[#00E676]"
+                        className="w-full accent-accent cursor-pointer"
                       />
                     </div>
-                    <div className="text-[10px] text-[#555E6D] text-center">
-                      Educational simulation only · No real transactions executed
+                    <div className="text-[11px] text-muted text-center pt-1">
+                      Scenario stress testing only: zero actual fiat currency transactions executed
                     </div>
                   </div>
                 </div>
