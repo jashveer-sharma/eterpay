@@ -1,4 +1,4 @@
-/* Hallmark v2 · dusk · redesign: full · sloplint: 0 FAIL · 1 REFLEX (7b waived: accent-ink is #000 by design — green-on-black is the brand contrast pair) · Finish: shipped */
+/* Hallmark v2 · Mercury × Brex Synthesis · Alpine Observatory Meets Clinical Financial Workbench · sloplint: 0 FAIL */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,122 +6,179 @@
 @import '@ag-grid-community/styles/ag-grid.css';
 @import '@ag-grid-community/styles/ag-theme-alpine.css';
 
-/* ── Hallmark Dusk Token Block ──────────────────────────────────────────── */
+/* ── Mercury × Brex Master Token Block ─────────────────────────────────── */
 :root {
-  /* Paper surfaces */
-  --color-paper:    #0e1017;
-  --color-paper-2:  #141722;
-  --color-paper-3:  #1a1e2c;
+  /* Mercury Surfaces: Onyx Canvas & Graphite Cards */
+  --color-onyx:            #171721;
+  --color-graphite:        #1e1e2a;
+  --color-graphite-hover:  #232332;
+  --color-obsidian:        #272735;
+  --color-abyss:           #000710;
+  --color-carbon:          #15191e;
 
-  /* Typography */
-  --color-ink:      #f5f7fa;
-  --color-ink-2:    #c8d1dc;
-  --color-muted:    #7f8c9d;
+  /* Aliased surfaces for backward compatibility */
+  --color-paper:           #171721;
+  --color-paper-2:         #1e1e2a;
+  --color-paper-3:         #272735;
 
-  /* Rules */
-  --color-rule:     rgba(255, 255, 255, 0.08);
-  --color-rule-2:   rgba(255, 255, 255, 0.14);
+  /* Typography: Mercury Ivory & Ash */
+  --color-ivory:           #ededf3;
+  --color-ash:             #c3c3cc;
+  --color-ink:             #ededf3;
+  --color-ink-2:           #c3c3cc;
+  --color-muted:           #7f8c9d;
 
-  /* Signal colours */
-  --color-accent:          #00e676;
-  --color-accent-ink:      #001a0a;
-  --color-accent-soft:     rgba(0, 230, 118, 0.12);
+  /* Hairlines & Dividers (Brex Mist/Slate) */
+  --color-hairline:        rgba(255, 255, 255, 0.08);
+  --color-hairline-hi:     rgba(255, 255, 255, 0.16);
+  --color-rule:            rgba(255, 255, 255, 0.08);
+  --color-rule-2:          rgba(255, 255, 255, 0.14);
+  --color-slate:           #70707d;
+
+  /* Chromatic Precision: Mercury Cobalt & Brex Ember */
+  --color-cobalt:          #5266eb;
+  --color-cobalt-hover:    #4355d6;
+  --color-cobalt-soft:     rgba(82, 102, 235, 0.12);
+  --color-ember:           #ff5900;
+  --color-ember-soft:      rgba(255, 89, 0, 0.12);
+  --color-ember-border:    rgba(255, 89, 0, 0.35);
+
+  /* Legacy aliases for signals */
+  --color-accent:          #5266eb;
+  --color-accent-ink:      #f5f6ff;
+  --color-accent-soft:     rgba(82, 102, 235, 0.12);
   --color-periwinkle:      #7e8eff;
   --color-periwinkle-soft: rgba(126, 142, 255, 0.12);
-  --color-cyan:     #00b0ff;
-  --color-danger:   #ff334b;
-  --color-warning:  #ffb300;
+  --color-cyan:            #00b0ff;
+  --color-danger:          #ff334b;
+  --color-warning:         #ffb300;
+  --color-success:         #00e676;
+  --color-success-soft:    rgba(0, 230, 118, 0.12);
 
-  /* Surfaces */
-  --glass:          rgba(20, 23, 34, 0.80);
-  --glass-hi:       inset 0 1px 0 rgba(255,255,255,0.10), inset 0 0 0 1px rgba(255,255,255,0.06);
-  --shadow-card:    0 24px 48px -18px rgba(0,0,0,0.55);
-  --shadow-inset:   inset 0 1px 0 rgba(255,255,255,0.07);
+  /* Elevation Surfaces (Value contrast, no heavy drop shadows) */
+  --surface-card:          #1e1e2a;
+  --shadow-inset:          inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-  /* Lifted radial glow — tokenised to fix FAIL 48:44 */
-  --bg-radial-glow: radial-gradient(circle at 50% 0%, rgba(126, 142, 255, 0.06) 0%, transparent 60%);
+  /* Lifted atmospheric glow */
+  --bg-radial-glow:        radial-gradient(circle at 50% 0%, rgba(82, 102, 235, 0.05) 0%, transparent 60%);
 
-  /* System font stack — tokenised to fix FAIL 48:45 */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  /* Typography Stack */
+  --font-sans:             'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* AG hover tint — tokenised to fix FAIL 48:82 */
-  --ag-row-hover-tint: rgba(255, 255, 255, 0.025);
+  /* AG Grid hover tint */
+  --ag-row-hover-tint:     rgba(255, 255, 255, 0.025);
 
-  /* Radius scale */
-  --radius-card:  14px;
-  --radius-inner:  8px;
-  --radius-pill:  999px;
-  --rule-hair:    1px;
+  /* Radii */
+  --radius-card:           12px;
+  --radius-pill:           999px;
+  --radius-sm:             6px;
+  --rule-hair:             1px;
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────── */
 html, body {
-  color:            var(--color-ink);
-  background-color: var(--color-paper);
-  background-image: var(--bg-radial-glow);
-  font-family:      var(--font-sans);
-  overflow-x:       clip;
-  -webkit-font-smoothing: antialiased;
-  /* Hallmark F16: browser surfaces themed */
-  scrollbar-color:  var(--color-rule-2) var(--color-paper-2);
-  caret-color:      var(--color-accent);
+  color:                   var(--color-ivory);
+  background-color:        var(--color-onyx);
+  background-image:        var(--bg-radial-glow);
+  font-family:             var(--font-sans);
+  font-feature-settings:   "cv01", "cv10", "ss03", "zero";
+  overflow-x:              clip;
+  -webkit-font-smoothing:  antialiased;
+  scrollbar-color:         var(--color-hairline-hi) var(--color-graphite);
+  caret-color:             var(--color-cobalt);
 }
 
 ::selection {
-  background: var(--color-accent-soft);
-  color:      var(--color-ink);
+  background: var(--color-cobalt-soft);
+  color:      var(--color-ivory);
 }
 
 /* ── Focus ──────────────────────────────────────────────────────────────── */
 *:focus-visible {
-  outline:        2px solid var(--color-accent);
+  outline:        2px solid var(--color-cobalt);
   outline-offset: 2px;
-  border-radius:  var(--radius-inner);
+  border-radius:  var(--radius-card);
 }
 
-/* ── Smoked Glass Surfaces ──────────────────────────────────────────────── */
-/* Hallmark WARN 29 addressed: solid dark fill + elevation shadow only; no backdrop-blur hairline border combo */
+/* ── Mercury Graphite Cards (Elevation via Value Contrast) ──────────────── */
+.mercury-card {
+  color:          var(--color-ivory);
+  background:     var(--color-graphite);
+  border:         1px solid var(--color-hairline);
+  border-radius:  var(--radius-card);
+  box-shadow:     var(--shadow-inset);
+}
+
+.mercury-card-interactive {
+  color:          var(--color-ivory);
+  background:     var(--color-graphite);
+  border:         1px solid var(--color-hairline);
+  border-radius:  var(--radius-card);
+  box-shadow:     var(--shadow-inset);
+  transition-property: border-color, background-color;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mercury-card-interactive:hover {
+  border-color:   var(--color-hairline-hi);
+  background:     var(--color-graphite-hover);
+}
+
+/* Brex Ember Spark Card for High-Intent Payment Gate */
+.brex-ember-gate {
+  color:          var(--color-ivory);
+  background:     var(--color-graphite);
+  border:         1px solid var(--color-ember-border);
+  border-radius:  var(--radius-card);
+  box-shadow:     var(--shadow-inset);
+}
+
+/* Legacy classes for backward compatibility */
 .hallmark-glass {
-  background:  var(--glass);
-  box-shadow:  var(--shadow-inset), var(--shadow-card);
-  border:      1px solid var(--color-rule);
+  color:          var(--color-ivory);
+  background:     var(--color-graphite);
+  border:         1px solid var(--color-hairline);
+  border-radius:  var(--radius-card);
+  box-shadow:     var(--shadow-inset);
 }
 
 .hallmark-glass-lit {
-  background:  var(--glass);
-  box-shadow:  var(--glass-hi), var(--shadow-card);
-  border:      1px solid var(--color-rule-2);
+  color:          var(--color-ivory);
+  background:     var(--color-graphite);
+  border:         1px solid var(--color-hairline-hi);
+  border-radius:  var(--radius-card);
+  box-shadow:     var(--shadow-inset);
 }
 
-/* ── AG Grid Dusk Overrides ─────────────────────────────────────────────── */
+/* ── AG Grid Mercury/Brex Theme Overrides ────────────────────────────────── */
 .ag-theme-alpine-dark {
-  --ag-background-color:           var(--color-paper-2);
-  --ag-header-background-color:    var(--color-paper-3);
-  --ag-odd-row-background-color:   var(--color-paper-2);
-  --ag-border-color:               var(--color-rule);
-  --ag-header-foreground-color:    var(--color-muted);
-  --ag-foreground-color:           var(--color-ink);
-  --ag-selected-row-background-color: var(--color-accent-soft);
-  --ag-row-hover-color:            var(--ag-row-hover-tint);
-  --ag-font-size:                  12px;
-  --ag-font-family:                var(--font-sans);
-  --ag-row-border-color:           var(--color-rule);
-  --ag-cell-horizontal-padding:    12px;
-  --ag-header-height:              38px;
-  --ag-row-height:                 40px;
+  --ag-background-color:              var(--color-graphite);
+  --ag-header-background-color:       var(--color-carbon);
+  --ag-odd-row-background-color:      var(--color-graphite);
+  --ag-border-color:                  var(--color-hairline);
+  --ag-header-foreground-color:       var(--color-ash);
+  --ag-foreground-color:              var(--color-ivory);
+  --ag-selected-row-background-color: var(--color-cobalt-soft);
+  --ag-row-hover-color:               var(--ag-row-hover-tint);
+  --ag-font-size:                     12px;
+  --ag-font-family:                   var(--font-sans);
+  --ag-row-border-color:              var(--color-hairline);
+  --ag-cell-horizontal-padding:       12px;
+  --ag-header-height:                 38px;
+  --ag-row-height:                    40px;
 }
 
 .ag-theme-alpine-dark .ag-header-cell {
-  font-weight:     600;
-  letter-spacing:  normal;
-  text-transform:  none;
-  text-transform:  none;
+  font-weight:                        500;
+  letter-spacing:                     0.02em;
+  text-transform:                     none;
 }
 
 .ag-theme-alpine-dark .ag-paging-panel {
-  color:      var(--color-muted);
-  font-size:  11px;
-  border-top: 1px solid var(--color-rule);
+  color:                              var(--color-muted);
+  font-size:                          11px;
+  border-top:                         1px solid var(--color-hairline);
 }
 
 /* ── Active State ───────────────────────────────────────────────────────── */
@@ -133,8 +190,8 @@ a:active {
 /* ── Reduced Motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration:   0.01ms !important;
+    animation-duration:        0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration:  0.01ms !important;
+    transition-duration:       0.01ms !important;
   }
 }

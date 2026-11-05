@@ -31,3 +31,18 @@
 ### 5. Investment Simulation
 * `GET /invest/portfolio`
 * `POST /invest/stress-test` (Body: `{ "currency": "JPY", "delta_percentage": -10.0 }`)
+
+### 6. EterPay Anywhere — Universal Payment Orchestration
+* `POST /anywhere/parse-qr`
+  * Body: `{ "qr_string": "upi://pay?pa=tokyo@icici&am=8500&cu=JPY" }`
+  * Response: `{ "format": "UPI", "merchant": "tokyo@icici", "currency": "JPY", "amount": 8500.0, "suggested_routes": [...] }`
+* `POST /anywhere/route-payment`
+  * Body: `{ "source_country": "IN", "destination_country": "JP", "amount": 8500.0, "currency": "JPY" }`
+  * Response: `{ "eligible_providers": [ { "id": "PRV-PAYPAL-V2", "status": "ELIGIBLE", "estimated_inr": 4660.0, "fee_savings_inr": 195.0 } ] }`
+
+### 7. EterPay Business — Smart Invoices
+* `POST /invoices/generate`
+  * Body: `{ "client_name": "Acme Corp", "amount": 15000.0, "currency": "INR", "service": "UI Design", "due_days": 14 }`
+  * Response: `{ "invoice_id": "INV-2026-0042", "status": "PENDING", "payment_link": "https://..." }`
+* `GET /invoices`
+  * Response: `[ { "id": "INV-2026-001", "client": "...", "amount": 45000, "status": "PAID" } ]`
