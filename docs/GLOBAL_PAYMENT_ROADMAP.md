@@ -1,10 +1,10 @@
 # Global Payment Interoperability Roadmap — EterPay Anywhere
 
-> **Phased Evolution from Hackathon Prototype to Global Universal Payment Engine**
+> **Phased Evolution from platform deployment Prototype to Global Universal Payment Engine**
 
 ---
 
-## Stage 1 — Hackathon Prototype (Current Milestone)
+## Stage 1 — platform deployment Prototype (Current Milestone)
 * **Goal:** Deliver a working, end-to-end payment demonstration of global routing.
 * **Integrations:**
   * **PayPal Orders v2 Sandbox:** Fully operational live integration with server-side creation, modal approval, capture, and webhook logging.
@@ -16,7 +16,7 @@
 
 ---
 
-## Stage 2 — Initial Authorized Integrations (Post-Hackathon)
+## Stage 2 — Initial Authorized Integrations (Post-platform deployment)
 * **Goal:** Expand real payment rails beyond PayPal sandbox.
 * **Milestones:**
   * Connect certified card payment processors (Stripe / Adyen / CyberSource).

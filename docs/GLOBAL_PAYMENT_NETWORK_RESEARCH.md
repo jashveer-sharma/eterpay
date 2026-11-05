@@ -7,7 +7,7 @@
 
 ## 1. International Payment Providers
 
-### A. PayPal (Core Hackathon Integration)
+### A. PayPal (Core platform deployment Integration)
 * **Official Documentation:** [https://developer.paypal.com/docs/api/overview/](https://developer.paypal.com/docs/api/overview/)
 * **Relevant APIs:** Orders v2 API (`/v2/checkout/orders`), Payments v2 (`/v2/payments/captures`), Webhooks v1, Invoicing v2.
 * **Verified Capabilities:** Server-side order creation, modal approval via `@paypal/react-paypal-js`, asynchronous capture, webhook HMAC verification.

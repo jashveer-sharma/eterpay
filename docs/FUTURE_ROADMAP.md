@@ -1,6 +1,6 @@
 # EterPay — Future Roadmap (P1, P2, P3 Platform Expansion)
 
-> **Strategic Post-Hackathon Evolution**
+> **Strategic Post-platform deployment Evolution**
 
 ---
 

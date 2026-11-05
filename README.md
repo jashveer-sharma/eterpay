@@ -1,127 +1,184 @@
-# EterPay — Your Money. Everywhere. Intelligently Connected.
+# EterPay
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![PayPal AI Hackathon 2026](https://img.shields.io/badge/PayPal_Hackathon-2026-00457C?logo=paypal)](https://paypalaihackathon.devpost.com/)
-[![AG Grid](https://img.shields.io/badge/AG_Grid-Fintech_Terminal-00E676?logo=aggrid)](https://www.ag-grid.com/)
+**Your Money. Everywhere. Intelligently Connected.**
 
-> **EterPay (Eternal Payments)** is an AI-powered multi-currency financial platform designed to make understanding, spending, converting, and tracking money across borders seamless. Built specifically for the **PayPal "Build What's Next with PayPal and AI" Global Hackathon 2026**.
+EterPay is an AI-powered global financial platform built to unify payments, currency exchange, and financial management into a single intelligent experience. It supports multi-currency wallets, real PayPal payment processing, an AI financial assistant, and EterPay Anywhere — a cross-border payment interoperability layer.
 
 ---
 
-## 🌟 Key Features
+## Features
 
-1. **Intelligent Travel & Multi-Currency Planning**
-   * Natural-language budget creation (e.g. *"I'm traveling to Japan with ₹1,50,000. Help me plan my money."*).
-   * Live ECB exchange rates via Frankfurter API with transparent spread and hidden-fee breakdown.
-   * Dynamic currency exposure and volatility alerts.
-
-2. **AG Grid Financial Terminal**
-   * Multi-currency balances with 7-day inline SVG sparklines.
-   * Full transaction audit ledger with status badges, sorting, and filtering.
-   * **AI-Driven Grid Filtering:** The conversational assistant can directly manipulate AG Grid filter states via structured tool execution.
-
-3. **Agentic Commerce (Powered by Channel3)**
-   * AI-assisted product discovery across 25,000+ retailers.
-   * Discovers travel gear and essentials matching user destination and budget constraints.
-   * One-click checkout cart preparation.
-
-4. **Deterministic Safe PayPal Sandbox Payments**
-   * True server-side **PayPal Orders v2 API** integration (`create-order` & `capture-order`).
-   * Seamless in-app approval via **PayPal JavaScript SDK v6** modal.
-   * Real-time ledger updates verified by asynchronous PayPal Webhooks (`PAYMENT.CAPTURE.COMPLETED`).
-   * **Deterministic Security Gate:** The AI model proposes transactions; the backend validates limits and idempotency; the user must explicitly click to authorize payment.
-
-5. **Simulated Investment & Scenario Modeling**
-   * Educational multi-currency scenario stress testing.
-   * Visual what-if slider: observe the portfolio P&L impact if USD or JPY fluctuates.
-   * Strictly disclaimed with permanent educational simulation badges.
+| Module | Description |
+|---|---|
+| **Multi-Currency Wallet** | Hold, convert and manage balances across 30+ currencies with live ECB rates |
+| **Send & Request** | Peer-to-peer payments, payment links and QR code generation |
+| **EterPay Anywhere** | Cross-border payment routing — pay any recipient, any country, any method |
+| **AI Financial Assistant** | Conversational assistant powered by Gemini 1.5 Flash for spending insights, payment initiation and financial analysis |
+| **Invoicing & Subscriptions** | Professional invoice creation and recurring billing management |
+| **Travel Wallet** | Automatic currency switching, travel cards and destination-aware exchange |
+| **Commerce Integration** | Merchant dashboard, product catalog and embedded checkout |
+| **Analytics** | Spending breakdowns, cash flow charts and AI-generated financial summaries |
 
 ---
 
-## 🏗️ Architecture
+## Tech Stack
 
-```
-┌────────────────────────────────────────────────────────┐
-│             FRONTEND CLIENT (Next.js 15)               │
-│  • Obsidian Dark UI (#090A0F) + Neon Green (#00E676)   │
-│  • Conversational Copilot & Action Approval Card       │
-│  • AG Grid Multi-Currency Terminal & Sparklines        │
-│  • PayPal JS SDK v6 Modal Checkout                     │
-└───────────────────────────┬────────────────────────────┘
-                            │ HTTPS / REST
-┌───────────────────────────▼────────────────────────────┐
-│              BACKEND API (FastAPI Python)              │
-│  • LangGraph Tool Orchestrator                         │
-│  • Primary: Gemini 1.5 Flash · Fallback: Groq Llama 3.3│
-│  • Deterministic Safety & Idempotency Engine           │
-│  • PayPal REST Orders v2 Client & Webhook Verifier     │
-│  • Frankfurter ECB Currency Reference Feed             │
-└───────────────────────────┬────────────────────────────┘
-                            │
-┌───────────────────────────▼────────────────────────────┐
-│                    DATA STORAGE                        │
-│  • PostgreSQL / SQLite (Ledger, Portfolios, Users)     │
-└────────────────────────────────────────────────────────┘
-```
+**Frontend**
+- Next.js 15 (App Router) + TypeScript
+- Tailwind CSS — Miligram-inspired design system (cream `#fbf9f5`, forest green `#0f4d40`)
+- AG Grid — high-performance transaction ledger and analytics tables
+- Framer Motion — page transitions and micro-interactions
+
+**Backend**
+- FastAPI (Python 3.11+) + Pydantic v2
+- SQLAlchemy async + SQLite (dev) / PostgreSQL (production)
+- HTTPX for external API calls
+
+**Payments**
+- PayPal Orders v2 API — real sandbox order creation, modal approval and capture
+- Webhook signature verification for server-side payment confirmation
+
+**AI**
+- Google Gemini 1.5 Flash (primary) — free tier, conversational tool calling
+- Groq Llama 3.3 70B (fallback) — zero-cost secondary model
+
+**Market Data**
+- Frankfurter ECB API (`api.frankfurter.app`) — free, no API key required
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start
 
 ### Prerequisites
-* **Node.js:** v18.0.0 or higher
-* **Python:** v3.11 or higher
-* **Git:** v2.40 or higher
+- Node.js 20+
+- Python 3.11+
+- Git
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/your-username/eterpay.git
-cd eterpay
-```
+### Frontend
 
-### 2. Configure Environment Variables
-Copy `.env.example` to `.env` and provide your sandbox credentials:
-```bash
-cp .env.example .env
-```
-*(See `.env.example` for details on obtaining free sandbox and AI keys).*
-
-### 3. Backend Setup
-```bash
-cd backend
-python -m venv venv
-# Windows:
-.\venv\Scripts\activate
-# Mac/Linux:
-source venv/bin/activate
-
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-
-### 4. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
+# → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the EterPay application.
+### Backend
+
+```bash
+cd backend
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+pip install -r requirements.txt
+cp .env.example .env   # fill in your keys
+uvicorn app.main:app --reload --port 8000
+# → http://localhost:8000
+```
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+```env
+# PayPal (Sandbox)
+PAYPAL_CLIENT_ID=your_sandbox_client_id
+PAYPAL_CLIENT_SECRET=your_sandbox_client_secret
+PAYPAL_WEBHOOK_ID=your_webhook_id
+
+# AI Models
+GEMINI_API_KEY=your_gemini_key        # free at aistudio.google.com
+GROQ_API_KEY=your_groq_key            # free at console.groq.com
+
+# Database
+DATABASE_URL=sqlite+aiosqlite:///./eterpay.db
+```
 
 ---
 
-## 🧪 Testing with PayPal Sandbox
+## Demo
 
-To test payments without real capital:
-1. Log in with a **PayPal Sandbox Buyer Account**.
-2. Credentials can be generated in your [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/accounts).
-3. Authorize the sandbox modal.
-4. Verify the captured transaction in the AG Grid audit ledger.
+| Field | Value |
+|---|---|
+| Email | `demo@eterpay.com` |
+| Password | `Demo1234!` |
+
+The demo account uses mocked data. No real payments are processed unless PayPal sandbox credentials are configured.
 
 ---
 
-## 📜 License & Governance
+## Architecture
 
-* **License:** [MIT License](LICENSE)
-* **Branching Strategy:** `main` (stable releases) · `develop` (integration) · `feature/*` (feature branches).
-* **Security Notice:** No live payment secrets are stored on frontend clients. All payments require human-in-the-loop authorization.
+```
+┌─────────────────────────────────────────────────┐
+│                  EterPay Frontend                 │
+│          Next.js 15 · App Router · TS             │
+│                                                   │
+│  Public  ──→  Auth  ──→  App Dashboard            │
+│  (38 routes)                                      │
+└──────────────────┬──────────────────────────────-─┘
+                   │ REST / JSON
+┌──────────────────▼────────────────────────────────┐
+│                 FastAPI Backend                    │
+│       Pydantic v2 · SQLAlchemy async               │
+│                                                   │
+│  /api/payments  /api/ai  /api/fx  /api/invoices   │
+└───────┬─────────────────────┬─────────────────────┘
+        │                     │
+   PayPal Orders v2      Gemini / Groq
+   Sandbox API           AI Tool Calling
+        │                     │
+   Webhook Verify       Frankfurter ECB
+   Ledger Commit        Live FX Rates
+```
+
+**Payment Safety Gate** — the AI assistant has no authority to move funds. Every payment requires:
+1. AI intent proposal
+2. Backend Pydantic validation
+3. Explicit user "Approve" click
+4. PayPal Orders API → modal approval
+5. Webhook verification
+6. Ledger commit
+
+---
+
+## Project Structure
+
+```
+unipay/
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── (public)/   # Marketing pages + auth
+│   │   │   ├── (auth)/     # Login, signup, onboarding
+│   │   │   └── (app)/      # Authenticated dashboard
+│   │   ├── components/
+│   │   └── lib/
+│   └── public/brand/       # SVG logo assets
+├── backend/
+│   ├── app/
+│   │   ├── api/            # Route handlers
+│   │   ├── core/           # AI agent, config, security
+│   │   ├── models/         # SQLAlchemy models
+│   │   └── services/       # PayPal, FX, AI services
+│   └── requirements.txt
+└── docs/                   # Architecture and feature docs
+```
+
+---
+
+## Security Notes
+
+- Client secrets are never exposed to the frontend
+- All payment state is verified server-side via PayPal webhooks
+- Every payment creation includes a UUID v4 `PayPal-Request-Id` for idempotency
+- Simulated portfolio features are permanently badged: `[Simulated Portfolio — Educational Only — No Capital at Risk]`
+
+---
+
+## License
+
+MIT © 2026 EterPay

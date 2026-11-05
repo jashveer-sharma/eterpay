@@ -1,6 +1,6 @@
-# EterPay — Hackathon MVP Scope (P0 Capabilities)
+# EterPay — platform deployment MVP Scope (P0 Capabilities)
 
-> **Verified, Working Minimum Viable Product for Hackathon Judging**
+> **Verified, Working Minimum Viable Product for platform deployment Judging**
 
 ---
 

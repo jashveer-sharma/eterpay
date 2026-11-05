@@ -37,7 +37,7 @@
 - [x] Pytest backend suite verified: **10/10 tests passing**
 - [x] Render cloud deployment IaC configured (`render.yaml`)
 - [x] Environment variable templates documented (`.env.example`, `.env.local.example`)
-- [x] Hackathon 2m45s demo video recording script (`docs/DEMO_SCRIPT.md`)
+- [x] platform deployment 2m45s demo video recording script (`docs/DEMO_SCRIPT.md`)
 - [x] Comprehensive deployment walkthrough (`docs/DEPLOYMENT.md`)
 - [x] Git version control: `develop` & `main` branches synchronized, tagged `v0.3.0`
 

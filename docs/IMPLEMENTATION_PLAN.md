@@ -2,7 +2,7 @@
 
 > **Aesthetic Foundation:** Mercury × Brex Synthesis ("Alpine Observatory Meets Clinical Financial Workbench")  
 > **Core Identity:** EterPay — Your Money. Everywhere. Intelligently Connected.  
-> **Target:** PayPal "Build What's Next with PayPal and AI" Global Hackathon 2026
+> **Target:** PayPal "Build What's Next with PayPal and AI" Global platform deployment 2026
 
 ---
 

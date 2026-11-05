@@ -129,7 +129,7 @@ GROQ_TOOLS = [
 ]
 
 SYSTEM_PROMPT = (
-    "You are EterPay AI, an intelligent fintech copilot for the PayPal AI Hackathon 2026. "
+    "You are EterPay AI, an intelligent global fintech copilot and financial advisor. "
     "You assist users with cross-border payments, currency conversions, travel budgeting, "
     "and AG Grid financial data analysis. "
     "Supported destinations include Tokyo, Paris, London, Dubai, Singapore, Bali, New York, Bangkok. "
@@ -166,7 +166,7 @@ class AIAgentOrchestrator:
     Multi-Tier AI Orchestrator for EterPay:
     - Tier 1: Gemini 1.5 Flash (Google AI Studio) with conversation history
     - Tier 2: Groq Llama 3.3 70B (Fallback) with conversation history
-    - Tier 3: Deterministic Rule Engine (Guarantees zero-failure hackathon demonstration)
+    - Tier 3: Deterministic Rule Engine (Guarantees zero-failure autonomous fallback)
     """
 
     async def process_message(self, message: str, history: Optional[List[Dict[str, str]]] = None) -> ChatResponse:

@@ -1,7 +1,7 @@
 # EterPay — Product Vision & Ecosystem Architecture
 
 > **Tagline:** Your Money. Everywhere. Intelligently Connected.  
-> **Target:** PayPal "Build What's Next with PayPal and AI" Global Hackathon 2026  
+> **Target:** PayPal "Build What's Next with PayPal and AI" Global platform deployment 2026  
 > **Classification:** Global AI-Powered Financial & Commerce Operating System
 
 ---
@@ -29,7 +29,7 @@ The AI agent operates strictly as an **intent proposer**. It has zero autonomous
 $$\text{User Intent} \longrightarrow \text{AI Tool Proposal} \longrightarrow \text{Backend Validation} \longrightarrow \text{Explicit Human Approval} \longrightarrow \text{PayPal Orders API} \longrightarrow \text{Ledger Commit}$$
 
 ### Pillar II: Non-Custodial Transparency
-EterPay is a financial orchestration platform, not a fractional-reserve bank or regulated broker. All fund transfers rely on licensed payment rails (PayPal Sandbox in hackathon; PayPal Production & authorized banking partners in production).
+EterPay is a financial orchestration platform, not a fractional-reserve bank or regulated broker. All fund transfers rely on licensed payment rails (PayPal Sandbox in platform deployment; PayPal Production & authorized banking partners in production).
 
 ### Pillar III: High-Performance Data Surface (AG Grid Community v32)
 Complex ledgers, invoice lists, multi-currency allocations, and dispute logs are rendered using AG Grid with in-cell SVG sparklines, custom status badges, and dynamic AI-driven filtering.

@@ -32,7 +32,7 @@ EterPay AI is not a generic conversational chatbot. It is a **context-aware fina
 │                           │ On Network Failure         │
 │  ┌────────────────────────▼─────────────────────────┐  │
 │  │ Tier 3: Deterministic NLP Rule Engine            │  │
-│  │   • Regex & Token Matching for 100% Hackathon    │  │
+│  │   • Regex & Token Matching for 100% platform deployment    │  │
 │  │     demonstration reliability                    │  │
 │  └──────────────────────────────────────────────────┘  │
 └────────────────────────────────────────────────────────┘

@@ -1,7 +1,7 @@
 # Project Context — EterPay
 
 > **Tagline:** Your Money. Everywhere. Intelligently Connected.  
-> **Target Event:** PayPal Build What's Next with PayPal and AI Hackathon 2026  
+> **Target Event:** EterPay Global Financial Platform  
 > **Deadline:** November 12, 2026, 12:00 PM PST  
 > **License:** MIT Open Source License
 

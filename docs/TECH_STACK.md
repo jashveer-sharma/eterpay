@@ -10,5 +10,5 @@
 * **Grids & Analytics:** `@ag-grid-community/react`, `@ag-grid-community/core`, AG Studio Agent hook.
 * **Free AI Engine:** Google Gemini 1.5 Flash (via Google AI Studio) + Groq Cloud Llama 3.3 70B fallback.
 * **Currency Rates:** Frankfurter API (Free, European Central Bank reference rates).
-* **Commerce:** Channel3 REST API (`PAYPAL-HACKATHON-2026`) + Local JSON fallback catalog.
+* **Commerce:** Channel3 REST API (`PAYPAL-platform deployment-2026`) + Local JSON fallback catalog.
 * **Hosting:** Render (Web Service + Managed PostgreSQL free tier).

@@ -1,6 +1,6 @@
-# Pre-Commit & Submission Quality Checklist (Phase 12)
+# Pre-Commit & Production Quality Checklist
 
-Before any Git commit or hackathon milestone merge:
+Before any Git commit or release tag:
 
 ### 1. Security & Secrets (Zero Leakage)
 - [ ] No `.env` files staged in Git (`git status` confirms untracked or ignored).
@@ -16,10 +16,9 @@ Before any Git commit or hackathon milestone merge:
 ### 3. Build & Runtime
 - [ ] TypeScript compiles cleanly with zero type errors (`npm run build`).
 - [ ] Backend routes mount and pass health check (`GET /health` returns 200).
-- [ ] AG Grid renders without hydration mismatches or console errors.
+- [ ] Table ledgers render without hydration mismatches or console errors.
 
-### 4. Hackathon Submission Deliverables
+### 4. Release Deliverables
 - [ ] Public GitHub repository accessible with MIT license.
-- [ ] Public hosted demo URL running on Render.
-- [ ] YouTube demo video under 3 minutes showing end-to-end PayPal sandbox checkout.
-- [ ] Postman collection included for judge API evaluation.
+- [ ] Hosted demo URL running cleanly.
+- [ ] Documentation and architectural guides fully up to date.
