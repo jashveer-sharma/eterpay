@@ -16,7 +16,8 @@
 | **Context7 Plugin** | Documentation | ⏳ **Pending Approval** | Antigravity Partner | In marketplace catalog: `antigravity-plugins-partners/plugin/context7` | Install from plugin card in chat |
 | **Node.js & npm** | Host Runtime | ⚠️ **Blocked (Host)** | Target: Node.js LTS (v20+) | Not found in host system `PATH` | Run 1-click install command (Action 1) |
 | **Python & pip** | Host Runtime | ⚠️ **Blocked (Host)** | Target: Python 3.11+ | Not found in host system `PATH` | Run 1-click install command (Action 2) |
-| **Git** | Version Control | ⚠️ **Blocked (Host)** | Target: Git 2.40+ | Not found in host system `PATH` | Run 1-click install command (Action 3) |
+| **Git** | Version Control | ✅ **Installed** | MinGit v2.47.1 | Installed in `$LOCALAPPDATA\Programs\Git\cmd`, added to User PATH | None (Operational) |
+| **GitHub CLI (`gh`)** | GitHub Remote | ⏳ **Awaiting Login** | v2.62.0 | Installed in `$LOCALAPPDATA\Programs\gh`, added to User PATH | Run `gh auth login` (Action 3) |
 | **PayPal JS SDK (`@paypal/react-paypal-js`)** | Frontend Payments | ⏳ **Ready to Install** | v8.8+ | Ready to install via `npm i` once Node.js is present | Automatic after Action 1 |
 | **PayPal Agent Toolkit (`@paypal/agent-toolkit`)** | AI Payments | ⏳ **Ready to Install** | v0.4+ | Ready to install via `npm i` once Node.js is present | Automatic after Action 1 |
 | **AG Grid React & Community** | Data Visualization | ⏳ **Ready to Install** | v32.3+ | Ready to install via `npm i` once Node.js is present | Automatic after Action 1 |
