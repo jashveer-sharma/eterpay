@@ -15,9 +15,9 @@
 | **Antigravity Rules** | Governance | ✅ **CONFIGURED** | `GEMINI.md` | Workspace root rules with security gates | None (Active) |
 | **Antigravity Custom Skills** | AI Skills | ✅ **CONFIGURED** | 5 Custom Skills | `.agents/skills/` (PayPal, AG Grid, AI, Security, Token) | None (Active) |
 | **MCP Server Config** | Agent Tooling | ✅ **CONFIGURED** | JSON v1.0 | `.agents/mcp_config.json` (PayPal MCP & Context7) | Run via Node when runtime is active |
-| **Node.js & npm** | Host Runtime | ⚠️ **BLOCKED** | Node.js LTS v20+ | Not present in host `PATH` | Run `winget install OpenJS.NodeJS.LTS` |
-| **Python & pip** | Host Runtime | ⚠️ **BLOCKED** | Python 3.11+ | Not present in host `PATH` | Run `winget install Python.Python.3.11` |
-| **FastAPI Backend Core** | Backend | ✅ **CONFIGURED** | FastAPI 0.115+ | `backend/app/` committed on `develop` branch | Ready for `pip install -r requirements.txt` |
+| **Node.js & npm** | Host Runtime | ✅ **VERIFIED** | v26.13.0 / npm 11.20.0 | Global path `C:\Program Files\nodejs` | None (Operational) |
+| **Python & pip** | Host Runtime | ✅ **VERIFIED** | Python 3.11.18 | User path via `uv` at `C:\Users\Admin\.local\bin` | None (Operational) |
+| **FastAPI Backend Core** | Backend | ✅ **VERIFIED** | FastAPI 0.162.0 | `backend/.venv` active with all 26 dependencies | None (Operational) |
 | **Next.js 15 Frontend** | Frontend | ✅ **CONFIGURED** | Next.js 15.0+ | `frontend/src/` committed on `develop` branch | Ready for `npm install` |
 | **PayPal Sandbox Orders v2** | Payments | ⏳ **NEEDS API KEY** | REST API v2 | Implemented in `backend/app/core/paypal_client.py` | Add Sandbox credentials to `.env` |
 | **Frankfurter ECB FX API** | Market Rates | ✅ **VERIFIED** | Public REST | 100% free European Central Bank live rates | None (Operational) |
