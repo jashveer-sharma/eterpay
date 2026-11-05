@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "paypal": {
+      "command": "npx",
+      "args": ["-y", "@paypal/mcp", "--tools=all"],
+      "env": {
+        "PAYPAL_ENVIRONMENT": "sandbox",
+        "PAYPAL_CLIENT_ID": "${PAYPAL_CLIENT_ID}",
+        "PAYPAL_CLIENT_SECRET": "${PAYPAL_CLIENT_SECRET}"
+      },
+      "description": "Official PayPal Model Context Protocol Server for creating orders, managing disputes, and tracking shipments"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "description": "Up-to-date documentation lookup for PayPal API, AG Grid, Next.js, and FastAPI"
+    }
+  }
+}
