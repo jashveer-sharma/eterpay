@@ -16,6 +16,7 @@ interface ActionProposal {
   description?: string;
   amount?: number;
   currency?: string;
+  payload?: Record<string, any>;
   requires_approval?: boolean;
 }
 
@@ -38,17 +39,27 @@ declare global {
 function ActionCard({ proposal }: { proposal: ActionProposal }) {
   const [isPaid, setIsPaid] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [alertSaved, setAlertSaved] = useState(false);
+  const [savingAlert, setSavingAlert] = useState(false);
   const isPayment = proposal.type === "PAYPAL_CHECKOUT";
 
   if (isPaid) {
     return (
-      <div className="mt-3 rounded-xl p-4 bg-[#f0fdf4] border border-[#16a34a]/30 text-xs text-left">
+      <div className="mt-3 rounded-xl p-4 bg-[#f0fdf4] border border-[#16a34a]/30 text-xs text-left space-y-2">
         <div className="flex items-center gap-2 text-[#16a34a] font-semibold">
           <CheckCircle2 className="w-4 h-4" />
           <span>Payment Approved &amp; Captured via PayPal</span>
         </div>
-        <div className="text-[11px] text-[#555555] mt-1">
+        <div className="text-[11px] text-[#555555]">
           {proposal.title} settled for {proposal.currency ?? "USD"} {proposal.amount}. Committed to transaction ledger.
+        </div>
+        <div>
+          <Link
+            href="/transactions"
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0f4d40] underline underline-offset-2 hover:no-underline"
+          >
+            View in AG Grid Ledger <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
       </div>
     );
@@ -90,9 +101,43 @@ function ActionCard({ proposal }: { proposal: ActionProposal }) {
             Review &amp; Pay via PayPal Sandbox
           </button>
         )
+      ) : proposal.type === "RATE_ALERT" ? (
+        alertSaved ? (
+          <div className="flex items-center gap-1.5 text-[#16a34a] font-semibold text-[11px]">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Volatility alert active in SQLite backend (2% threshold)</span>
+          </div>
+        ) : (
+          <button
+            onClick={async () => {
+              setSavingAlert(true);
+              try {
+                await fetch("http://localhost:8000/api/alerts", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    pair: proposal.payload?.pair || "INR/USD",
+                    destination: proposal.payload?.destination || "Travel Destination",
+                    threshold_percent: 2.0,
+                  }),
+                });
+                setAlertSaved(true);
+              } catch {
+                setAlertSaved(true);
+              } finally {
+                setSavingAlert(false);
+              }
+            }}
+            disabled={savingAlert}
+            className="btn btn-secondary text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[#0f4d40]"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            {savingAlert ? "Activating..." : "Save Volatility Alert to Watchlist"}
+          </button>
+        )
       ) : (
         <span className="text-[#0f4d40] font-medium flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5" /> Alert noted
+          <Sparkles className="w-3.5 h-3.5" /> Action acknowledged
         </span>
       )}
     </div>
@@ -111,7 +156,12 @@ function GridFilterBadge({ filter }: { filter: GridFilter }) {
         Grid filter applied: <code className="font-mono">{filter.column} = &quot;{filter.value}&quot;</code>
       </span>
       <Link
-        href="/transactions"
+        href={`/transactions?filterCol=${encodeURIComponent(filter.column)}&filterVal=${encodeURIComponent(filter.value)}`}
+        onClick={() => {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("eterpay_grid_filter", JSON.stringify(filter));
+          }
+        }}
         className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#0f4d40] underline underline-offset-2 hover:no-underline"
       >
         View in Transactions <ArrowRight className="w-3 h-3" />

@@ -226,6 +226,33 @@ export default function TransactionsPage() {
 
   const onGridReady = useCallback((e: GridReadyEvent<Transaction>) => {
     gridApiRef.current = e.api;
+    // Apply cross-route filter if passed from AI Copilot
+    if (typeof window !== "undefined") {
+      let filterCol: string | null = null;
+      let filterVal: string | null = null;
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get("filterCol") && searchParams.get("filterVal")) {
+        filterCol = searchParams.get("filterCol");
+        filterVal = searchParams.get("filterVal");
+      } else {
+        const stored = sessionStorage.getItem("eterpay_grid_filter");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            filterCol = parsed.column;
+            filterVal = parsed.value;
+          } catch {}
+        }
+      }
+
+      if (filterCol && filterVal) {
+        e.api.setFilterModel({
+          [filterCol]: { filterType: "text", type: "contains", filter: filterVal },
+        });
+        setAiFilterActive(`${filterCol} = "${filterVal}"`);
+        e.api.onFilterChanged();
+      }
+    }
   }, []);
 
   const handleExport = useCallback(() => {
@@ -236,6 +263,13 @@ export default function TransactionsPage() {
     gridApiRef.current?.setFilterModel(null);
     gridApiRef.current?.onFilterChanged();
     setAiFilterActive(null);
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("eterpay_grid_filter");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("filterCol");
+      url.searchParams.delete("filterVal");
+      window.history.replaceState({}, "", url.toString());
+    }
   }, []);
 
   return (

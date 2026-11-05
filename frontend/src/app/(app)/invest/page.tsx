@@ -6,6 +6,31 @@ import { DEMO_PORTFOLIO } from "@/lib/demo-data";
 
 export default function InvestPage() {
   const [rebalanced, setRebalanced] = useState(false);
+  const [activeScenario, setActiveScenario] = useState<"usd_deprec" | "eur_surge" | "equity_shock">("usd_deprec");
+
+  const scenarios = {
+    usd_deprec: {
+      title: "Simulated 5% INR/USD Depreciation",
+      badge: "+1.8% Net Portfolio Hedge",
+      badgeCls: "bg-[#f0fdf4] text-[#16a34a] border-[#16a34a]/30",
+      analysis:
+        "Under a simulated 5% INR depreciation against the US Dollar, your 10% FX Reserve allocation and 20% US Tech index position yield a net +1.8% portfolio hedge, insulating international purchasing power.",
+    },
+    eur_surge: {
+      title: "Simulated 4% EUR Appreciation Shock",
+      badge: "+0.9% European Pocket Gain",
+      badgeCls: "bg-[#f0fdf4] text-[#16a34a] border-[#16a34a]/30",
+      analysis:
+        "Under a 4% euro strengthening scenario, cross-border European travel balances gain purchasing strength with zero foreign exchange fees thanks to live ECB interbank clearing.",
+    },
+    equity_shock: {
+      title: "Simulated 8% Global Equity Drawdown",
+      badge: "-2.1% Drawdown (Buffered)",
+      badgeCls: "bg-[#fffbeb] text-[#d97706] border-[#d97706]/30",
+      analysis:
+        "During severe equity turbulence, the 30% sovereign bond foundation and cash reserve buffer 74% of the market drawdown, restricting portfolio contraction to -2.1%.",
+    },
+  };
 
   return (
     <div className="min-h-screen bg-[#fbf9f5] p-6 sm:p-10">
@@ -106,14 +131,62 @@ export default function InvestPage() {
           </div>
         </div>
 
-        {/* AI Portfolio Advisory Note */}
-        <div className="card p-6 bg-white border border-[rgba(17,17,17,0.08)]">
-          <h3 className="font-serif text-lg text-[#111111] mb-2">Autonomous Stress Test Assessment</h3>
-          <p className="text-xs text-[#555555] leading-relaxed mb-4">
-            Under a simulated 5% INR/USD depreciation scenario, your 10% FX Reserve allocation and 20% US Tech index position yield a net +1.8% portfolio hedge.
-          </p>
-          <div className="text-[11px] text-[#888888]">
-            Generated via Gemini 1.5 Flash Copilot • Theoretical models for educational learning only.
+        {/* AI Portfolio Advisory & Multi-Scenario Stress Test */}
+        <div className="card p-6 bg-white border border-[rgba(17,17,17,0.08)] space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="font-serif text-lg text-[#111111]">Autonomous Macro Stress Test Engine</h3>
+              <p className="text-xs text-[#888888]">Simulate FX and macro shocks on current asset allocation</p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setActiveScenario("usd_deprec")}
+                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+                  activeScenario === "usd_deprec"
+                    ? "bg-[#0f4d40] text-white border-[#0f4d40]"
+                    : "bg-[#fbf9f5] text-[#555555] border-[rgba(17,17,17,0.1)] hover:bg-white"
+                }`}
+              >
+                INR/USD -5%
+              </button>
+              <button
+                onClick={() => setActiveScenario("eur_surge")}
+                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+                  activeScenario === "eur_surge"
+                    ? "bg-[#0f4d40] text-white border-[#0f4d40]"
+                    : "bg-[#fbf9f5] text-[#555555] border-[rgba(17,17,17,0.1)] hover:bg-white"
+                }`}
+              >
+                EUR +4%
+              </button>
+              <button
+                onClick={() => setActiveScenario("equity_shock")}
+                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+                  activeScenario === "equity_shock"
+                    ? "bg-[#0f4d40] text-white border-[#0f4d40]"
+                    : "bg-[#fbf9f5] text-[#555555] border-[rgba(17,17,17,0.1)] hover:bg-white"
+                }`}
+              >
+                Equity -8%
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#fbf9f5] border border-[rgba(17,17,17,0.06)] space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-xs text-[#111111]">{scenarios[activeScenario].title}</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${scenarios[activeScenario].badgeCls}`}>
+                {scenarios[activeScenario].badge}
+              </span>
+            </div>
+            <p className="text-xs text-[#555555] leading-relaxed">
+              {scenarios[activeScenario].analysis}
+            </p>
+          </div>
+
+          <div className="text-[11px] text-[#888888] flex items-center justify-between border-t border-[rgba(17,17,17,0.06)] pt-3">
+            <span>Powered by Gemini &amp; Groq Fintech Copilot • Theoretical models only.</span>
+            <span className="font-semibold text-[#d97706]">[No Capital at Risk]</span>
           </div>
         </div>
       </div>
