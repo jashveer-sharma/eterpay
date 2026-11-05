@@ -182,18 +182,36 @@ export default function AppSidebar() {
         <SidebarContent />
       </aside>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Header Bar & Sidebar Drawer */}
       <div className="lg:hidden">
-        <button
-          className="fixed top-4 left-4 z-50 p-2 bg-[#111111] text-[#fbf9f5] rounded-xl shadow-lg"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        <header className="fixed top-0 left-0 right-0 h-14 bg-[#111111] z-40 px-4 flex items-center justify-between shadow-sm">
+          <button
+            className="p-2 text-[#fbf9f5] rounded-xl hover:bg-white/10 transition-colors"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <svg viewBox="0 0 48 48" fill="none" className="w-6 h-6">
+              <circle cx="24" cy="24" r="22" stroke="#fbf9f5" strokeWidth="1.5" fill="none" opacity="0.2"/>
+              <circle cx="24" cy="24" r="14" stroke="#fbf9f5" strokeWidth="1.5" fill="none" opacity="0.5"/>
+              <circle cx="24" cy="24" r="5" fill="#fbf9f5"/>
+              <path d="M24 10 A14 14 0 0 1 38 24" stroke="#fbf9f5" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <path d="M24 38 A14 14 0 0 1 10 24" stroke="#fbf9f5" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <circle cx="38" cy="24" r="2.5" fill="#fbf9f5"/>
+            </svg>
+            <span className="font-serif text-base text-[#fbf9f5]">EterPay</span>
+          </Link>
+
+          <div className="w-8" />
+        </header>
+
         {mobileOpen && (
           <>
-            <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} />
-            <aside className="fixed left-0 top-0 bottom-0 w-64 bg-[#111111] z-50 overflow-y-auto">
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 pt-14" onClick={() => setMobileOpen(false)} />
+            <aside className="fixed left-0 top-14 bottom-0 w-64 bg-[#111111] z-50 overflow-y-auto shadow-2xl">
               <SidebarContent />
             </aside>
           </>

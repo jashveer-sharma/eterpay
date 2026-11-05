@@ -6,11 +6,16 @@ import { DEMO_INVOICES } from "@/lib/demo-data";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState(DEMO_INVOICES);
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "paid">("all");
   const [showModal, setShowModal] = useState(false);
   const [client, setClient] = useState("Venture Studio LLP");
   const [clientEmail, setClientEmail] = useState("billing@venture.llp");
   const [amount, setAmount] = useState("55000");
   const [desc, setDesc] = useState("AI Product Architecture & Security Audit");
+
+  const filteredInvoices = invoices.filter((inv) =>
+    filterStatus === "all" ? true : inv.status === filterStatus
+  );
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,23 +51,60 @@ export default function InvoicesPage() {
           </button>
         </div>
 
+        {/* Filter Tabs & Stats */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex rounded-lg bg-[#fbf9f5] p-1 border border-[rgba(17,17,17,0.06)] text-xs">
+            {(["all", "pending", "paid"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setFilterStatus(s)}
+                className={`px-3 py-1.5 rounded-md capitalize font-medium transition-all ${
+                  filterStatus === s ? "bg-white text-[#111111] shadow-xs" : "text-[#666666]"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs text-[#888888]">
+            Showing {filteredInvoices.length} of {invoices.length} invoices
+          </span>
+        </div>
+
         {/* Invoices Table */}
         <div className="card bg-white overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#fbf9f5] text-[#888888] uppercase font-semibold border-b border-[rgba(17,17,17,0.06)]">
-                <tr>
-                  <th className="p-4">Invoice #</th>
-                  <th className="p-4">Client / Recipient</th>
-                  <th className="p-4">Issued</th>
-                  <th className="p-4">Due Date</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-right">Amount</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[rgba(17,17,17,0.06)]">
-                {invoices.map((inv) => (
+          {filteredInvoices.length === 0 ? (
+            <div className="p-12 text-center space-y-3">
+              <div className="w-12 h-12 bg-[#fbf9f5] rounded-full flex items-center justify-center mx-auto text-[#888888]">
+                <Receipt className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-lg text-[#111111]">No Invoices Found</h3>
+              <p className="text-xs text-[#888888] max-w-sm mx-auto">
+                No billing receivables match the selected &quot;{filterStatus}&quot; filter.
+              </p>
+              <button
+                onClick={() => setShowModal(true)}
+                className="btn btn-secondary text-xs px-4 py-2 rounded-full inline-flex items-center gap-1.5 mt-2"
+              >
+                <Plus className="w-3.5 h-3.5" /> Create New Invoice
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#fbf9f5] text-[#888888] uppercase font-semibold border-b border-[rgba(17,17,17,0.06)]">
+                  <tr>
+                    <th className="p-4">Invoice #</th>
+                    <th className="p-4">Client / Recipient</th>
+                    <th className="p-4">Issued</th>
+                    <th className="p-4">Due Date</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 text-right">Amount</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[rgba(17,17,17,0.06)]">
+                  {filteredInvoices.map((inv) => (
                   <tr key={inv.id} className="hover:bg-[#fbf9f5]/60 transition-colors">
                     <td className="p-4 font-mono font-semibold text-[#111111]">{inv.number}</td>
                     <td className="p-4">
@@ -100,7 +142,8 @@ export default function InvoicesPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        )}
+      </div>
 
         {/* Modal */}
         {showModal && (

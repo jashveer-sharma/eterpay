@@ -36,3 +36,13 @@ yarn-error.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Research & Strategic Planning (Private - Do Not Commit)
+research/
+EterPay-Research/
+*ROADMAP*.md
+*PLAN*.md
+*TRACKER*.md
+*AUDIT*.md
+*SCORECARD*.md
+*COMPETITOR*.md

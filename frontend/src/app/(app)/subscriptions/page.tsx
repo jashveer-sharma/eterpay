@@ -6,12 +6,15 @@ import { DEMO_SUBSCRIPTIONS } from "@/lib/demo-data";
 
 export default function SubscriptionsPage() {
   const [subs, setSubs] = useState(DEMO_SUBSCRIPTIONS);
+  const [filter, setFilter] = useState<"all" | "active" | "paused">("all");
 
   const toggleStatus = (id: string) => {
     setSubs((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status: s.status === "active" ? "paused" : "active" } : s))
     );
   };
+
+  const filteredSubs = subs.filter((s) => (filter === "all" ? true : s.status === filter));
 
   const totalMonthlyINR = subs
     .filter((s) => s.status === "active" && s.currency === "INR")
@@ -42,49 +45,75 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* List */}
-        <div className="card p-6 bg-white shadow-xs">
-          <h2 className="font-serif text-xl text-[#111111] mb-4">Tracked Subscriptions</h2>
-          <div className="space-y-3">
-            {subs.map((s) => (
-              <div
-                key={s.id}
-                className="p-4 rounded-xl bg-[#fbf9f5] border border-[rgba(17,17,17,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-[#111111]">{s.name}</span>
-                    <span
-                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                        s.status === "active"
-                          ? "bg-[#f0fdf4] text-[#16a34a]"
-                          : "bg-[#fffbeb] text-[#d97706]"
+        <div className="card p-6 bg-white shadow-xs space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-serif text-xl text-[#111111]">Tracked Subscriptions</h2>
+            <div className="inline-flex rounded-lg bg-[#fbf9f5] p-1 border border-[rgba(17,17,17,0.06)] text-xs">
+              {(["all", "active", "paused"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setFilter(tab)}
+                  className={`px-3 py-1 rounded-md capitalize font-medium transition-all ${
+                    filter === tab ? "bg-white text-[#111111] shadow-xs" : "text-[#666666]"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredSubs.length === 0 ? (
+            <div className="p-10 text-center space-y-2">
+              <div className="w-10 h-10 bg-[#fbf9f5] rounded-full flex items-center justify-center mx-auto text-[#888888]">
+                <RefreshCw className="w-5 h-5" />
+              </div>
+              <p className="text-xs font-semibold text-[#111111]">No {filter} subscriptions</p>
+              <p className="text-[11px] text-[#888888]">No recurring outflows match the selected filter.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredSubs.map((s) => (
+                <div
+                  key={s.id}
+                  className="p-4 rounded-xl bg-[#fbf9f5] border border-[rgba(17,17,17,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm text-[#111111]">{s.name}</span>
+                      <span
+                        className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                          s.status === "active"
+                            ? "bg-[#f0fdf4] text-[#16a34a]"
+                            : "bg-[#fffbeb] text-[#d97706]"
+                        }`}
+                      >
+                        {s.status}
+                      </span>
+                    </div>
+                    <div className="text-xs text-[#888888] mt-0.5">
+                      Next billing: {s.nextBilling} • {s.cycle}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="font-serif text-base font-semibold text-[#111111] tabular">
+                      {s.currency === "INR" ? "₹" : "$"} {s.amount.toLocaleString("en-IN")} / {s.cycle}
+                    </div>
+                    <button
+                      onClick={() => toggleStatus(s.id)}
+                      className={`btn text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 ${
+                        s.status === "active" ? "btn-secondary text-[#dc2626]" : "btn-primary"
                       }`}
                     >
-                      {s.status}
-                    </span>
-                  </div>
-                  <div className="text-xs text-[#888888] mt-0.5">
-                    Next billing: {s.nextBilling} • {s.cycle}
+                      {s.status === "active" ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                      {s.status === "active" ? "Pause" : "Resume"}
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="font-serif text-base font-semibold text-[#111111] tabular">
-                    {s.currency === "INR" ? "₹" : "$"} {s.amount.toLocaleString("en-IN")} / {s.cycle}
-                  </div>
-                  <button
-                    onClick={() => toggleStatus(s.id)}
-                    className={`btn text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 ${
-                      s.status === "active" ? "btn-secondary text-[#dc2626]" : "btn-primary"
-                    }`}
-                  >
-                    {s.status === "active" ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-                    {s.status === "active" ? "Pause" : "Resume"}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

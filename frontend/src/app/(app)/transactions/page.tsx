@@ -1,152 +1,279 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link";
-import { Search, Filter, Download, ArrowUpRight, ArrowDownLeft, RefreshCw, CheckCircle2 } from "lucide-react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { Download, Sparkles } from "lucide-react";
+import { AgGridReact } from "@ag-grid-community/react";
+import type {
+  ColDef,
+  GridApi,
+  GridReadyEvent,
+  ICellRendererParams,
+} from "@ag-grid-community/core";
+import "@ag-grid-community/styles/ag-grid.css";
+import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { DEMO_TRANSACTIONS } from "@/lib/demo-data";
 
-export default function TransactionsPage() {
-  const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "credit" | "debit">("all");
-  const [filterCat, setFilterCat] = useState("all");
+// Cast demo data to our typed interface (demo-data.ts uses widened string literals)
+const ROW_DATA = DEMO_TRANSACTIONS as Transaction[];
 
-  const filtered = DEMO_TRANSACTIONS.filter((t) => {
-    const matchesSearch =
-      t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.ref.toLowerCase().includes(search.toLowerCase()) ||
-      t.counterparty.toLowerCase().includes(search.toLowerCase());
-    const matchesType = filterType === "all" || t.type === filterType;
-    const matchesCat = filterCat === "all" || t.category === filterCat;
-    return matchesSearch && matchesType && matchesCat;
-  });
+// ─── Types ──────────────────────────────────────────────────────────────────
+interface Transaction {
+  id: string;
+  type: "credit" | "debit";
+  category: string;
+  title: string;
+  counterparty: string;
+  note: string;
+  amount: number;
+  currency: string;
+  symbol: string;
+  date: string;
+  status: string;
+  ref: string;
+}
+
+// ─── Custom Cell Renderers ───────────────────────────────────────────────────
+function TitleCell({ data }: ICellRendererParams<Transaction>) {
+  if (!data) return null;
+  return (
+    <div className="flex flex-col justify-center h-full py-1">
+      <span className="font-semibold text-[#111111] text-xs leading-tight">{data.title}</span>
+      <span className="text-[10px] text-[#888888] mt-0.5">{data.counterparty} · {data.note}</span>
+    </div>
+  );
+}
+
+function CategoryCell({ value }: ICellRendererParams<Transaction>) {
+  const palettes: Record<string, string> = {
+    travel:       "bg-[#eff6ff] text-[#1d4ed8]",
+    commerce:     "bg-[#fdf4ff] text-[#9333ea]",
+    subscription: "bg-[#f0f9ff] text-[#0369a1]",
+    transfer:     "bg-[rgba(17,17,17,0.05)] text-[#555555]",
+    invest:       "bg-[#f0fdf4] text-[#15803d]",
+    refund:       "bg-[#fff7ed] text-[#c2410c]",
+  };
+  const cls = palettes[value as string] ?? "bg-[rgba(17,17,17,0.05)] text-[#555555]";
+  return (
+    <div className="flex items-center h-full">
+      <span className={`capitalize px-2 py-0.5 rounded-full font-semibold text-[10px] ${cls}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function StatusCell({ value }: ICellRendererParams<Transaction>) {
+  const styles: Record<string, string> = {
+    completed: "bg-[#f0fdf4] text-[#16a34a]",
+    pending:   "bg-[#fffbeb] text-[#d97706]",
+    failed:    "bg-[#fef2f2] text-[#dc2626]",
+  };
+  const cls = styles[value as string] ?? "bg-[rgba(17,17,17,0.05)] text-[#555555]";
+  return (
+    <div className="flex items-center h-full">
+      <span className={`capitalize font-semibold text-[10px] px-2 py-0.5 rounded-full ${cls}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function AmountCell({ data }: ICellRendererParams<Transaction>) {
+  if (!data) return null;
+  const isCredit = data.type === "credit";
+  return (
+    <div className="flex items-center justify-end h-full">
+      <span className={`font-serif text-sm font-semibold tabular-nums ${isCredit ? "text-[#16a34a]" : "text-[#111111]"}`}>
+        {isCredit ? "+" : "−"}&nbsp;{data.symbol}&nbsp;
+        {data.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+      </span>
+    </div>
+  );
+}
+
+// ─── Column Definitions ──────────────────────────────────────────────────────
+const COL_DEFS: ColDef<Transaction>[] = [
+  {
+    headerName: "Transaction / Counterparty",
+    field: "title",
+    cellRenderer: TitleCell,
+    flex: 2.5,
+    minWidth: 220,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset"], filterOptions: ["contains"] },
+    sortable: true,
+  },
+  {
+    headerName: "Category",
+    field: "category",
+    cellRenderer: CategoryCell,
+    flex: 1,
+    minWidth: 120,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset"], filterOptions: ["equals"] },
+    sortable: true,
+  },
+  {
+    headerName: "Reference",
+    field: "ref",
+    flex: 1.4,
+    minWidth: 150,
+    cellStyle: { fontFamily: "monospace", fontSize: "11px", color: "#888888" },
+    filter: "agTextColumnFilter",
+    sortable: false,
+  },
+  {
+    headerName: "Date",
+    field: "date",
+    flex: 1,
+    minWidth: 110,
+    cellStyle: { color: "#555555", fontSize: "12px" },
+    sortable: true,
+    sort: "desc",
+    filter: "agTextColumnFilter",
+  },
+  {
+    headerName: "Status",
+    field: "status",
+    cellRenderer: StatusCell,
+    flex: 0.9,
+    minWidth: 100,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset"], filterOptions: ["equals"] },
+    sortable: true,
+  },
+  {
+    headerName: "Amount",
+    field: "amount",
+    cellRenderer: AmountCell,
+    flex: 1.2,
+    minWidth: 140,
+    type: "rightAligned",
+    sortable: true,
+    filter: "agNumberColumnFilter",
+  },
+];
+
+// ─── AG Grid CSS overrides to match EterPay cream theme ─────────────────────
+const GRID_STYLE = `
+  .eterpay-grid .ag-root-wrapper { border: none; border-radius: 0; background: #fff; }
+  .eterpay-grid .ag-header { background: #fbf9f5; border-bottom: 1px solid rgba(17,17,17,0.06); }
+  .eterpay-grid .ag-header-cell-text { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #888; }
+  .eterpay-grid .ag-row { border-bottom: 1px solid rgba(17,17,17,0.05); }
+  .eterpay-grid .ag-row:hover { background: rgba(251,249,245,0.6) !important; }
+  .eterpay-grid .ag-cell { display: flex; align-items: center; padding: 0 16px; }
+  .eterpay-grid .ag-paging-panel { border-top: 1px solid rgba(17,17,17,0.06); background: #fbf9f5; color: #555; font-size: 11px; }
+  .eterpay-grid .ag-paging-button { color: #0f4d40; }
+`;
+
+// ─── Page Component ──────────────────────────────────────────────────────────
+export default function TransactionsPage() {
+  const gridApiRef = useRef<GridApi<Transaction> | null>(null);
+  const [aiFilterActive, setAiFilterActive] = useState<string | null>(null);
+
+  // Expose a global hook so the AI chat page can drive this grid
+  useEffect(() => {
+    (window as Window & typeof globalThis & { __eterPayGridFilter?: (col: string, val: string) => void }).__eterPayGridFilter = (col: string, val: string) => {
+      const api = gridApiRef.current;
+      if (!api) return;
+      if (!val || val === "all") {
+        api.setFilterModel(null);
+        setAiFilterActive(null);
+      } else {
+        api.setFilterModel({
+          [col]: { filterType: "text", type: "equals", filter: val },
+        });
+        setAiFilterActive(`${col} = "${val}"`);
+      }
+      api.onFilterChanged();
+    };
+    return () => {
+      delete (window as Window & typeof globalThis & { __eterPayGridFilter?: (col: string, val: string) => void }).__eterPayGridFilter;
+    };
+  }, []);
+
+  const onGridReady = useCallback((e: GridReadyEvent<Transaction>) => {
+    gridApiRef.current = e.api;
+  }, []);
+
+  const handleExport = useCallback(() => {
+    gridApiRef.current?.exportDataAsCsv({ fileName: "eterpay-transactions.csv" });
+  }, []);
+
+  const clearAiFilter = useCallback(() => {
+    gridApiRef.current?.setFilterModel(null);
+    gridApiRef.current?.onFilterChanged();
+    setAiFilterActive(null);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#fbf9f5] p-6 sm:p-10">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[rgba(17,17,17,0.08)]">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-[#0f4d40]">Audit Ledger</div>
-            <h1 className="font-serif text-3xl text-[#111111]">Transaction History</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="demo-badge">Immutable Records</span>
-            <button
-              onClick={() => alert("Audit report export simulation downloaded (CSV / PDF).")}
-              className="btn btn-secondary text-xs px-4 py-2.5 rounded-full"
-            >
-              <Download className="w-3.5 h-3.5 mr-1 inline" /> Export Ledger
-            </button>
-          </div>
-        </div>
+    <>
+      <style>{GRID_STYLE}</style>
+      <div className="min-h-screen bg-[#fbf9f5] p-6 sm:p-10">
+        <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* Filters */}
-        <div className="card p-4 bg-white flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-[#888888] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search reference, recipient, note..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="input pl-9 py-2 text-xs"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
-            {/* Type buttons */}
-            <div className="inline-flex rounded-lg bg-[#fbf9f5] p-1 border border-[rgba(17,17,17,0.06)] text-xs">
-              {(["all", "credit", "debit"] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setFilterType(t)}
-                  className={`px-3 py-1 rounded-md capitalize font-medium transition-all ${
-                    filterType === t ? "bg-white text-[#111111] shadow-xs" : "text-[#666666]"
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[rgba(17,17,17,0.08)]">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-[#0f4d40]">Audit Ledger · AG Grid</div>
+              <h1 className="font-serif text-3xl text-[#111111]">Transaction History</h1>
             </div>
-
-            {/* Category select */}
-            <select
-              value={filterCat}
-              onChange={(e) => setFilterCat(e.target.value)}
-              className="input text-xs py-1.5 px-3 w-auto font-medium"
-            >
-              <option value="all">All Categories</option>
-              <option value="transfer">Transfers</option>
-              <option value="subscription">Subscriptions</option>
-              <option value="commerce">Commerce</option>
-              <option value="travel">Travel</option>
-              <option value="invest">Invest</option>
-              <option value="refund">Refunds</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <span className="demo-badge">Immutable Records</span>
+              <button
+                onClick={handleExport}
+                className="btn btn-secondary text-xs px-4 py-2.5 rounded-full"
+              >
+                <Download className="w-3.5 h-3.5 mr-1 inline" /> Export CSV
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Transactions Table */}
-        <div className="card bg-white overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#fbf9f5] text-[#888888] uppercase font-semibold border-b border-[rgba(17,17,17,0.06)]">
-                <tr>
-                  <th className="p-4">Transaction / Counterparty</th>
-                  <th className="p-4">Category</th>
-                  <th className="p-4">Reference</th>
-                  <th className="p-4">Date</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[rgba(17,17,17,0.06)]">
-                {filtered.map((t) => (
-                  <tr key={t.id} className="hover:bg-[#fbf9f5]/60 transition-colors">
-                    <td className="p-4">
-                      <div className="font-semibold text-[#111111]">{t.title}</div>
-                      <div className="text-[11px] text-[#888888]">{t.counterparty} • {t.note}</div>
-                    </td>
-                    <td className="p-4">
-                      <span className="capitalize px-2 py-0.5 rounded-full bg-[rgba(17,17,17,0.05)] text-[#555555] font-medium text-[10px]">
-                        {t.category}
-                      </span>
-                    </td>
-                    <td className="p-4 font-mono text-[11px] text-[#888888]">{t.ref}</td>
-                    <td className="p-4 text-[#555555]">{t.date}</td>
-                    <td className="p-4">
-                      <span
-                        className={`capitalize font-semibold text-[10px] px-2 py-0.5 rounded-full ${
-                          t.status === "completed"
-                            ? "bg-[#f0fdf4] text-[#16a34a]"
-                            : t.status === "pending"
-                            ? "bg-[#fffbeb] text-[#d97706]"
-                            : "bg-[#fef2f2] text-[#dc2626]"
-                        }`}
-                      >
-                        {t.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <span
-                        className={`font-serif text-sm font-semibold tabular ${
-                          t.type === "credit" ? "text-[#16a34a]" : "text-[#111111]"
-                        }`}
-                      >
-                        {t.type === "credit" ? "+" : "-"} {t.symbol} {t.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {filtered.length === 0 && (
-            <div className="p-8 text-center text-xs text-[#888888]">
-              No transactions match the selected filters.
+          {/* AI Filter Banner */}
+          {aiFilterActive && (
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-xs font-medium"
+              style={{ background: "rgba(15,77,64,0.07)", border: "1px solid rgba(15,77,64,0.18)", color: "#0f4d40" }}>
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                AI filter active: <code className="font-mono font-bold">{aiFilterActive}</code>
+              </span>
+              <button onClick={clearAiFilter} className="underline underline-offset-2 hover:no-underline">
+                Clear filter
+              </button>
             </div>
           )}
+
+          {/* AG Grid */}
+          <div className="card bg-white overflow-hidden shadow-xs">
+            <div
+              className="eterpay-grid ag-theme-quartz"
+              style={{ height: 540, width: "100%" }}
+            >
+              <AgGridReact<Transaction>
+                rowData={ROW_DATA}
+                columnDefs={COL_DEFS}
+                rowHeight={60}
+                headerHeight={40}
+                pagination
+                paginationPageSize={10}
+                paginationPageSizeSelector={[10, 20, 50]}
+                onGridReady={onGridReady}
+                suppressCellFocus
+                enableCellTextSelection
+                defaultColDef={{
+                  resizable: true,
+                  suppressMovable: false,
+                }}
+                noRowsOverlayComponent={() => (
+                  <div className="p-8 text-center text-xs text-[#888888]">
+                    No transactions match the active filter.
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
+    </>
   );
 }
