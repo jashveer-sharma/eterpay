@@ -31,20 +31,43 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const res = await fetch("http://localhost:8000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof window !== "undefined") {
+          localStorage.setItem("eterpay_session", "active");
+          localStorage.setItem("eterpay_jwt", data.access_token);
+          localStorage.setItem("eterpay_user", JSON.stringify(data.user));
+        }
+        router.push("/dashboard");
+        return;
+      }
+
+      // If backend returned 401 or invalid credentials
+      const errData = await res.json().catch(() => ({}));
+      setError(errData.detail || "Incorrect email or password. Verify credentials.");
+    } catch {
+      // Offline fallback
       if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
         localStorage.setItem("eterpay_session", "demo_active");
         router.push("/dashboard");
       } else {
         setError("Incorrect email or password. Try the demo credentials below.");
-        setLoading(false);
       }
-    }, 600);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

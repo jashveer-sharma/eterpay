@@ -168,7 +168,40 @@ const GRID_STYLE = `
 // ─── Page Component ──────────────────────────────────────────────────────────
 export default function TransactionsPage() {
   const gridApiRef = useRef<GridApi<Transaction> | null>(null);
+  const [gridData, setGridData] = useState<Transaction[]>(ROW_DATA);
   const [aiFilterActive, setAiFilterActive] = useState<string | null>(null);
+
+  // Fetch immutable ledger transactions from SQLite backend
+  useEffect(() => {
+    async function loadTransactions() {
+      try {
+        const res = await fetch("http://localhost:8000/api/transactions?limit=100");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const mapped: Transaction[] = data.map((d) => ({
+              id: d.id,
+              type: d.type === "credit" ? "credit" : "debit",
+              category: d.category || "transfer",
+              title: d.title,
+              counterparty: d.counterparty || "EterPay Network",
+              note: d.note || "",
+              amount: d.amount,
+              currency: d.currency || "INR",
+              symbol: d.symbol || "₹",
+              date: d.created_at ? new Date(d.created_at).toISOString().split("T")[0] : "2026-11-05",
+              status: d.status || "completed",
+              ref: d.ref || `TXN-${d.id.substring(0, 8)}`,
+            }));
+            setGridData(mapped);
+          }
+        }
+      } catch {
+        // Retain initial ROW_DATA fallback
+      }
+    }
+    loadTransactions();
+  }, []);
 
   // Expose a global hook so the AI chat page can drive this grid
   useEffect(() => {
@@ -249,7 +282,7 @@ export default function TransactionsPage() {
               style={{ height: 540, width: "100%" }}
             >
               <AgGridReact<Transaction>
-                rowData={ROW_DATA}
+                rowData={gridData}
                 columnDefs={COL_DEFS}
                 rowHeight={60}
                 headerHeight={40}

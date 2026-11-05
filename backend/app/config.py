@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./eterpay.db"
+    JWT_SECRET: str = "eterpay_fintech_super_secret_jwt_key_2026"
+    JWT_ALGORITHM: str = "HS256"
 
     model_config = SettingsConfigDict(
         env_file=".env",

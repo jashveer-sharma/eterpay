@@ -112,3 +112,45 @@ async def test_commerce_search():
         data = response.json()
         assert isinstance(data, list)
         assert len(data) >= 1
+
+
+@pytest.mark.asyncio
+async def test_auth_login_success():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        payload = {"email": "demo@eterpay.com", "password": "Demo1234!"}
+        response = await client.post("/api/auth/login", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+        assert "access_token" in data
+        assert data["token_type"] == "bearer"
+        assert data["user"]["email"] == "demo@eterpay.com"
+
+@pytest.mark.asyncio
+async def test_auth_login_invalid():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        payload = {"email": "demo@eterpay.com", "password": "WrongPassword!"}
+        response = await client.post("/api/auth/login", json=payload)
+        assert response.status_code == 401
+
+@pytest.mark.asyncio
+async def test_database_transactions_list():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get("/api/transactions")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+        assert "ref" in data[0]
+        assert "amount" in data[0]
+
+@pytest.mark.asyncio
+async def test_create_rate_alert():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        payload = {"pair": "INR/EUR", "destination": "Paris", "threshold_percent": 2.5}
+        response = await client.post("/api/alerts", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["pair"] == "INR/EUR"
+        assert data["destination"] == "Paris"
+        assert data["threshold_percent"] == 2.5
+        assert data["active"] is True
