@@ -130,8 +130,8 @@ function StatusBadge({ value }: { value: string }) {
   const isOk = value === "COMPLETED" || value === "CAPTURED" || value === "PAID";
   return (
     <span
-      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-tight ${
-        isOk ? "bg-success/15 text-success" : "bg-warning/15 text-warning"
+      className={`px-2 py-0.5 rounded text-xs font-medium tracking-tight ${
+        isOk ? "bg-success/15 text-success border border-success/20" : "bg-warning/15 text-warning border border-warning/20"
       }`}
     >
       {value}
@@ -385,12 +385,12 @@ export default function DashboardPage() {
       width: 110,
       filter: "agTextColumnFilter",
       cellRenderer: (params: { value: string }) => (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cobalt/15 text-cobalt border border-cobalt/20">
+        <span className="px-2 py-0.5 rounded text-xs font-medium bg-cobalt/15 text-cobalt border border-cobalt/20">
           {params.value}
         </span>
       ),
     },
-    { field: "amount", headerName: "Amount", width: 110, cellStyle: { fontWeight: "600", color: "var(--color-ivory)" } },
+    { field: "amount", headerName: "Amount", width: 110, cellStyle: { fontWeight: "500", fontVariantNumeric: "tabular-nums", color: "var(--color-ivory)" } },
     { field: "currency", headerName: "CCY", width: 70, cellStyle: { color: "var(--color-ash)" } },
     {
       field: "status",
@@ -398,7 +398,7 @@ export default function DashboardPage() {
       width: 115,
       cellRenderer: (params: { value: string }) => <StatusBadge value={params.value} />,
     },
-    { field: "timestamp", headerName: "Time", width: 130, cellStyle: { color: "var(--color-ash)", fontSize: "11px" } },
+    { field: "timestamp", headerName: "Time", width: 130, cellStyle: { color: "var(--color-ash)", fontSize: "12px", fontFamily: "monospace" } },
   ];
 
   const selectedRate = fxRates.find((r) => r.currency === calcTarget)?.rate || 0.0119;
@@ -412,23 +412,21 @@ export default function DashboardPage() {
         {/* ── Mercury Frosted Top Navigation Bar ──────────────────────────── */}
         <header className="flex items-center justify-between px-6 py-3 border-b border-hairline bg-carbon/90 backdrop-blur-md shrink-0">
           
-          {/* Brand Mark: Concentric Rings + Wordmark */}
+          {/* Brand Mark: Clean Flat Glyph + Wordmark */}
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cobalt to-indigo-400 flex items-center justify-center shadow-sm">
-              <div className="w-3.5 h-3.5 rounded-full border border-white/60 flex items-center justify-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-              </div>
+            <div className="w-7 h-7 rounded-md bg-cobalt flex items-center justify-center text-white font-semibold text-xs tracking-tight">
+              EP
             </div>
             <div className="flex items-baseline gap-2">
               <span className="font-semibold text-base tracking-tight text-ivory">EterPay</span>
-              <span className="hidden sm:inline text-[11px] text-ash">Global Financial Operating System</span>
+              <span className="hidden sm:inline text-xs text-ash">Global Financial Operating System</span>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cobalt/15 border border-cobalt/25 text-cobalt font-medium ml-1">
+            <span className="text-xs px-2 py-0.5 rounded bg-cobalt/15 border border-cobalt/25 text-cobalt font-medium ml-1">
               Sandbox Live
             </span>
           </div>
 
-          {/* Central Module Navigation Pills */}
+          {/* Central Module Navigation */}
           <nav className="hidden xl:flex items-center gap-1 text-xs">
             {([
               { id: "overview", label: "Overview", icon: Globe },
@@ -442,7 +440,7 @@ export default function DashboardPage() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 ${
                   activeTab === id
                     ? "bg-cobalt text-white shadow-sm"
                     : "text-ash hover:text-ivory hover:bg-obsidian"
@@ -457,10 +455,10 @@ export default function DashboardPage() {
           {/* Right Controls: Persona Switcher & Primary Action */}
           <div className="flex items-center gap-3 text-xs">
             {/* Persona Switcher (Personal vs Business) */}
-            <div className="flex items-center p-0.5 rounded-full bg-obsidian border border-hairline">
+            <div className="flex items-center p-0.5 rounded-md bg-obsidian border border-hairline">
               <button
                 onClick={() => setPersona("personal")}
-                className={`px-3 py-1 rounded-full text-[11px] font-medium transition flex items-center gap-1 ${
+                className={`px-2.5 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 ${
                   persona === "personal"
                     ? "bg-graphite text-ivory shadow-sm border border-hairline"
                     : "text-ash hover:text-ivory"
@@ -471,7 +469,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => setPersona("business")}
-                className={`px-3 py-1 rounded-full text-[11px] font-medium transition flex items-center gap-1 ${
+                className={`px-2.5 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1 ${
                   persona === "business"
                     ? "bg-graphite text-ivory shadow-sm border border-hairline"
                     : "text-ash hover:text-ivory"
@@ -491,7 +489,7 @@ export default function DashboardPage() {
                   handleQuickPrompt("Send 2500 INR to Rahul for hotel booking");
                 }
               }}
-              className="px-4 py-1.5 rounded-full bg-cobalt hover:bg-cobalt-hover text-white font-medium text-xs transition flex items-center gap-1.5 shadow-sm"
+              className="px-3.5 py-1.5 rounded-md bg-cobalt hover:bg-cobalt-hover text-white font-medium text-xs transition-colors flex items-center gap-1.5 shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{persona === "business" ? "New Invoice" : "Send Money"}</span>
@@ -500,7 +498,7 @@ export default function DashboardPage() {
         </header>
 
         {/* ── Subheader Ticker Strip: Live ECB Exchange Rates ──────────────── */}
-        <div className="px-6 py-2 border-b border-hairline bg-onyx/80 flex items-center justify-between text-[11px] text-ash shrink-0">
+        <div className="px-6 py-2 border-b border-hairline bg-onyx/80 flex items-center justify-between text-xs text-ash shrink-0">
           <div className="flex items-center gap-6 overflow-x-auto">
             <span className="font-medium text-ivory flex items-center gap-1">
               <Globe className="w-3 h-3 text-cobalt" aria-hidden="true" /> Live ECB Reference Rates:
@@ -522,7 +520,7 @@ export default function DashboardPage() {
           <button
             onClick={loadFxRates}
             title="Refresh Exchange Rates"
-            className="p-1 rounded hover:bg-obsidian text-ash hover:text-ivory transition"
+            className="p-1 rounded hover:bg-obsidian text-ash hover:text-ivory transition-colors"
           >
             <RefreshCw className="w-3 h-3" aria-hidden="true" />
           </button>
@@ -541,16 +539,16 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h2 className="font-medium text-xs text-ivory">EterPay AI Copilot</h2>
-                  <p className="text-[10px] text-ash">Multi-tier model routing and structured tool calling</p>
+                  <p className="text-xs text-ash">Multi-tier model routing and structured tool calling</p>
                 </div>
               </div>
-              <span className="text-[10px] text-cobalt flex items-center gap-1.5 bg-cobalt/15 px-2.5 py-0.5 rounded-full border border-cobalt/25 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-cobalt animate-pulse motion-reduce:animate-none"></span>
+              <span className="text-xs text-cobalt flex items-center gap-1.5 bg-cobalt/15 px-2.5 py-0.5 rounded border border-cobalt/25 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-cobalt"></span>
                 Gemini 1.5 Flash
               </span>
             </div>
 
-            {/* Quick Action Pills (Mercury Style) */}
+            {/* Quick Action Capsules */}
             <div className="p-3 border-b border-hairline flex gap-2 overflow-x-auto text-xs shrink-0">
               {[
                 { label: "Plan Tokyo Trip", prompt: "I am traveling to Tokyo with 150000 INR. Help me plan my budget." },
@@ -562,7 +560,7 @@ export default function DashboardPage() {
                 <button
                   key={q.label}
                   onClick={() => handleQuickPrompt(q.prompt)}
-                  className="px-3 py-1 rounded-full bg-obsidian hover:bg-graphite text-ash hover:text-ivory border border-hairline whitespace-nowrap transition text-[11px]"
+                  className="px-2.5 py-1 rounded bg-obsidian hover:bg-graphite text-ash hover:text-ivory border border-hairline whitespace-nowrap transition-colors text-xs"
                 >
                   {q.label}
                 </button>
@@ -577,12 +575,12 @@ export default function DashboardPage() {
                   className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {m.role === "assistant" && (
-                    <div className="w-6 h-6 rounded-full bg-obsidian border border-hairline flex items-center justify-center shrink-0 mt-0.5 text-cobalt">
-                      <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+                    <div className="w-6 h-6 rounded bg-obsidian border border-hairline flex items-center justify-center shrink-0 mt-0.5 text-cobalt">
+                      <Bot className="w-3.5 h-3.5" aria-hidden="true" />
                     </div>
                   )}
                   <div
-                    className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-relaxed whitespace-pre-line ${
+                    className={`p-3.5 rounded-xl max-w-[85%] text-xs leading-relaxed whitespace-pre-line ${
                       m.role === "user"
                         ? "bg-cobalt text-white font-medium shadow-sm"
                         : "mercury-card text-ivory rounded-tl-sm"
@@ -595,10 +593,10 @@ export default function DashboardPage() {
 
               {isChatLoading && (
                 <div className="flex gap-3 justify-start">
-                  <div className="w-6 h-6 rounded-full bg-obsidian flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 rounded bg-obsidian flex items-center justify-center shrink-0">
                     <Loader2 className="w-3.5 h-3.5 text-cobalt animate-spin" aria-hidden="true" />
                   </div>
-                  <div className="p-3 rounded-2xl mercury-card text-ash text-xs">
+                  <div className="p-3 rounded-xl mercury-card text-ash text-xs">
                     Evaluating financial tools and dispatching intent...
                   </div>
                 </div>
@@ -611,7 +609,7 @@ export default function DashboardPage() {
                     <span className="font-semibold text-ember flex items-center gap-1.5 text-xs">
                       <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Deterministic Payment Gate
                     </span>
-                    <span className="text-[10px] text-ash bg-obsidian px-2 py-0.5 rounded-full border border-hairline">
+                    <span className="text-xs text-ash bg-obsidian px-2 py-0.5 rounded border border-hairline">
                       Human Approval Required
                     </span>
                   </div>
@@ -647,7 +645,7 @@ export default function DashboardPage() {
                       }
                     />
                   </div>
-                  <div className="text-[10px] text-ash text-center">
+                  <div className="text-xs text-ash text-center">
                     PayPal Orders v2 Sandbox: zero real capital at risk, backend idempotency enforced
                   </div>
                 </div>
@@ -670,14 +668,14 @@ export default function DashboardPage() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Plan a trip, draft an invoice, convert currency, or prepare checkout..."
-                  className="flex-1 bg-obsidian border border-hairline rounded-full px-4 py-2.5 text-xs text-ivory placeholder-muted focus:outline-none focus:border-cobalt"
+                  placeholder="Transfer, invoice, convert currency, or ask EterPay..."
+                  className="flex-1 bg-obsidian border border-hairline rounded-md px-3.5 py-2 text-xs text-ivory placeholder-muted focus:outline-none focus:border-cobalt"
                   disabled={isChatLoading}
                 />
                 <button
                   type="submit"
                   disabled={isChatLoading}
-                  className="px-4 py-2.5 bg-cobalt hover:bg-cobalt-hover text-white font-medium rounded-full transition disabled:opacity-40"
+                  className="px-3.5 py-2 bg-cobalt hover:bg-cobalt-hover text-white font-medium rounded-md transition-colors disabled:opacity-40"
                 >
                   {isChatLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Send className="w-4 h-4" aria-hidden="true" />}
                 </button>
@@ -726,8 +724,8 @@ export default function DashboardPage() {
                             <span>Liquid Treasury</span>
                             <Wallet className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
                           </div>
-                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight">₹1,50,000 <span className="text-xs font-normal text-ash">INR</span></div>
-                          <div className="text-xs text-cobalt mt-1.5 flex items-center gap-1">
+                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight tabular-nums">₹1,50,000 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-xs text-cobalt mt-1.5 flex items-center gap-1 tabular-nums">
                             ≈ ${fxRates.find(r => r.currency === "USD") ? (150000 * (fxRates.find(r => r.currency === "USD")!.rate)).toFixed(2) : "..."} USD
                           </div>
                         </div>
@@ -736,7 +734,7 @@ export default function DashboardPage() {
                             <span>Tokyo Travel Allocation</span>
                             <Globe className="w-3.5 h-3.5 text-indigo-400" aria-hidden="true" />
                           </div>
-                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight">
+                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight tabular-nums">
                             ¥{fxRates.find(r => r.currency === "JPY") ? Math.round(150000 * (fxRates.find(r => r.currency === "JPY")!.rate)).toLocaleString() : "..."} <span className="text-xs font-normal text-ash">JPY</span>
                           </div>
                           <div className="text-xs text-ash mt-1.5">Live ECB reference rate</div>
@@ -746,7 +744,7 @@ export default function DashboardPage() {
                             <span>Fee Markups Eliminated</span>
                             <ShieldCheck className="w-3.5 h-3.5 text-success" aria-hidden="true" />
                           </div>
-                          <div className="text-2xl font-semibold mt-1.5 text-success tracking-tight">₹5,700 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-2xl font-semibold mt-1.5 text-success tracking-tight tabular-nums">₹5,700 <span className="text-xs font-normal text-ash">INR</span></div>
                           <div className="text-xs text-ash mt-1.5">vs standard 4.5% bank spread</div>
                         </div>
                       </>
@@ -757,15 +755,15 @@ export default function DashboardPage() {
                             <span>Gross Merchant Volume</span>
                             <Building2 className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
                           </div>
-                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight">₹95,500 <span className="text-xs font-normal text-ash">INR</span></div>
-                          <div className="text-xs text-cobalt mt-1.5">+18.4% vs previous 30 days</div>
+                          <div className="text-2xl font-semibold mt-1.5 text-ivory tracking-tight tabular-nums">₹95,500 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-xs text-cobalt mt-1.5 tabular-nums">+18.4% vs previous 30 days</div>
                         </div>
                         <div className="p-5 mercury-card">
                           <div className="text-xs text-ash font-medium flex items-center justify-between">
                             <span>Outstanding Invoices</span>
                             <FileText className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
                           </div>
-                          <div className="text-2xl font-semibold mt-1.5 text-warning tracking-tight">₹50,500 <span className="text-xs font-normal text-ash">INR</span></div>
+                          <div className="text-2xl font-semibold mt-1.5 text-warning tracking-tight tabular-nums">₹50,500 <span className="text-xs font-normal text-ash">INR</span></div>
                           <div className="text-xs text-ash mt-1.5">2 pending client receipts</div>
                         </div>
                         <div className="p-5 mercury-card">
@@ -773,7 +771,7 @@ export default function DashboardPage() {
                             <span>Dispute Rate</span>
                             <ShieldCheck className="w-3.5 h-3.5 text-success" aria-hidden="true" />
                           </div>
-                          <div className="text-2xl font-semibold mt-1.5 text-success tracking-tight">0.00%</div>
+                          <div className="text-2xl font-semibold mt-1.5 text-success tracking-tight tabular-nums">0.00%</div>
                           <div className="text-xs text-ash mt-1.5">PayPal Protection active</div>
                         </div>
                       </>
@@ -786,26 +784,26 @@ export default function DashboardPage() {
                       <h3 className="font-medium text-sm text-ivory flex items-center gap-2">
                         <Calculator className="w-4 h-4 text-cobalt" aria-hidden="true" /> Live European Central Bank Calculator
                       </h3>
-                      <span className="text-[10px] text-cobalt bg-cobalt/15 px-2.5 py-0.5 rounded-full border border-cobalt/25 font-medium">
+                      <span className="text-xs text-cobalt bg-cobalt/15 px-2 py-0.5 rounded border border-cobalt/25 font-medium">
                         Zero Bank Margins
                       </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
                       <div>
-                        <label className="text-[11px] text-ash block mb-1">Source Amount (INR)</label>
+                        <label className="text-xs text-ash block mb-1">Source Amount (INR)</label>
                         <input
                           type="number"
                           value={calcAmount}
                           onChange={(e) => setCalcAmount(Number(e.target.value) || 0)}
-                          className="w-full bg-obsidian border border-hairline rounded-full px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                          className="w-full bg-obsidian border border-hairline rounded-md px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt tabular-nums"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-ash block mb-1">Target Currency</label>
+                        <label className="text-xs text-ash block mb-1">Target Currency</label>
                         <select
                           value={calcTarget}
                           onChange={(e) => setCalcTarget(e.target.value)}
-                          className="w-full bg-obsidian border border-hairline rounded-full px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                          className="w-full bg-obsidian border border-hairline rounded-md px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt"
                         >
                           {fxRates.map((r) => (
                             <option key={r.currency} value={r.currency} className="bg-graphite">
@@ -816,14 +814,14 @@ export default function DashboardPage() {
                       </div>
                       <div className="md:col-span-2 p-3.5 rounded-xl bg-onyx border border-hairline flex items-center justify-between">
                         <div>
-                          <div className="text-[10px] text-ash">Converted Equivalent</div>
-                          <div className="text-base font-semibold text-ivory">
+                          <div className="text-xs text-ash">Converted Equivalent</div>
+                          <div className="text-base font-semibold text-ivory tabular-nums">
                             {Number(calcResult).toLocaleString()} {calcTarget}
                           </div>
                         </div>
-                        <div className="text-right text-[11px] text-ash">
-                          <div>Rate: {selectedRate.toFixed(4)}</div>
-                          <div className="text-cobalt font-medium">Bank Fee Saved: ₹{(calcAmount * 0.045).toFixed(0)}</div>
+                        <div className="text-right text-xs text-ash">
+                          <div className="tabular-nums">Rate: {selectedRate.toFixed(4)}</div>
+                          <div className="text-cobalt font-medium tabular-nums">Bank Fee Saved: ₹{(calcAmount * 0.045).toFixed(0)}</div>
                         </div>
                       </div>
                     </div>
@@ -847,29 +845,29 @@ export default function DashboardPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
-                        <label className="text-[11px] text-ash block mb-1">Recipient Name / Email</label>
+                        <label className="text-xs text-ash block mb-1">Recipient Name / Email</label>
                         <input
                           type="text"
                           value={transferRecipient}
                           onChange={(e) => setTransferRecipient(e.target.value)}
-                          className="w-full bg-obsidian border border-hairline rounded-full px-4 py-2 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                          className="w-full bg-obsidian border border-hairline rounded-md px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-ash block mb-1">Amount</label>
+                        <label className="text-xs text-ash block mb-1">Amount</label>
                         <input
                           type="number"
                           value={transferAmount}
                           onChange={(e) => setTransferAmount(Number(e.target.value) || 0)}
-                          className="w-full bg-obsidian border border-hairline rounded-full px-4 py-2 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                          className="w-full bg-obsidian border border-hairline rounded-md px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt tabular-nums"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-ash block mb-1">Currency</label>
+                        <label className="text-xs text-ash block mb-1">Currency</label>
                         <select
                           value={transferCurrency}
                           onChange={(e) => setTransferCurrency(e.target.value)}
-                          className="w-full bg-obsidian border border-hairline rounded-full px-4 py-2 text-xs text-ivory focus:outline-none focus:border-cobalt"
+                          className="w-full bg-obsidian border border-hairline rounded-md px-3 py-1.5 text-xs text-ivory focus:outline-none focus:border-cobalt"
                         >
                           <option value="INR" className="bg-graphite">INR (Indian Rupee)</option>
                           <option value="USD" className="bg-graphite">USD (US Dollar)</option>
@@ -880,7 +878,7 @@ export default function DashboardPage() {
                     </div>
                     <button
                       onClick={() => handleQuickPrompt(`Send ${transferAmount} ${transferCurrency} to ${transferRecipient} for payment`)}
-                      className="px-5 py-2.5 rounded-full bg-cobalt hover:bg-cobalt-hover text-white font-medium text-xs transition flex items-center gap-1.5 shadow-sm"
+                      className="px-4 py-2 rounded-md bg-cobalt hover:bg-cobalt-hover text-white font-medium text-xs transition-colors flex items-center gap-1.5 shadow-sm"
                     >
                       <span>Prepare Transfer via Copilot</span>
                       <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -898,7 +896,7 @@ export default function DashboardPage() {
                     </h3>
                     <button
                       onClick={() => handleQuickPrompt("Create an invoice for 20000 INR for Nexus Media Tokyo due in 14 days")}
-                      className="px-3.5 py-1.5 rounded-full bg-cobalt hover:bg-cobalt-hover text-white text-xs font-medium transition flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-md bg-cobalt hover:bg-cobalt-hover text-white text-xs font-medium transition-colors flex items-center gap-1"
                     >
                       <Plus className="w-3.5 h-3.5" aria-hidden="true" /> New Invoice with AI
                     </button>
@@ -907,30 +905,30 @@ export default function DashboardPage() {
                   <div className="p-5 mercury-card space-y-4">
                     <div className="divide-y divide-hairline text-xs">
                       <div className="grid grid-cols-6 py-2 font-medium text-ash">
-                        <span>INVOICE ID</span>
-                        <span className="col-span-2">CLIENT & SERVICE</span>
-                        <span>DUE DATE</span>
-                        <span>AMOUNT</span>
-                        <span className="text-right">ACTION</span>
+                        <span>Invoice ID</span>
+                        <span className="col-span-2">Client & service</span>
+                        <span>Due date</span>
+                        <span>Amount</span>
+                        <span className="text-right">Action</span>
                       </div>
                       {invoices.map((inv) => (
                         <div key={inv.id} className="grid grid-cols-6 py-3 items-center">
                           <span className="font-mono text-ivory">{inv.id}</span>
                           <div className="col-span-2">
                             <div className="font-medium text-ivory">{inv.client}</div>
-                            <div className="text-[11px] text-ash">{inv.service}</div>
+                            <div className="text-xs text-ash">{inv.service}</div>
                           </div>
                           <span className="text-ash">{inv.dueDate}</span>
                           <div>
-                            <span className="font-semibold text-ivory">₹{inv.amount.toLocaleString()}</span>{" "}
-                            <span className="text-[10px] text-ash">{inv.currency}</span>
+                            <span className="font-semibold text-ivory tabular-nums">₹{inv.amount.toLocaleString()}</span>{" "}
+                            <span className="text-xs text-ash">{inv.currency}</span>
                           </div>
                           <div className="text-right flex items-center justify-end gap-2">
                             <StatusBadge value={inv.status} />
                             <button
                               onClick={() => handleQuickPrompt(`Show invoice details for ${inv.id}`)}
                               title="Download PDF"
-                              className="p-1 rounded hover:bg-obsidian text-ash hover:text-ivory"
+                              className="p-1 rounded hover:bg-obsidian text-ash hover:text-ivory transition-colors"
                             >
                               <Download className="w-3.5 h-3.5" aria-hidden="true" />
                             </button>
@@ -957,18 +955,18 @@ export default function DashboardPage() {
                   <div className="p-5 mercury-card space-y-3">
                     <div className="divide-y divide-hairline text-xs">
                       <div className="grid grid-cols-4 py-2 font-medium text-ash">
-                        <span>CURRENCY</span>
-                        <span>1 INR VALUE</span>
-                        <span>150,000 INR EQUIVALENT</span>
-                        <span>INTERBANK SPREAD</span>
+                        <span>Currency</span>
+                        <span>1 INR value</span>
+                        <span>150,000 INR equivalent</span>
+                        <span>Interbank spread</span>
                       </div>
                       {fxRates.map((r) => (
                         <div key={r.currency} className="grid grid-cols-4 py-2.5 items-center">
                           <span className="font-medium text-ivory flex items-center gap-1.5">
-                            <span className="px-1.5 py-0.5 rounded bg-obsidian text-[10px] font-mono text-ash">{r.currency}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-obsidian text-xs font-mono text-ash">{r.currency}</span>
                           </span>
-                          <span className="font-mono text-ash">{r.rate.toFixed(4)}</span>
-                          <span className="font-medium text-ivory">
+                          <span className="font-mono text-ash tabular-nums">{r.rate.toFixed(4)}</span>
+                          <span className="font-medium text-ivory tabular-nums">
                             {(150000 * r.rate).toLocaleString(undefined, { maximumFractionDigits: 0 })} {r.currency}
                           </span>
                           <span className="text-cobalt font-mono">0.0% Interbank</span>
@@ -1005,9 +1003,9 @@ export default function DashboardPage() {
                                 gridRef.current?.api?.setFilterModel(model);
                               }
                             }}
-                            className={`px-3 py-0.5 rounded-full text-[11px] transition ${
+                            className={`px-2.5 py-1 rounded text-xs transition-colors ${
                               (!gridFilter && cat === "ALL") || gridFilter?.value === cat
-                                ? "bg-cobalt text-white font-semibold"
+                                ? "bg-cobalt text-white font-medium"
                                 : "bg-obsidian text-ash hover:text-ivory border border-hairline"
                             }`}
                           >
@@ -1019,7 +1017,7 @@ export default function DashboardPage() {
 
                     {gridFilter && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-cobalt bg-cobalt/15 px-2.5 py-0.5 rounded-full border border-cobalt/25 font-medium">
+                        <span className="text-xs text-cobalt bg-cobalt/15 px-2.5 py-0.5 rounded border border-cobalt/25 font-medium">
                           AI Filter: {gridFilter.column} = &quot;{gridFilter.value}&quot;
                         </span>
                         <button
@@ -1027,7 +1025,7 @@ export default function DashboardPage() {
                             setGridFilter(null);
                             gridRef.current?.api?.setFilterModel(null);
                           }}
-                          className="text-ash hover:text-ivory"
+                          className="text-ash hover:text-ivory transition-colors"
                         >
                           <XCircle className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
@@ -1051,7 +1049,7 @@ export default function DashboardPage() {
                       suppressCellFocus={true}
                     />
                   </div>
-                  <div className="text-[11px] text-ash flex items-center justify-between">
+                  <div className="text-xs text-ash flex items-center justify-between">
                     <span>AG Grid Community v32 (Client-side row model, dynamic AI filter execution)</span>
                     <span className="text-success font-medium">All rows verified</span>
                   </div>
@@ -1081,16 +1079,16 @@ export default function DashboardPage() {
                             <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
                           </div>
                           <div className="font-medium text-xs text-ivory leading-snug">{p.title}</div>
-                          <div className="flex items-center gap-1 text-[11px] text-warning">
-                            <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {p.rating} (<span className="text-ash">{p.retailer}</span>)
+                          <div className="flex items-center gap-1 text-xs text-warning">
+                            <Star className="w-3 h-3 fill-current" aria-hidden="true" /> <span className="tabular-nums">{p.rating}</span> (<span className="text-ash">{p.retailer}</span>)
                           </div>
                           <div className="flex items-center justify-between pt-1">
-                            <span className="font-semibold text-ivory text-sm">₹{p.price_inr.toLocaleString()}</span>
-                            <span className="text-[11px] text-ash">${p.price_usd} USD</span>
+                            <span className="font-semibold text-ivory text-sm tabular-nums">₹{p.price_inr.toLocaleString()}</span>
+                            <span className="text-xs text-ash tabular-nums">${p.price_usd} USD</span>
                           </div>
                           <button
                             onClick={() => handleQuickPrompt(`Buy the ${p.title} for $${p.price_usd}`)}
-                            className="w-full py-2 rounded-full bg-obsidian hover:bg-cobalt hover:text-white font-medium text-xs transition flex items-center justify-center gap-1.5 border border-hairline"
+                            className="w-full py-2 rounded-md bg-obsidian hover:bg-cobalt hover:text-white font-medium text-xs transition-colors flex items-center justify-center gap-1.5 border border-hairline"
                           >
                             <span>Prepare Checkout</span>
                             <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -1123,20 +1121,20 @@ export default function DashboardPage() {
                       <h3 className="font-medium text-sm text-ivory">Simulated Currency Portfolio</h3>
                       <div className="divide-y divide-hairline text-xs">
                         <div className="grid grid-cols-5 py-2 font-medium text-ash">
-                          <span>CURRENCY</span>
-                          <span>ALLOCATION</span>
-                          <span>VALUE INR</span>
-                          <span>UNREALIZED P&L</span>
-                          <span>7-DAY TREND</span>
+                          <span>Currency</span>
+                          <span>Allocation</span>
+                          <span>Value INR</span>
+                          <span>Unrealized P&L</span>
+                          <span>7-day trend</span>
                         </div>
                         {portfolio.map((item) => (
                           <div key={item.currency} className="grid grid-cols-5 py-3 items-center">
                             <span className="font-medium text-ivory flex items-center gap-1.5">
-                              <span className="px-1.5 py-0.5 rounded bg-obsidian text-[10px] font-mono text-ash">{item.currency}</span>
+                              <span className="px-1.5 py-0.5 rounded bg-obsidian text-xs font-mono text-ash">{item.currency}</span>
                             </span>
-                            <span className="text-ash">{item.allocation_pct}%</span>
-                            <span className="text-ivory font-medium">₹{item.value_inr.toLocaleString()}</span>
-                            <span className={item.unrealized_pnl_pct >= 0 ? "text-success font-medium" : "text-danger font-medium"}>
+                            <span className="text-ash tabular-nums">{item.allocation_pct}%</span>
+                            <span className="text-ivory font-medium tabular-nums">₹{item.value_inr.toLocaleString()}</span>
+                            <span className={`tabular-nums ${item.unrealized_pnl_pct >= 0 ? "text-success font-medium" : "text-danger font-medium"}`}>
                               {item.unrealized_pnl_pct >= 0 ? "+" : ""}{item.unrealized_pnl_pct}%
                             </span>
                             <Sparkline
@@ -1149,7 +1147,7 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  {/* Macro FX Stress Test Slider */}
+                  {/* Macro FX Stress Test Simulator */}
                   <div className="p-5 mercury-card space-y-4">
                     <h3 className="font-medium text-sm text-ivory">Macro FX Stress-Test Simulator</h3>
                     <p className="text-xs text-ash leading-relaxed">
@@ -1157,8 +1155,8 @@ export default function DashboardPage() {
                     </p>
                     <div className="space-y-2.5">
                       <div className="flex justify-between text-xs">
-                        <span className="text-ash">Simulated JPY Shock: {shockPct > 0 ? "+" : ""}{shockPct}.0%</span>
-                        <span className={`font-medium ${shockImpactInr >= 0 ? "text-success" : "text-danger"}`}>
+                        <span className="text-ash tabular-nums">Simulated JPY Shock: {shockPct > 0 ? "+" : ""}{shockPct}.0%</span>
+                        <span className={`font-medium tabular-nums ${shockImpactInr >= 0 ? "text-success" : "text-danger"}`}>
                           {shockImpactInr >= 0 ? "+" : ""}₹{shockImpactInr.toLocaleString()} INR Projected Impact
                         </span>
                       </div>
@@ -1171,7 +1169,7 @@ export default function DashboardPage() {
                         className="w-full accent-cobalt cursor-pointer"
                       />
                     </div>
-                    <div className="text-[11px] text-ash text-center pt-1">
+                    <div className="text-xs text-ash text-center pt-1">
                       Scenario stress testing only: zero actual fiat currency transactions executed
                     </div>
                   </div>
