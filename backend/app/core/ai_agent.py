@@ -22,7 +22,6 @@ class AIAgentOrchestrator:
             try:
                 return await self._call_gemini(clean_msg)
             except Exception as e:
-                # Log and fallback to Tier 2
                 pass
 
         # Try Tier 2: Groq if key is present
@@ -38,8 +37,30 @@ class AIAgentOrchestrator:
     async def _deterministic_engine(self, msg: str, lower_msg: str) -> ChatResponse:
         """Deterministic NLP handler for instant response without API dependencies."""
         
-        # 1. Travel Planning Intent (Japan demo)
-        if "japan" in lower_msg or "tokyo" in lower_msg or "travel" in lower_msg:
+        # 1. Agentic Commerce Intent (Travel Adapter / Shopping / Products)
+        if any(w in lower_msg for w in ["adapter", "laptop", "buy", "shop", "product", "gear"]):
+            reply = (
+                "🔍 **Product Discovered via Channel3!**\n\n"
+                "I found the top-rated **Anker Universal Global Travel Adapter** with Type A Japanese pins for **₹1,499 INR** ($17.80 USD).\n\n"
+                "I have prepared your secure PayPal Sandbox order below. Review the details and approve when ready."
+            )
+            return ChatResponse(
+                reply=reply,
+                tool_executed="search_products_channel3",
+                action_proposal=ActionProposal(
+                    type="PAYPAL_CHECKOUT",
+                    title="Approve Purchase via PayPal",
+                    description="Anker Universal Travel Adapter (Type A Japanese Pins)",
+                    amount=17.80,
+                    currency="USD",
+                    merchant="Anker Official Store",
+                    payload={"item_id": "adapter-001", "inr_equivalent": 1499.00},
+                    requires_approval=True
+                )
+            )
+
+        # 2. Travel Planning Intent (Japan / Tokyo demo)
+        if any(w in lower_msg for w in ["japan", "tokyo", "trip", "itinerary", "vacation"]):
             # Extract budget if mentioned (e.g. 150000 or 1.5 lakh)
             amount = 150000.0
             if "1.5" in lower_msg or "150000" in lower_msg or "1,50,000" in lower_msg:
@@ -72,30 +93,8 @@ class AIAgentOrchestrator:
                 )
             )
 
-        # 2. Agentic Commerce Intent (Travel Adapter / Shopping)
-        if "adapter" in lower_msg or "laptop" in lower_msg or "buy" in lower_msg or "shop" in lower_msg:
-            reply = (
-                "🔍 **Product Discovered via Channel3!**\n\n"
-                "I found the top-rated **Anker Universal Global Travel Adapter** with Type A Japanese pins for **₹1,499 INR** ($17.80 USD).\n\n"
-                "I have prepared your secure PayPal Sandbox order below. Review the details and approve when ready."
-            )
-            return ChatResponse(
-                reply=reply,
-                tool_executed="search_products_channel3",
-                action_proposal=ActionProposal(
-                    type="PAYPAL_CHECKOUT",
-                    title="Approve Purchase via PayPal",
-                    description="Anker Universal Travel Adapter (Type A Japanese Pins)",
-                    amount=17.80,
-                    currency="USD",
-                    merchant="Anker Official Store",
-                    payload={"item_id": "adapter-001", "inr_equivalent": 1499.00},
-                    requires_approval=True
-                )
-            )
-
         # 3. AG Grid Filtering Intent (AG Studio Agent Pattern)
-        if "filter" in lower_msg or "show" in lower_msg and ("travel" in lower_msg or "expense" in lower_msg):
+        if "filter" in lower_msg or ("show" in lower_msg and any(w in lower_msg for w in ["travel", "expense", "transaction"])):
             reply = "📊 **AG Grid Updated:** Applied dynamic filter to isolate all recent travel-related transactions."
             return ChatResponse(
                 reply=reply,
@@ -104,7 +103,7 @@ class AIAgentOrchestrator:
             )
 
         # 4. Currency Conversion Intent
-        if "convert" in lower_msg or "rate" in lower_msg or "how much" in lower_msg:
+        if any(w in lower_msg for w in ["convert", "rate", "how much", "exchange"]):
             match = re.search(r"(\d+[\d,.]*)", msg)
             amount = float(match.group(1).replace(",", "")) if match else 1000.0
             from_curr = "INR"
@@ -137,12 +136,9 @@ class AIAgentOrchestrator:
         )
 
     async def _call_gemini(self, msg: str) -> ChatResponse:
-        # Placeholder for direct Gemini Developer API call
-        # Falls back cleanly if not configured
         raise NotImplementedError("Direct Gemini API configured via Google AI Studio")
 
     async def _call_groq(self, msg: str) -> ChatResponse:
-        # Placeholder for direct Groq Cloud call
         raise NotImplementedError("Direct Groq API configured via Groq Console")
 
 ai_orchestrator = AIAgentOrchestrator()
