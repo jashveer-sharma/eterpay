@@ -9,6 +9,7 @@ class CreateOrderRequest(BaseModel):
     idempotency_key: Optional[str] = Field(None, description="UUIDv4 to prevent duplicate orders")
 
 class CreateOrderResponse(BaseModel):
+    id: str
     order_id: str
     status: str
     currency: str
