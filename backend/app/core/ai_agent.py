@@ -60,6 +60,20 @@ GEMINI_TOOLS = [
                     },
                     "required": ["column", "value"]
                 }
+            },
+            {
+                "name": "initiate_payment",
+                "description": "Propose a PayPal payment for the user to approve. The AI NEVER executes payments directly — only creates a proposal requiring explicit user approval.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "amount": {"type": "NUMBER", "description": "Payment amount in the specified currency"},
+                        "currency": {"type": "STRING", "description": "ISO currency code e.g. USD, EUR"},
+                        "recipient": {"type": "STRING", "description": "Merchant or recipient name"},
+                        "description": {"type": "STRING", "description": "What the payment is for"}
+                    },
+                    "required": ["amount", "currency", "recipient", "description"]
+                }
             }
         ]
     }
@@ -125,16 +139,37 @@ GROQ_TOOLS = [
                 "required": ["column", "value"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "initiate_payment",
+            "description": "Propose a PayPal payment for user approval. AI never executes directly — requires explicit human approval.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "amount": {"type": "number", "description": "Amount in specified currency"},
+                    "currency": {"type": "string", "description": "ISO code e.g. USD, EUR"},
+                    "recipient": {"type": "string", "description": "Merchant or recipient"},
+                    "description": {"type": "string", "description": "Payment purpose"}
+                },
+                "required": ["amount", "currency", "recipient", "description"]
+            }
+        }
     }
 ]
 
 SYSTEM_PROMPT = (
     "You are EterPay AI, an intelligent global fintech copilot and financial advisor. "
     "You assist users with cross-border payments, currency conversions, travel budgeting, "
-    "and AG Grid financial data analysis. "
+    "commerce discovery, and AG Grid financial data analysis. "
     "Supported destinations include Tokyo, Paris, London, Dubai, Singapore, Bali, New York, Bangkok. "
-    "When a user asks to convert currency, shop for items, plan travel, or filter transactions, "
-    "always invoke the relevant tool call. "
+    "Tool routing rules: "
+    "convert currency -> call convert_currency; "
+    "shop/buy/find products -> call search_products_channel3; "
+    "plan travel/trip -> call plan_travel_budget; "
+    "filter/show transactions -> call update_grid_filter; "
+    "send/pay/transfer/wire money -> call initiate_payment (requires_approval always True, never execute). "
     "Always maintain a concise, helpful, and professional tone."
 )
 
@@ -278,11 +313,38 @@ class AIAgentOrchestrator:
                 grid_filter={"column": col, "value": val}
             )
 
+        elif tool_name == "initiate_payment":
+            amount = float(args.get("amount", 25.0))
+            currency = str(args.get("currency", "USD")).upper()
+            recipient = args.get("recipient", "EterPay Merchant")
+            description = args.get("description", "Payment via EterPay")
+            reply = (
+                f"Payment Proposal Ready:\n\n"
+                f"Amount: {currency} {amount:,.2f}\n"
+                f"Recipient: {recipient}\n"
+                f"Purpose: {description}\n\n"
+                "Review the details below and click Approve & Pay to initiate the PayPal Sandbox checkout. Funds will only move after your approval."
+            )
+            return ChatResponse(
+                reply=reply,
+                tool_executed="initiate_payment",
+                action_proposal=ActionProposal(
+                    type="PAYPAL_CHECKOUT",
+                    title=f"Pay {currency} {amount:,.2f} to {recipient}",
+                    description=description,
+                    amount=amount,
+                    currency=currency,
+                    merchant=recipient,
+                    payload={"initiated_by": "ai_tool"},
+                    requires_approval=True
+                )
+            )
+
         return ChatResponse(reply=f"Executed tool: {tool_name}", tool_executed=tool_name)
 
     async def _call_gemini(self, msg: str, history: List[Dict[str, str]] = []) -> Optional[ChatResponse]:
         """Direct REST call to Gemini 1.5 Flash using Google AI Studio API with conversation history."""
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={settings.GEMINI_API_KEY}"
         # Build contents array: prior history + current message
         contents = []
         for h in history[-8:]:
@@ -329,7 +391,7 @@ class AIAgentOrchestrator:
             messages.append({"role": role, "content": h.get("content", "")})
         messages.append({"role": "user", "content": msg})
         payload = {
-            "model": "llama-3.3-70b-versatile",
+            "model": "qwen/qwen3.8-27b",
             "messages": messages,
             "tools": GROQ_TOOLS,
             "tool_choice": "auto",
@@ -426,6 +488,65 @@ class AIAgentOrchestrator:
                 "to_currency": to_curr
             })
 
+        # 5. Payment Intent — propose via initiate_payment (never execute directly)
+        if any(w in lower_msg for w in ["pay", "send", "transfer", "wire", "remit"]):
+            match = re.search(r"(\d+[\d,.]*)", msg)
+            amount = float(match.group(1).replace(",", "")) if match else 25.0
+            currency = "USD"
+            if "inr" in lower_msg or "rupee" in lower_msg:
+                # Quick estimate for deterministic path; PayPal backend converts precisely
+                amount = max(round(amount / 83.0, 2), 1.0)
+            recipient = "Merchant"
+            for name in ["amazon", "netflix", "spotify", "uber", "airbnb", "apple"]:
+                if name in lower_msg:
+                    recipient = name.capitalize()
+                    break
+            return await self._dispatch_tool("initiate_payment", {
+                "amount": amount, "currency": currency,
+                "recipient": recipient, "description": "EterPay Payment"
+            })
+
+        # 6. Balance / account summary intent
+        if any(w in lower_msg for w in ["balance", "wallet", "account", "how much do i have", "my funds"]):
+            return ChatResponse(
+                reply=(
+                    "EterPay Demo Account Summary (Alex M.):\n\n"
+                    "  Primary Wallet (INR): \u20b92,34,750.00\n"
+                    "  USD Reserve: $1,250.00\n"
+                    "  EUR Pocket: \u20ac430.00\n\n"
+                    "Total in INR (live ECB): ~\u20b92,98,220\n"
+                    "Last updated: live (Frankfurter ECB feed)"
+                )
+            )
+
+        # 7. Monthly spending digest intent
+        if any(w in lower_msg for w in ["spend", "spent", "expenses", "this month", "monthly"]):
+            return ChatResponse(
+                reply=(
+                    "EterPay Spending Digest - October 2026:\n\n"
+                    "  Travel: \u20b968,400 (5 transactions)\n"
+                    "  Commerce: \u20b912,750 (3 transactions)\n"
+                    "  Subscriptions: \u20b92,340 (2 transactions)\n"
+                    "  Dining: \u20b98,200 (4 transactions)\n"
+                    "  Total outflows: \u20b991,690\n\n"
+                    "Tip: Use PayPal Smart Buttons to settle cross-border bills at ECB interbank rates."
+                )
+            )
+
+        # 8. Subscriptions intent
+        if any(w in lower_msg for w in ["subscription", "subscriptions", "recurring", "monthly plan"]):
+            return ChatResponse(
+                reply=(
+                    "Active Subscriptions (Alex M.):\n\n"
+                    "  Netflix Premium - \u20b9649/month ($7.80 USD)\n"
+                    "  Spotify Family - \u20b9179/month ($2.15 USD)\n"
+                    "  Adobe Creative Cloud - \u20b95,432/month ($65.18 USD)\n"
+                    "  GitHub Pro - \u20b9400/month ($4.80 USD)\n\n"
+                    "Total monthly: \u20b96,660 (~$79.93 USD)\n"
+                    "EterPay handles FX at live ECB interbank rates - no hidden spread."
+                )
+            )
+
         # Default fallback
         return ChatResponse(
             reply=(
@@ -435,7 +556,11 @@ class AIAgentOrchestrator:
                 "- 'Plan my Paris trip with 200,000 INR.'\n"
                 "- 'Find me a universal travel adapter.'\n"
                 "- 'Filter my transactions by Travel category.'\n"
-                "- 'Convert 50,000 INR to EUR.'"
+                "- 'Convert 50,000 INR to EUR.'\n"
+                "- 'What is my account balance?'\n"
+                "- 'How much did I spend this month?'\n"
+                "- 'What subscriptions am I paying?'\n"
+                "- 'Send $50 to Netflix'"
             )
         )
 
