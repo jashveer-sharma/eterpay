@@ -4,6 +4,26 @@ import Link from "next/link";
 import { Plane, Building, Compass, CheckCircle2, ArrowRight } from "lucide-react";
 import { DEMO_TRAVEL } from "@/lib/demo-data";
 
+function formatTravelPrice(t: {
+  price?: number;
+  pricePerNight?: number;
+  nights?: number;
+}): string {
+  if (typeof t.price === "number" && t.price > 0) {
+    return `₹ ${t.price.toLocaleString("en-IN")}`;
+  }
+  if (
+    typeof t.pricePerNight === "number" &&
+    t.pricePerNight > 0 &&
+    typeof t.nights === "number" &&
+    t.nights > 0
+  ) {
+    const total = t.pricePerNight * t.nights;
+    return `₹ ${total.toLocaleString("en-IN")}`;
+  }
+  return "Price unavailable";
+}
+
 export default function TravelPage() {
   const [booked, setBooked] = useState<string | null>(null);
 
@@ -47,7 +67,7 @@ export default function TravelPage() {
 
                 <div>
                   <div className="font-serif text-2xl font-semibold text-[#0f4d40] tabular mb-4">
-                    ₹ {t.price ? t.price.toLocaleString("en-IN") : (t.pricePerNight * t.nights).toLocaleString("en-IN")}
+                    {formatTravelPrice(t)}
                   </div>
 
                   {booked === t.id ? (
