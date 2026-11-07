@@ -1,12 +1,41 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { TrendingUp, AlertTriangle, ShieldCheck, ArrowUpRight, CheckCircle2, PieChart } from "lucide-react";
+import {
+  TrendingUp,
+  AlertTriangle,
+  ShieldCheck,
+  ArrowUpRight,
+  ArrowRight,
+  CheckCircle2,
+  PieChart,
+  Sparkles,
+  Lock,
+  Unlock,
+  Percent,
+  Coins,
+  Wallet,
+} from "lucide-react";
 import { DEMO_PORTFOLIO } from "@/lib/demo-data";
 
 export default function InvestPage() {
   const [rebalanced, setRebalanced] = useState(false);
   const [activeScenario, setActiveScenario] = useState<"usd_deprec" | "eur_surge" | "equity_shock">("usd_deprec");
+
+  // EterPay ReserveLien™ State (Loan Against Fixed Deposit & Multi-Currency Reserves)
+  const [collateralAmount, setCollateralAmount] = useState(500000);
+  const [collateralCcy, setCollateralCcy] = useState<"INR" | "USD">("INR");
+  const [drawSuccess, setDrawSuccess] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  const ltv = 0.85;
+  const maxCreditLine = Math.round(collateralAmount * ltv);
+  const fdRate = 7.20;
+  const borrowRate = 8.45;
+  const netSpread = 1.25;
+  const annualEarnedYield = Math.round(collateralAmount * (fdRate / 100));
+  const annualBorrowCost = Math.round(maxCreditLine * (borrowRate / 100));
+  const sym = collateralCcy === "INR" ? "₹" : "$";
 
   const scenarios = {
     usd_deprec: {
@@ -129,6 +158,207 @@ export default function InvestPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* ─── EterPay ReserveLien™ (Loan Against Multi-Currency FD & Reserves) ─── */}
+        <div className="card p-6 sm:p-8 bg-white border border-[rgba(15,77,64,0.2)] rounded-3xl shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[rgba(17,17,17,0.06)]">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[rgba(15,77,64,0.1)] text-[#0f4d40]">
+                  Global Asset-Backed Liquidity
+                </span>
+                <span className="font-mono text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[#f0fdf4] text-[#16a34a] border border-[#16a34a]/30">
+                  Zero Credit Score Check
+                </span>
+              </div>
+              <h2 className="font-serif text-2xl text-[#111111] mt-1.5 flex items-center gap-2">
+                EterPay ReserveLien™
+                <span className="text-xs font-normal text-[#555555]">
+                  (Overdraft Against FD &amp; Multi-Currency Reserves)
+                </span>
+              </h2>
+              <p className="text-xs text-[#555555] mt-1 leading-relaxed max-w-2xl">
+                Inspired by the Indian banking breakthrough of <em>Loan Against Fixed Deposit</em>, now upgraded for global fintech.
+                Pledge your domestic term deposits or foreign currency reserves to unlock an instant 85% liquidity line without breaking deposits.
+                Your pledged balance continues compounding yield uninterrupted.
+              </p>
+            </div>
+
+            {/* Currency Selector */}
+            <div className="inline-flex rounded-lg bg-[#fbf9f5] p-1 border border-[rgba(17,17,17,0.08)] text-xs font-medium self-start sm:self-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setCollateralCcy("INR");
+                  setCollateralAmount(500000);
+                }}
+                className={`px-3 py-1.5 rounded-md transition-colors ${
+                  collateralCcy === "INR"
+                    ? "bg-[#0f4d40] text-white shadow-xs"
+                    : "text-[#555555] hover:text-[#111111]"
+                }`}
+              >
+                ₹ INR Deposit
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCollateralCcy("USD");
+                  setCollateralAmount(10000);
+                }}
+                className={`px-3 py-1.5 rounded-md transition-colors ${
+                  collateralCcy === "USD"
+                    ? "bg-[#0f4d40] text-white shadow-xs"
+                    : "text-[#555555] hover:text-[#111111]"
+                }`}
+              >
+                $ USD Reserve
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Collateral Slider */}
+          <div className="space-y-3 bg-[#fbf9f5] p-5 rounded-2xl border border-[rgba(17,17,17,0.06)]">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#555555]">
+                Pledge Collateral Amount:
+              </label>
+              <span className="font-serif text-xl font-bold text-[#0f4d40] tabular">
+                {sym} {collateralAmount.toLocaleString(collateralCcy === "INR" ? "en-IN" : "en-US")}
+              </span>
+            </div>
+            <input
+              type="range"
+              min={collateralCcy === "INR" ? 50000 : 1000}
+              max={collateralCcy === "INR" ? 2500000 : 50000}
+              step={collateralCcy === "INR" ? 25000 : 500}
+              value={collateralAmount}
+              onChange={(e) => setCollateralAmount(Number(e.target.value))}
+              className="w-full accent-[#0f4d40] cursor-pointer"
+            />
+            <div className="flex justify-between text-[11px] text-[#888888] font-mono">
+              <span>Min: {sym} {collateralCcy === "INR" ? "50,000" : "1,000"}</span>
+              <span>Max: {sym} {collateralCcy === "INR" ? "25,00,000" : "50,000"}</span>
+            </div>
+          </div>
+
+          {/* 4 Financial Metric Cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-white border border-[rgba(17,17,17,0.08)]">
+              <div className="flex items-center justify-between text-[11px] text-[#888888]">
+                <span>Instant Overdraft Line</span>
+                <Unlock className="w-3.5 h-3.5 text-[#0f4d40]" />
+              </div>
+              <div className="font-serif text-2xl font-bold text-[#0f4d40] mt-1 tabular">
+                {sym} {maxCreditLine.toLocaleString(collateralCcy === "INR" ? "en-IN" : "en-US")}
+              </div>
+              <span className="text-[10px] text-[#16a34a] font-semibold mt-0.5 block">85% Instant LTV</span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white border border-[rgba(17,17,17,0.08)]">
+              <div className="flex items-center justify-between text-[11px] text-[#888888]">
+                <span>Deposit Compounding Yield</span>
+                <Coins className="w-3.5 h-3.5 text-[#16a34a]" />
+              </div>
+              <div className="font-serif text-2xl font-bold text-[#16a34a] mt-1 tabular">
+                +{fdRate}% p.a.
+              </div>
+              <span className="text-[10px] text-[#555555] mt-0.5 block">
+                Earns ~{sym}{annualEarnedYield.toLocaleString()}/yr
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white border border-[rgba(17,17,17,0.08)]">
+              <div className="flex items-center justify-between text-[11px] text-[#888888]">
+                <span>Overdraft Borrow Rate</span>
+                <Percent className="w-3.5 h-3.5 text-[#555555]" />
+              </div>
+              <div className="font-serif text-2xl font-bold text-[#111111] mt-1 tabular">
+                {borrowRate}% p.a.
+              </div>
+              <span className="text-[10px] text-[#555555] mt-0.5 block">
+                Cost ~{sym}{annualBorrowCost.toLocaleString()}/yr
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white border border-[rgba(17,17,17,0.08)]">
+              <div className="flex items-center justify-between text-[11px] text-[#888888]">
+                <span>Effective Net Spread</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#0f4d40]" />
+              </div>
+              <div className="font-serif text-2xl font-bold text-[#0f4d40] mt-1 tabular">
+                Only {netSpread}% p.a.
+              </div>
+              <span className="text-[10px] text-[#16a34a] font-semibold mt-0.5 block">
+                vs 36%-42% on Credit Cards
+              </span>
+            </div>
+          </div>
+
+          {/* Educational Comparison Box */}
+          <div className="p-4 rounded-2xl bg-[rgba(15,77,64,0.04)] border border-[rgba(15,77,64,0.15)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="text-xs text-[#333333] space-y-1">
+              <div className="font-semibold text-[#0f4d40] flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#0f4d40]" />
+                Why ReserveLien™ Outperforms Traditional Borrowing &amp; Premature Liquidation:
+              </div>
+              <p className="text-[#555555] leading-relaxed">
+                Breaking a deposit forfeits compounding interest and incurs early exit penalties.
+                Personal loans require invasive credit bureau checks. ReserveLien is 100% asset-backed,
+                free from credit checks, and spendable instantly across the PayPal merchant ecosystem.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsDrawing(true);
+                setTimeout(() => {
+                  setIsDrawing(false);
+                  setDrawSuccess(true);
+                }, 1200);
+              }}
+              disabled={isDrawing || drawSuccess}
+              className="btn btn-primary text-xs px-5 py-3 rounded-xl flex-shrink-0 flex items-center gap-2 whitespace-nowrap"
+            >
+              {isDrawing ? (
+                <>Allocating Overdraft Line...</>
+              ) : drawSuccess ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-[#34d399]" /> Line Allocated
+                </>
+              ) : (
+                <>
+                  <Wallet className="w-4 h-4" /> Draw {sym} {maxCreditLine.toLocaleString()} to PayPal
+                </>
+              )}
+            </button>
+          </div>
+
+          {drawSuccess && (
+            <div className="p-4 bg-[#f0fdf4] border border-[#16a34a]/30 rounded-2xl text-xs space-y-2">
+              <div className="flex items-center justify-between text-[#16a34a] font-semibold">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  ReserveLien™ Overdraft Facility Ready for Instant Spend
+                </span>
+                <span className="font-mono text-[10px]">TX-LIEN-2026-OK</span>
+              </div>
+              <div className="text-[#555555]">
+                {sym} {maxCreditLine.toLocaleString()} liquidity line linked to your EterPay account.
+                You can now settle merchant invoices, buy commerce items, or execute PayPal Orders v2 transactions.
+                Your pledged collateral of {sym} {collateralAmount.toLocaleString()} continues compounding yield.
+              </div>
+              <div className="pt-1">
+                <Link
+                  href="/commerce"
+                  className="inline-flex items-center gap-1 font-semibold text-[#0f4d40] underline underline-offset-2 hover:no-underline"
+                >
+                  Spend via PayPal Commerce Hub <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* AI Portfolio Advisory & Multi-Scenario Stress Test */}

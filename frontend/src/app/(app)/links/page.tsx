@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Link2, Copy, Check, Plus, ExternalLink, QrCode } from "lucide-react";
+import { Link2, Copy, Check, Plus, ExternalLink, QrCode, CreditCard, Sparkles } from "lucide-react";
+import { PayPalCheckoutButton } from "@/components/paypal/PayPalCheckoutButton";
 
 export default function PaymentLinksPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
+  const [testCheckoutLink, setTestCheckoutLink] = useState<any | null>(null);
   const [title, setTitle] = useState("1-on-1 Architecture Consultation");
   const [amount, setAmount] = useState("7500");
 
@@ -103,13 +105,19 @@ export default function PaymentLinksPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="font-serif text-base font-semibold text-[#0f4d40] tabular">
+                <div className="flex items-center gap-2">
+                  <div className="font-serif text-base font-semibold text-[#0f4d40] tabular mr-1">
                     ₹ {link.amount.toLocaleString("en-IN")}
                   </div>
                   <button
+                    onClick={() => setTestCheckoutLink(link)}
+                    className="btn btn-primary text-xs px-2.5 py-1.5 flex items-center gap-1"
+                  >
+                    <CreditCard className="w-3.5 h-3.5" /> Test Checkout
+                  </button>
+                  <button
                     onClick={() => handleCopy(link.id, link.url)}
-                    className="btn btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"
+                    className="btn btn-secondary text-xs px-2.5 py-1.5 flex items-center gap-1"
                   >
                     {copiedId === link.id ? <Check className="w-3.5 h-3.5 text-[#16a34a]" /> : <Copy className="w-3.5 h-3.5" />}
                     {copiedId === link.id ? "Copied" : "Copy"}
@@ -119,6 +127,53 @@ export default function PaymentLinksPage() {
             ))}
           </div>
         </div>
+
+        {/* Test Checkout Modal */}
+        {testCheckoutLink && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="card p-6 bg-white max-w-md w-full space-y-4 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-[rgba(17,17,17,0.08)]">
+                <div>
+                  <h3 className="font-serif text-lg text-[#111111]">PayPal Orders v2 Modal Checkout</h3>
+                  <p className="text-xs text-[#555555]">{testCheckoutLink.title}</p>
+                </div>
+                <button
+                  onClick={() => setTestCheckoutLink(null)}
+                  className="text-[#888888] text-sm hover:text-[#111111]"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#fbf9f5] border border-[rgba(17,17,17,0.06)] flex justify-between items-center text-xs">
+                <div>
+                  <span className="text-[#888888] block text-[10px] uppercase">Link Price</span>
+                  <span className="font-serif text-lg font-bold text-[#0f4d40] tabular">
+                    ₹ {testCheckoutLink.amount.toLocaleString("en-IN")} INR
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[rgba(15,77,64,0.1)] text-[#0f4d40] font-semibold">
+                  LIVE SANDBOX
+                </span>
+              </div>
+
+              <PayPalCheckoutButton
+                amount={testCheckoutLink.amount}
+                currency={testCheckoutLink.currency}
+                description={testCheckoutLink.title}
+                merchantName="EterPay Link Merchant"
+                onSuccess={() => {
+                  setLinks((prev) =>
+                    prev.map((l) =>
+                      l.id === testCheckoutLink.id ? { ...l, paidCount: l.paidCount + 1 } : l
+                    )
+                  );
+                  setTimeout(() => setTestCheckoutLink(null), 1500);
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

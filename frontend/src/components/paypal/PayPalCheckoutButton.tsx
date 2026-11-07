@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { PayPalScriptProvider, PayPalButtons, PayPalMessages } from "@paypal/react-paypal-js";
 import { ShieldCheck, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 
 interface PayPalCheckoutButtonProps {
@@ -163,9 +163,16 @@ export function PayPalCheckoutButton({
           clientId: clientId,
           currency: currency.toUpperCase() === "INR" ? "USD" : currency.toUpperCase(),
           intent: "capture",
+          components: "buttons,messages",
         }}
       >
-        <div className="relative z-10 min-h-[140px]">
+        <div className="relative z-10 min-h-[140px] space-y-3">
+          <div className="p-2.5 rounded-lg bg-[#fbf9f5] border border-[rgba(17,17,17,0.06)] text-[11px]">
+            <PayPalMessages
+              amount={currency.toUpperCase() === "INR" ? Math.max(Math.round(amount / 83), 1) : Math.max(amount, 1)}
+              style={{ layout: "text", logo: { type: "primary" } }}
+            />
+          </div>
           <PayPalButtons
             style={{
               layout: "vertical",

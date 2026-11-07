@@ -74,6 +74,31 @@ GEMINI_TOOLS = [
                     },
                     "required": ["amount", "currency", "recipient", "description"]
                 }
+            },
+            {
+                "name": "calculate_loan_against_fd",
+                "description": "Calculate instant ReserveLien line of credit against Fixed Deposit (FD) or Multi-Currency Reserve without breaking deposits.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "collateral_amount": {"type": "NUMBER", "description": "Collateral deposit amount in INR or USD"},
+                        "currency": {"type": "STRING", "description": "Collateral currency: INR, USD, EUR"}
+                    },
+                    "required": ["collateral_amount"]
+                }
+            },
+            {
+                "name": "compare_payment_rails",
+                "description": "Compare real-time transfer costs, speeds, and fees between PayPal, Wise, and Airtm.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "amount": {"type": "NUMBER", "description": "Transfer amount in USD or INR"},
+                        "from_currency": {"type": "STRING", "description": "Source currency e.g. USD"},
+                        "to_currency": {"type": "STRING", "description": "Target currency e.g. INR"}
+                    },
+                    "required": ["amount"]
+                }
             }
         ]
     }
@@ -156,21 +181,57 @@ GROQ_TOOLS = [
                 "required": ["amount", "currency", "recipient", "description"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_loan_against_fd",
+            "description": "Calculate instant ReserveLien line of credit against Fixed Deposit (FD) or Multi-Currency Reserve.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "collateral_amount": {"type": "number", "description": "Collateral deposit amount"},
+                    "currency": {"type": "string", "description": "Collateral currency: INR, USD, EUR"}
+                },
+                "required": ["collateral_amount"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "compare_payment_rails",
+            "description": "Compare real-time transfer costs, speeds, and fees between PayPal, Wise, and Airtm.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "amount": {"type": "number", "description": "Transfer amount in USD or INR"},
+                    "from_currency": {"type": "string", "description": "Source currency"},
+                    "to_currency": {"type": "string", "description": "Target currency"}
+                },
+                "required": ["amount"]
+            }
+        }
     }
 ]
 
 SYSTEM_PROMPT = (
     "You are EterPay AI, an intelligent global fintech copilot and financial advisor. "
     "You assist users with cross-border payments, currency conversions, travel budgeting, "
-    "commerce discovery, and AG Grid financial data analysis. "
+    "commerce discovery, AG Grid financial data analysis, and ReserveLien asset-backed liquidity. "
     "Supported destinations include Tokyo, Paris, London, Dubai, Singapore, Bali, New York, Bangkok. "
     "Tool routing rules: "
     "convert currency -> call convert_currency; "
     "shop/buy/find products -> call search_products_channel3; "
     "plan travel/trip -> call plan_travel_budget; "
     "filter/show transactions -> call update_grid_filter; "
+    "loan/fd/fixed deposit/collateral/reservelien/overdraft/credit line -> call calculate_loan_against_fd; "
+    "compare rails/fees/wise vs paypal/airtm -> call compare_payment_rails; "
     "send/pay/transfer/wire money -> call initiate_payment (requires_approval always True, never execute). "
-    "Always maintain a concise, helpful, and professional tone."
+    "CRITICAL FORMATTING RULES: "
+    "1. NEVER use markdown asterisks (* or **). Do not use asterisks for bold or for bullets. "
+    "2. For lists, use clean hyphens '-' or bullet dots '•'. "
+    "3. Keep replies concise, fast, and high-impact. Never include unnecessary filler."
 )
 
 # Destination keyword map for deterministic engine
@@ -340,6 +401,91 @@ class AIAgentOrchestrator:
                 )
             )
 
+        elif tool_name == "calculate_loan_against_fd":
+            collateral = float(args.get("collateral_amount", 500000.0))
+            currency = str(args.get("currency", "INR")).upper()
+            ltv = 0.85
+            credit_line = collateral * ltv
+            fd_rate = 7.20
+            borrow_rate = 8.45
+            net_spread = borrow_rate - fd_rate  # 1.25%
+            monthly_interest = (credit_line * (borrow_rate / 100.0)) / 12.0
+
+            symbol = "₹" if currency == "INR" else ("$" if currency == "USD" else "€")
+            reply = (
+                f"EterPay ReserveLien™ Credit Line Assessment\n\n"
+                f"Pledged Collateral: {symbol}{collateral:,.2f} {currency} in Verified Term Deposit\n"
+                f"Available Credit Line: {symbol}{credit_line:,.2f} {currency} (85% Instant LTV)\n"
+                f"Zero Credit Checks: 100% Asset-Backed Overdraft (CIBIL/FICO Exempt)\n"
+                f"Deposit Earning Yield: {fd_rate:.2f}% p.a. (Compounding Uninterrupted)\n"
+                f"Borrowing Interest Rate: {borrow_rate:.2f}% p.a.\n"
+                f"Effective Net Cost: Only {net_spread:.2f}% p.a. (~{symbol}{monthly_interest:,.0f}/month on full draw)\n\n"
+                f"Key Advantage: Unlike breaking your deposit and forfeiting interest, "
+                f"ReserveLien gives you instant spending liquidity spendable via PayPal "
+                f"while your underlying reserve continues growing."
+            )
+            return ChatResponse(
+                reply=reply,
+                tool_executed="calculate_loan_against_fd",
+                action_proposal=ActionProposal(
+                    type="RESERVE_LIEN",
+                    title=f"Activate ReserveLien™: {symbol}{credit_line:,.0f} Credit Line",
+                    description=f"85% instant overdraft backed by {symbol}{collateral:,.0f} {currency} reserve. Deposit keeps earning {fd_rate}%.",
+                    amount=credit_line,
+                    currency=currency,
+                    payload={
+                        "collateral": collateral,
+                        "ltv": ltv,
+                        "fd_rate": fd_rate,
+                        "borrow_rate": borrow_rate,
+                        "net_cost": net_spread
+                    },
+                    requires_approval=True
+                )
+            )
+
+        elif tool_name == "compare_payment_rails":
+            amount = float(args.get("amount", 1000.0))
+            from_ccy = str(args.get("from_currency", "USD")).upper()
+            to_ccy = str(args.get("to_currency", "INR")).upper()
+
+            # Live ECB rate conversion
+            conv = await currency_client.convert(amount, from_ccy, to_ccy)
+            ecb_amt = conv["amount_target"]
+            ecb_rate = conv["rate"]
+
+            reply = (
+                f"Global Cross-Border Rail Comparison ({from_ccy} {amount:,.0f} to {to_ccy})\n\n"
+                f"1. EterPay + PayPal Sandbox:\n"
+                f"   - Effective Settlement: ₹{ecb_amt * 0.996:,.0f} {to_ccy}\n"
+                f"   - Fee: 0.40% ECB Interbank spread\n"
+                f"   - Speed: Instant Modal Confirmation with Orders v2\n"
+                f"   - Safety: PayPal Buyer Protection + Idempotency\n\n"
+                f"2. Wise (Traditional FinTech):\n"
+                f"   - Effective Settlement: ₹{ecb_amt * 0.994:,.0f} {to_ccy}\n"
+                f"   - Fee: 0.55% - 0.65% mid-market + ACH fee\n"
+                f"   - Speed: 4 to 24 hours banking hours\n\n"
+                f"3. Airtm (P2P Network):\n"
+                f"   - Effective Settlement: ₹{ecb_amt * 0.972:,.0f} {to_ccy}\n"
+                f"   - Fee: 1.50% - 3.20% cashier bid/ask spread\n"
+                f"   - Speed: 15 to 45 minutes peer-matching\n\n"
+                f"Conclusion: EterPay provides the highest net settlement and zero hidden Dynamic Currency Conversion."
+            )
+            return ChatResponse(
+                reply=reply,
+                tool_executed="compare_payment_rails",
+                action_proposal=ActionProposal(
+                    type="PAYPAL_CHECKOUT",
+                    title=f"Execute via PayPal Sandbox ({from_ccy} {amount:,.2f})",
+                    description=f"Optimal rail selected. Settle at live ECB reference rate (1 {from_ccy} = {ecb_rate:.4f} {to_ccy}).",
+                    amount=amount,
+                    currency=from_ccy,
+                    merchant="EterPay Global Rail",
+                    payload={"optimal_rail": "paypal_sandbox"},
+                    requires_approval=True
+                )
+            )
+
         return ChatResponse(reply=f"Executed tool: {tool_name}", tool_executed=tool_name)
 
     async def _call_gemini(self, msg: str, history: List[Dict[str, str]] = []) -> Optional[ChatResponse]:
@@ -357,7 +503,7 @@ class AIAgentOrchestrator:
             "tools": GEMINI_TOOLS
         }
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=5.0) as client:
             res = await client.post(url, json=payload)
             if res.status_code != 200:
                 logger.warning(f"Gemini API returned status {res.status_code}: {res.text}")
@@ -374,7 +520,9 @@ class AIAgentOrchestrator:
                     fn_call = part["functionCall"]
                     return await self._dispatch_tool(fn_call.get("name"), fn_call.get("args", {}))
                 if "text" in part:
-                    return ChatResponse(reply=part["text"], tool_executed=None)
+                    # Clean any accidental markdown asterisks from model reply
+                    clean_text = part["text"].replace("**", "").replace("*", "")
+                    return ChatResponse(reply=clean_text, tool_executed=None)
 
         return None
 
@@ -398,7 +546,7 @@ class AIAgentOrchestrator:
             "temperature": 0.2
         }
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=4.0) as client:
             res = await client.post(url, headers=headers, json=payload)
             if res.status_code != 200:
                 logger.warning(f"Groq API returned status {res.status_code}: {res.text}")
@@ -422,14 +570,28 @@ class AIAgentOrchestrator:
                 return await self._dispatch_tool(fn_name, fn_args)
 
             if message.get("content"):
-                return ChatResponse(reply=message["content"], tool_executed=None)
+                clean_text = message["content"].replace("**", "").replace("*", "")
+                return ChatResponse(reply=clean_text, tool_executed=None)
 
         return None
 
     async def _deterministic_engine(self, msg: str, lower_msg: str) -> ChatResponse:
         """Zero-dependency deterministic NLP handler — guarantees response with no external APIs."""
 
-        # 1. AG Grid Dynamic Filtering Intent (Evaluated first to prevent "Filter transactions by Travel" from triggering travel planning)
+        # 1. ReserveLien / Loan Against Fixed Deposit (FD) Intent
+        if any(w in lower_msg for w in ["loan", "fd", "fixed deposit", "reservelien", "lien", "pledge", "overdraft", "credit line"]):
+            match = re.search(r"(\d+[\d,.]*)", msg)
+            amount = float(match.group(1).replace(",", "")) if match else 500000.0
+            currency = "USD" if ("usd" in lower_msg or "$" in lower_msg) else "INR"
+            return await self._dispatch_tool("calculate_loan_against_fd", {"collateral_amount": amount, "currency": currency})
+
+        # 2. Payment Rail Comparison Intent (PayPal vs Wise vs Airtm)
+        if any(w in lower_msg for w in ["compare", "rail", "rails", "airtm", "wise", "fees"]):
+            match = re.search(r"(\d+[\d,.]*)", msg)
+            amount = float(match.group(1).replace(",", "")) if match else 1000.0
+            return await self._dispatch_tool("compare_payment_rails", {"amount": amount, "from_currency": "USD", "to_currency": "INR"})
+
+        # 3. AG Grid Dynamic Filtering Intent
         if "filter" in lower_msg or (
             any(w in lower_msg for w in ["show", "display", "isolate"]) and
             any(w in lower_msg for w in ["travel", "expense", "transaction", "dining", "commerce", "ledger"])
@@ -441,7 +603,7 @@ class AIAgentOrchestrator:
                     break
             return await self._dispatch_tool("update_grid_filter", {"column": "category", "value": category})
 
-        # 2. Agentic Commerce Intent
+        # 4. Agentic Commerce Intent
         if any(w in lower_msg for w in ["adapter", "laptop", "buy", "shop", "product", "gear", "purchase", "order"]):
             query = "travel adapter"
             for kw in ["laptop", "esim", "charger", "luggage", "backpack", "sim"]:
@@ -450,7 +612,7 @@ class AIAgentOrchestrator:
                     break
             return await self._dispatch_tool("search_products_channel3", {"query": query})
 
-        # 3. Travel Planning Intent — multi-destination
+        # 5. Travel Planning Intent — multi-destination
         travel_triggers = ["trip", "travel", "itinerary", "vacation", "going to", "budget for"] + list(DEST_MAP.keys())
         if any(w in lower_msg for w in travel_triggers):
             destination = "Tokyo"
@@ -466,7 +628,7 @@ class AIAgentOrchestrator:
                     amount = raw_amt
             return await self._dispatch_tool("plan_travel_budget", {"destination": destination, "budget_inr": amount})
 
-        # 4. Currency Conversion Intent
+        # 6. Currency Conversion Intent
         if any(w in lower_msg for w in ["convert", "rate", "how much", "exchange", "worth", "inr", "usd", "eur", "jpy"]):
             match = re.search(r"(\d+[\d,.]*)", msg)
             amount = float(match.group(1).replace(",", "")) if match else 10000.0
@@ -488,13 +650,12 @@ class AIAgentOrchestrator:
                 "to_currency": to_curr
             })
 
-        # 5. Payment Intent — propose via initiate_payment (never execute directly)
+        # 7. Payment Intent — propose via initiate_payment (never execute directly)
         if any(w in lower_msg for w in ["pay", "send", "transfer", "wire", "remit"]):
             match = re.search(r"(\d+[\d,.]*)", msg)
             amount = float(match.group(1).replace(",", "")) if match else 25.0
             currency = "USD"
             if "inr" in lower_msg or "rupee" in lower_msg:
-                # Quick estimate for deterministic path; PayPal backend converts precisely
                 amount = max(round(amount / 83.0, 2), 1.0)
             recipient = "Merchant"
             for name in ["amazon", "netflix", "spotify", "uber", "airbnb", "apple"]:
@@ -506,7 +667,7 @@ class AIAgentOrchestrator:
                 "recipient": recipient, "description": "EterPay Payment"
             })
 
-        # 6. Balance / account summary intent
+        # 8. Balance / account summary intent
         if any(w in lower_msg for w in ["balance", "wallet", "account", "how much do i have", "my funds"]):
             return ChatResponse(
                 reply=(
@@ -519,7 +680,7 @@ class AIAgentOrchestrator:
                 )
             )
 
-        # 7. Monthly spending digest intent
+        # 9. Monthly spending digest intent
         if any(w in lower_msg for w in ["spend", "spent", "expenses", "this month", "monthly"]):
             return ChatResponse(
                 reply=(
@@ -529,11 +690,11 @@ class AIAgentOrchestrator:
                     "  Subscriptions: \u20b92,340 (2 transactions)\n"
                     "  Dining: \u20b98,200 (4 transactions)\n"
                     "  Total outflows: \u20b991,690\n\n"
-                    "Tip: Use PayPal Smart Buttons to settle cross-border bills at ECB interbank rates."
+                    "Tip: Settle cross-border bills with PayPal Sandbox at live ECB interbank rates."
                 )
             )
 
-        # 8. Subscriptions intent
+        # 10. Subscriptions intent
         if any(w in lower_msg for w in ["subscription", "subscriptions", "recurring", "monthly plan"]):
             return ChatResponse(
                 reply=(
@@ -550,17 +711,16 @@ class AIAgentOrchestrator:
         # Default fallback
         return ChatResponse(
             reply=(
-                "I am EterPay AI, your cross-border financial copilot.\n\n"
+                "I am EterPay AI, your global fintech copilot.\n\n"
                 "Try asking me:\n"
-                "- 'I am traveling to Tokyo with 150,000 INR. Help me plan my budget.'\n"
-                "- 'Plan my Paris trip with 200,000 INR.'\n"
-                "- 'Find me a universal travel adapter.'\n"
-                "- 'Filter my transactions by Travel category.'\n"
-                "- 'Convert 50,000 INR to EUR.'\n"
+                "- 'Can I get a loan against my ₹5,00,000 Fixed Deposit?'\n"
+                "- 'Compare PayPal vs Wise vs Airtm fees for $1,000'\n"
+                "- 'Plan Tokyo trip with ₹1,50,000'\n"
+                "- 'Find universal travel adapter'\n"
+                "- 'Filter transactions by Travel'\n"
+                "- 'Convert 50,000 INR to EUR'\n"
                 "- 'What is my account balance?'\n"
-                "- 'How much did I spend this month?'\n"
-                "- 'What subscriptions am I paying?'\n"
-                "- 'Send $50 to Netflix'"
+                "- 'Send $25 to Spotify'"
             )
         )
 

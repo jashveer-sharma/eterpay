@@ -1,10 +1,57 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
-import { Building2, Receipt, RefreshCw, BarChart2, ShieldAlert, ArrowUpRight, Plus, ExternalLink } from "lucide-react";
+import {
+  Building2,
+  Receipt,
+  RefreshCw,
+  BarChart2,
+  ShieldAlert,
+  ArrowUpRight,
+  Plus,
+  ExternalLink,
+  Volume2,
+  VolumeX,
+  Play,
+  CheckCircle2,
+  Sparkles,
+} from "lucide-react";
 import { DEMO_INVOICES, DEMO_MERCHANTS, DEMO_SUBSCRIPTIONS } from "@/lib/demo-data";
 
 export default function BusinessHubPage() {
   const totalBilled = DEMO_INVOICES.reduce((acc, inv) => acc + (inv.currency === "INR" ? inv.amount : 0), 0);
+
+  // EterPay Virtual Soundbox State (Zero-Hardware Auditory Payment Confirmation)
+  const [soundboxEnabled, setSoundboxEnabled] = useState(true);
+  const [soundboxLanguage, setSoundboxLanguage] = useState<"en" | "hi" | "es">("en");
+  const [announcing, setAnnouncing] = useState(false);
+  const [lastAnnouncement, setLastAnnouncement] = useState<string | null>(null);
+
+  const testAnnouncement = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Speech Synthesis not supported in this browser.");
+      return;
+    }
+    setAnnouncing(true);
+    const textMap = {
+      en: "Payment received on PayPal! 2,500 Rupees credited to EterPay Merchant account.",
+      hi: "पेपाल पर दो हज़ार पाँच सौ रुपये प्राप्त हुए। ईटरपे खाते में जमा।",
+      es: "Pago recibido en PayPal! Dos mil quinientos rupias acreditadas a EterPay.",
+    };
+    const text = textMap[soundboxLanguage];
+    setLastAnnouncement(text);
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const langCodes = { en: "en-US", hi: "hi-IN", es: "es-ES" };
+    utterance.lang = langCodes[soundboxLanguage];
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setAnnouncing(false);
+    utterance.onerror = () => setAnnouncing(false);
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <div className="min-h-screen bg-[#fbf9f5] p-6 sm:p-10">
@@ -54,6 +101,70 @@ export default function BusinessHubPage() {
               99.9%
             </div>
             <span className="text-xs text-[#888888] mt-1 block">PayPal Sandbox v2 live</span>
+          </div>
+        </div>
+
+        {/* ─── EterPay Virtual Soundbox (Zero-Hardware Auditory Terminal) ─── */}
+        <div className="card p-6 sm:p-7 bg-white border border-[rgba(15,77,64,0.18)] rounded-3xl shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[rgba(17,17,17,0.06)]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[rgba(15,77,64,0.1)] text-[#0f4d40] flex items-center justify-center">
+                <Volume2 className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-serif text-xl text-[#111111]">EterPay Virtual Soundbox</h3>
+                  <span className="font-mono text-[9px] uppercase px-2 py-0.5 rounded bg-[#f0fdf4] text-[#16a34a] border border-[#16a34a]/30 font-bold">
+                    Zero Proprietary Hardware
+                  </span>
+                </div>
+                <p className="text-xs text-[#555555] mt-0.5">
+                  Instant multi-lingual speech audio confirmation when payments clear via PayPal Orders v2 or invoices.
+                </p>
+              </div>
+            </div>
+
+            {/* Language Selector & Toggle */}
+            <div className="flex items-center gap-3">
+              <div className="inline-flex rounded-lg bg-[#fbf9f5] p-1 border border-[rgba(17,17,17,0.08)] text-xs">
+                {(["en", "hi", "es"] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setSoundboxLanguage(lang)}
+                    className={`px-2.5 py-1 rounded-md uppercase font-semibold text-[10px] transition-colors ${
+                      soundboxLanguage === lang
+                        ? "bg-[#0f4d40] text-white"
+                        : "text-[#555555] hover:text-[#111111]"
+                    }`}
+                  >
+                    {lang === "en" ? "English" : lang === "hi" ? "हिंदी (Hindi)" : "Español"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#fbf9f5] p-4 rounded-2xl border border-[rgba(17,17,17,0.06)]">
+            <div className="text-xs space-y-1">
+              <div className="font-semibold text-[#111111] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#0f4d40]" />
+                Browser Web Speech API Synthesizer Ready
+              </div>
+              <div className="text-[#666666] font-mono text-[11px]">
+                {lastAnnouncement ? `Last uttered: "${lastAnnouncement}"` : "Ready to broadcast received payments."}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={testAnnouncement}
+              disabled={announcing}
+              className="btn btn-primary text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              {announcing ? "Speaking Broadcast..." : "Test Audio Announcer"}
+            </button>
           </div>
         </div>
 

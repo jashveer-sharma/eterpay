@@ -12,6 +12,7 @@ import {
   Bell,
   ShieldCheck,
   CreditCard,
+  AlertTriangle,
 } from "lucide-react";
 import { DEMO_TRAVEL } from "@/lib/demo-data";
 
@@ -275,6 +276,48 @@ export default function TravelPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* ─── Anti-DCC Terminal Defense Shield ─── */}
+        <div className="card p-6 bg-white border border-[rgba(15,77,64,0.18)] rounded-2xl shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(17,17,17,0.06)]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(15,77,64,0.1)] text-[#0f4d40] flex items-center justify-center">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg text-[#111111]">Anti-DCC Terminal Defense Shield</h3>
+                <p className="text-xs text-[#555555]">
+                  Automated protection against Dynamic Currency Conversion ATM and POS markups abroad.
+                </p>
+              </div>
+            </div>
+            <span className="font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-[#f0fdf4] text-[#16a34a] border border-[#16a34a]/30 self-start sm:self-auto">
+              Saves 4.5% on Overseas Spend
+            </span>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4 text-xs">
+            <div className="p-3.5 rounded-xl bg-[#fef2f2] border border-[#dc2626]/20 space-y-1.5">
+              <div className="flex items-center justify-between text-[#dc2626] font-semibold">
+                <span>Foreign Terminal DCC Trap</span>
+                <span className="font-mono">+4.50% Hidden Spread</span>
+              </div>
+              <p className="text-[#555555] leading-relaxed">
+                When an overseas POS asks &quot;Charge in INR?&quot;, the acquiring bank applies its own predatory conversion spread (usually 4.5% - 7%).
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#f0fdf4] border border-[#16a34a]/20 space-y-1.5">
+              <div className="flex items-center justify-between text-[#16a34a] font-semibold">
+                <span>EterPay Interbank Clearing</span>
+                <span className="font-mono">0.00% Spread (ECB)</span>
+              </div>
+              <p className="text-[#555555] leading-relaxed">
+                Always choose &quot;Charge in Local Currency&quot; (e.g. JPY, EUR). EterPay settles at European Central Bank reference rates without markups.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Travel Bookings List */}

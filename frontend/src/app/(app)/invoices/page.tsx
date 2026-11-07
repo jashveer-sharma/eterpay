@@ -1,13 +1,15 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Receipt, Plus, Download, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Receipt, Plus, Download, Send, CheckCircle2, AlertCircle, CreditCard, Sparkles } from "lucide-react";
 import { DEMO_INVOICES } from "@/lib/demo-data";
+import { PayPalCheckoutButton } from "@/components/paypal/PayPalCheckoutButton";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState(DEMO_INVOICES);
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "paid">("all");
   const [showModal, setShowModal] = useState(false);
+  const [payingInvoice, setPayingInvoice] = useState<any | null>(null);
   const [client, setClient] = useState("Venture Studio LLP");
   const [clientEmail, setClientEmail] = useState("billing@venture.llp");
   const [amount, setAmount] = useState("55000");
@@ -130,12 +132,22 @@ export default function InvoicesPage() {
                       {inv.currency === "INR" ? "₹" : "$"} {inv.amount.toLocaleString("en-IN")} {inv.currency}
                     </td>
                     <td className="p-4 text-right">
-                      <button
-                        onClick={() => alert(`Invoice ${inv.number} downloaded as PDF (simulation).`)}
-                        className="text-[#0f4d40] hover:underline font-semibold"
-                      >
-                        PDF
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        {inv.status === "pending" && (
+                          <button
+                            onClick={() => setPayingInvoice(inv)}
+                            className="btn btn-primary text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1"
+                          >
+                            <CreditCard className="w-3 h-3" /> Pay with PayPal
+                          </button>
+                        )}
+                        <button
+                          onClick={() => alert(`Invoice ${inv.number} downloaded as PDF (simulation).`)}
+                          className="text-[#0f4d40] hover:underline font-semibold text-xs"
+                        >
+                          PDF
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -210,6 +222,54 @@ export default function InvoicesPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* PayPal Settle Invoice Modal */}
+        {payingInvoice && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="card p-6 bg-white max-w-md w-full space-y-4 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-[rgba(17,17,17,0.08)]">
+                <div>
+                  <h3 className="font-serif text-lg text-[#111111]">Settle Invoice via PayPal</h3>
+                  <p className="text-xs text-[#555555]">
+                    {payingInvoice.number} · {payingInvoice.client}
+                  </p>
+                </div>
+                <button onClick={() => setPayingInvoice(null)} className="text-[#888888] text-sm hover:text-[#111111]">
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#fbf9f5] border border-[rgba(17,17,17,0.06)] flex justify-between items-center text-xs">
+                <div>
+                  <span className="text-[#888888] block text-[10px] uppercase">Invoice Total</span>
+                  <span className="font-serif text-lg font-bold text-[#0f4d40] tabular">
+                    {payingInvoice.currency === "INR" ? "₹" : "$"}{" "}
+                    {payingInvoice.amount.toLocaleString("en-IN")}{" "}
+                    {payingInvoice.currency}
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[rgba(15,77,64,0.1)] text-[#0f4d40] font-semibold">
+                  ORDERS V2 MODAL
+                </span>
+              </div>
+
+              <PayPalCheckoutButton
+                amount={payingInvoice.amount}
+                currency={payingInvoice.currency}
+                description={`Invoice ${payingInvoice.number} Settlement`}
+                merchantName="EterPay Commercial Hub"
+                onSuccess={() => {
+                  setInvoices((prev) =>
+                    prev.map((inv) =>
+                      inv.id === payingInvoice.id ? { ...inv, status: "paid" } : inv
+                    )
+                  );
+                  setTimeout(() => setPayingInvoice(null), 1500);
+                }}
+              />
             </div>
           </div>
         )}

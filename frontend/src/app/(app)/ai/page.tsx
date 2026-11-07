@@ -35,13 +35,114 @@ declare global {
   }
 }
 
+// ─── Clean Typography & Message Formatter ────────────────────────────────────
+function FormattedContent({ content }: { content: string }) {
+  if (!content) return null;
+  const lines = content.split("\n");
+
+  return (
+    <div className="space-y-1.5">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="h-1" />;
+        }
+
+        const isBullet = /^[-*•]\s+/.test(trimmed);
+        const isNumber = /^\d+\.\s+/.test(trimmed);
+
+        let cleanLine = trimmed;
+        if (isBullet) {
+          cleanLine = trimmed.replace(/^[-*•]\s+/, "");
+        } else if (isNumber) {
+          cleanLine = trimmed.replace(/^\d+\.\s+/, "");
+        }
+
+        // Parse inline bold tokens: **bold** or *bold* and code tokens `code`
+        const parts = cleanLine.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+
+        const renderedLine = parts.map((part, pIdx) => {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            return (
+              <strong key={pIdx} className="font-semibold text-[#111111]">
+                {part.slice(2, -2)}
+              </strong>
+            );
+          }
+          if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+            return (
+              <strong key={pIdx} className="font-semibold text-[#111111]">
+                {part.slice(1, -1)}
+              </strong>
+            );
+          }
+          if (part.startsWith("`") && part.endsWith("`")) {
+            return (
+              <code
+                key={pIdx}
+                className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-[rgba(15,77,64,0.08)] text-[#0f4d40]"
+              >
+                {part.slice(1, -1)}
+              </code>
+            );
+          }
+          return part.replace(/\*/g, "");
+        });
+
+        if (isBullet) {
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0f4d40] mt-1.5 flex-shrink-0" />
+              <div className="flex-1 leading-relaxed">{renderedLine}</div>
+            </div>
+          );
+        }
+
+        if (isNumber) {
+          const numMatch = trimmed.match(/^(\d+)\./);
+          const num = numMatch ? numMatch[1] : "";
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1">
+              <span className="font-mono text-[10px] font-bold text-[#0f4d40] bg-[rgba(15,77,64,0.1)] px-1.5 py-0.5 rounded flex-shrink-0">
+                {num}
+              </span>
+              <div className="flex-1 leading-relaxed">{renderedLine}</div>
+            </div>
+          );
+        }
+
+        const isHeader = trimmed.endsWith(":") && trimmed.length < 70;
+        if (isHeader) {
+          return (
+            <div
+              key={idx}
+              className="font-serif font-semibold text-xs text-[#0f4d40] tracking-wide pt-1"
+            >
+              {renderedLine}
+            </div>
+          );
+        }
+
+        return (
+          <div key={idx} className="leading-relaxed">
+            {renderedLine}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Action Proposal Card ────────────────────────────────────────────────────
 function ActionCard({ proposal }: { proposal: ActionProposal }) {
   const [isPaid, setIsPaid] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [alertSaved, setAlertSaved] = useState(false);
   const [savingAlert, setSavingAlert] = useState(false);
+  const [lienActivated, setLienActivated] = useState(false);
+
   const isPayment = proposal.type === "PAYPAL_CHECKOUT";
+  const isLien = proposal.type === "RESERVE_LIEN";
 
   if (isPaid) {
     return (
@@ -65,24 +166,85 @@ function ActionCard({ proposal }: { proposal: ActionProposal }) {
     );
   }
 
+  if (isLien && lienActivated) {
+    return (
+      <div className="mt-3 rounded-xl p-4 bg-[#f0fdf4] border border-[#16a34a]/30 text-xs text-left space-y-2">
+        <div className="flex items-center gap-2 text-[#16a34a] font-semibold">
+          <CheckCircle2 className="w-4 h-4" />
+          <span>ReserveLien™ Active — 85% Overdraft Allocated</span>
+        </div>
+        <div className="text-[11px] text-[#555555]">
+          Credit Line of {proposal.currency} {proposal.amount?.toLocaleString()} unlocked. Backed by verified deposit.
+          Your pledged collateral continues compounding at 7.20% p.a.
+        </div>
+        <div className="flex items-center gap-3 pt-1">
+          <Link
+            href="/invest"
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0f4d40] underline underline-offset-2 hover:no-underline"
+          >
+            Manage Collateral in Invest Hub <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      className="mt-3 rounded-xl p-4 border text-xs"
+      className="mt-3 rounded-xl p-4 border text-xs text-left"
       style={{
-        background: isPayment ? "rgba(15,77,64,0.05)" : "rgba(37,99,235,0.05)",
-        borderColor: isPayment ? "rgba(15,77,64,0.2)" : "rgba(37,99,235,0.15)",
+        background: isPayment
+          ? "rgba(15,77,64,0.05)"
+          : isLien
+          ? "rgba(15,77,64,0.06)"
+          : "rgba(37,99,235,0.05)",
+        borderColor: isPayment || isLien
+          ? "rgba(15,77,64,0.25)"
+          : "rgba(37,99,235,0.15)",
       }}
     >
-      <div className="font-semibold text-[#111111] mb-1">{proposal.title}</div>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="font-semibold text-[#111111]">{proposal.title}</div>
+        {isLien && (
+          <span className="font-mono text-[9px] uppercase px-2 py-0.5 rounded bg-[#0f4d40] text-white font-semibold">
+            Zero Credit Check
+          </span>
+        )}
+      </div>
+
       {proposal.description && (
-        <div className="text-[#555555] mb-3">{proposal.description}</div>
+        <div className="text-[#555555] mb-3 leading-relaxed">{proposal.description}</div>
       )}
+
       {proposal.amount && (
         <div className="font-mono font-bold text-sm text-[#0f4d40] mb-3">
-          {proposal.currency ?? "USD"} {proposal.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          {proposal.currency === "INR" ? "₹" : "$"}{" "}
+          {proposal.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          {isLien && <span className="text-[11px] font-normal text-[#555555] ml-2">(85% Instant LTV)</span>}
         </div>
       )}
-      {proposal.requires_approval ? (
+
+      {isLien ? (
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-white border border-[rgba(17,17,17,0.06)] text-[11px]">
+            <div>
+              <span className="text-[#888888]">FD Yield Earned:</span>
+              <div className="font-semibold text-[#16a34a]">+7.20% p.a.</div>
+            </div>
+            <div>
+              <span className="text-[#888888]">Borrow Spread:</span>
+              <div className="font-semibold text-[#111111]">8.45% (Net: 1.25%)</div>
+            </div>
+          </div>
+          <button
+            onClick={() => setLienActivated(true)}
+            className="btn btn-primary text-xs px-4 py-2 rounded-lg flex items-center justify-center gap-1.5 w-full"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Activate Instant ReserveLien™ &amp; Link to PayPal
+          </button>
+        </div>
+      ) : proposal.requires_approval ? (
         showCheckout ? (
           <div className="mt-2 pt-2 border-t border-[rgba(17,17,17,0.08)]">
             <PayPalCheckoutButton
@@ -303,7 +465,11 @@ export default function AiCopilotPage() {
                   : "bg-white border border-[rgba(17,17,17,0.08)] text-[#111111] shadow-xs"
               }`}
             >
-              <div className="whitespace-pre-wrap">{msg.content}</div>
+              {msg.role === "assistant" ? (
+                <FormattedContent content={msg.content} />
+              ) : (
+                <div className="whitespace-pre-wrap">{msg.content}</div>
+              )}
 
               {/* Render dynamic action card if the AI proposed a settlement */}
               {msg.action_proposal && <ActionCard proposal={msg.action_proposal} />}
@@ -338,14 +504,39 @@ export default function AiCopilotPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Form */}
-      <div className="p-4 border-t border-[rgba(17,17,17,0.08)] bg-white">
+      {/* Quick Suggestion Chips & Input Form */}
+      <div className="p-4 border-t border-[rgba(17,17,17,0.08)] bg-white space-y-3">
+        {/* Chips */}
+        <div className="max-w-3xl mx-auto flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+          <span className="text-[10px] uppercase font-semibold text-[#888888] flex-shrink-0 flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-[#0f4d40]" /> Try:
+          </span>
+          {[
+            { label: "Loan Against FD (ReserveLien™)", prompt: "Can I get a loan against my ₹5,00,000 Fixed Deposit?" },
+            { label: "Compare PayPal vs Wise vs Airtm", prompt: "Compare PayPal vs Wise vs Airtm fees for $1,000 to INR" },
+            { label: "Plan Tokyo Trip (₹1.5L)", prompt: "Plan my Tokyo trip with ₹1,50,000" },
+            { label: "Filter Travel Ledger", prompt: "Filter my transactions by Travel" },
+            { label: "Find Travel Adapter", prompt: "Find me a universal travel adapter" },
+          ].map((chip) => (
+            <button
+              key={chip.label}
+              type="button"
+              onClick={() => {
+                setInput(chip.prompt);
+              }}
+              className="flex-shrink-0 px-2.5 py-1 rounded-full bg-[#fbf9f5] border border-[rgba(17,17,17,0.08)] text-[11px] text-[#333333] hover:border-[#0f4d40]/40 hover:text-[#0f4d40] transition-colors"
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+
         <form onSubmit={handleSend} className="max-w-3xl mx-auto flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Copilot (e.g. 'Plan my Tokyo trip with ₹1,50,000' or 'Filter transactions by Travel')..."
+            placeholder="Ask Copilot (e.g. 'Can I get a loan against my FD?' or 'Plan my Tokyo trip')..."
             className="input text-xs py-2.5 flex-1 bg-[#fbf9f5]"
             disabled={isLoading}
           />
