@@ -439,3 +439,31 @@ details > summary::-webkit-details-marker { display: none; }
 .ag-theme-eterpay .ag-row-even { background: white !important; }
 .ag-theme-eterpay .ag-row-odd  { background: var(--surface-0) !important; }
 .ag-theme-eterpay .ag-row:hover { background: var(--forest-mist) !important; }
+
+/* ═══════════════════════════════════════════
+   ETERPAY 3D & MOTION KEYFRAMES
+   ═══════════════════════════════════════════ */
+@keyframes eterpay-spin {
+  from { transform: rotateZ(0deg); }
+  to   { transform: rotateZ(360deg); }
+}
+
+@keyframes eterpay-spin-reverse {
+  from { transform: rotateX(55deg) rotateY(25deg) rotateZ(0deg); }
+  to   { transform: rotateX(55deg) rotateY(25deg) rotateZ(-360deg); }
+}
+
+@keyframes eterpay-float {
+  0%   { transform: translateY(0px); }
+  100% { transform: translateY(-8px); }
+}
+
+@keyframes eterpay-progress {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-spin-slow {
+  animation: eterpay-spin 18s linear infinite;
+}
+
