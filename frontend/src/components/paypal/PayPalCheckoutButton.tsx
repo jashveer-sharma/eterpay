@@ -31,10 +31,7 @@ export function PayPalCheckoutButton({
     process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ||
     "AarBKUm2Az4FwM5TuvFFmrtDekBxpj5UN6_O5LRQ6Bw-_CfjeuTCVIVbuLg7JShbigWWkuWKHuRLILQI";
 
-  const apiBase =
-    typeof window !== "undefined" && window.location.port === "3000"
-      ? "http://localhost:8000"
-      : "";
+  const apiBase = "";
 
   const handleCreateOrder = async (): Promise<string> => {
     setPaymentError(null);
@@ -112,7 +109,7 @@ export function PayPalCheckoutButton({
           <CheckCircle2 className="w-6 h-6" />
         </div>
         <div>
-          <h4 className="font-serif text-xl text-[#111111]">Payment Captured via PayPal</h4>
+          <h4 className="font-serif text-xl text-[#111111]">Payment Settled via EterPay</h4>
           <p className="text-xs text-[#555555] mt-1">
             Capture ID: <span className="font-mono text-[#0f4d40] font-semibold">{capturedData.capture_id}</span>
           </p>
@@ -137,7 +134,7 @@ export function PayPalCheckoutButton({
       <div className="flex items-center justify-between text-xs px-3 py-2 rounded-lg bg-[rgba(15,77,64,0.05)] border border-[#0f4d40]/20 text-[#0f4d40]">
         <div className="flex items-center gap-1.5 font-medium">
           <ShieldCheck className="w-4 h-4 text-[#0f4d40]" />
-          <span>PayPal Orders v2 Modal Checkout</span>
+          <span>EterPay Secure Checkout · PayPal Orders v2</span>
         </div>
         <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-[#0f4d40]/30 font-semibold">
           SANDBOX VERIFIED

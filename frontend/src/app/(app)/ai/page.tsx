@@ -274,7 +274,7 @@ function ActionCard({ proposal }: { proposal: ActionProposal }) {
             onClick={async () => {
               setSavingAlert(true);
               try {
-                await fetch("http://localhost:8000/api/alerts", {
+                await fetch("/api/alerts", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
@@ -366,7 +366,7 @@ export default function AiCopilotPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: query }),

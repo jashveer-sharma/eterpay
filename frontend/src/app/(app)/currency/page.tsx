@@ -38,7 +38,7 @@ export default function CurrencyExchangePage() {
   const fetchRates = useCallback(async () => {
     setLoadingRates(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/currency/rates?base=${fromCurr}`);
+      const res = await fetch(`/api/currency/rates?base=${fromCurr}`);
       if (res.ok) {
         const data = await res.json();
         setRates(data.rates || {});
@@ -70,7 +70,7 @@ export default function CurrencyExchangePage() {
     if (sourceAmount <= 0) return;
     setConverting(true);
     try {
-      const res = await fetch("http://localhost:8000/api/currency/convert", {
+      const res = await fetch("/api/currency/convert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

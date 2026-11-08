@@ -46,7 +46,7 @@ export default function CommercePage() {
     async function fetchCatalog() {
       try {
         const q = searchQuery.trim() || "travel";
-        const res = await fetch(`http://localhost:8000/api/commerce/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/commerce/search?q=${encodeURIComponent(q)}`);
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
@@ -95,7 +95,7 @@ export default function CommercePage() {
 
     try {
       // Create PayPal sandbox order via backend
-      const createRes = await fetch("http://localhost:8000/api/paypal/create-order", {
+      const createRes = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -112,7 +112,7 @@ export default function CommercePage() {
       const orderId = orderData.order_id || orderData.id;
 
       // Capture PayPal order via backend
-      const capRes = await fetch("http://localhost:8000/api/paypal/capture-order", {
+      const capRes = await fetch("/api/paypal/capture-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order_id: orderId }),

@@ -68,7 +68,7 @@ export default function PayPage() {
 
     try {
       // Step 1: Create Order via Backend PayPal Orders v2
-      const createRes = await fetch("http://localhost:8000/api/paypal/create-order", {
+      const createRes = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -88,7 +88,7 @@ export default function PayPage() {
       const orderId = orderData.order_id || orderData.id;
 
       // Step 2: Capture Authorized Order via Backend
-      const capRes = await fetch("http://localhost:8000/api/paypal/capture-order", {
+      const capRes = await fetch("/api/paypal/capture-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order_id: orderId }),
@@ -149,11 +149,11 @@ export default function PayPage() {
         <div className="flex items-center justify-between pb-6 border-b border-[rgba(17,17,17,0.08)] mb-8">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-[#0f4d40]">
-              PayPal Orders v2 · Idempotent Financial Rail
+              PayPal Orders v2 · EterPay Global Transfer Rail
             </div>
             <h1 className="font-serif text-3xl text-[#111111]">Pay &amp; Transfer</h1>
           </div>
-          <span className="demo-badge">PayPal Sandbox Verified</span>
+          <span className="demo-badge">EterPay Sandbox</span>
         </div>
 
         {error && (
@@ -309,7 +309,7 @@ export default function PayPage() {
             {/* Official PayPal Smart Button Modal Integration */}
             <div className="p-5 rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#fbf9f5] space-y-3">
               <div className="text-xs font-semibold uppercase text-[#555555] flex items-center justify-between">
-                <span>Option A · PayPal Sandbox Modal Checkout</span>
+                <span>Option A · EterPay Modal Checkout (PayPal Sandbox)</span>
                 <span className="text-[10px] text-[#0f4d40] font-mono">POPUP DIALOG</span>
               </div>
               <PayPalCheckoutButton

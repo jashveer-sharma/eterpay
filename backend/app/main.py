@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="EterPay — Your Money. Everywhere. Intelligently Connected. Universal Financial Platform.",
-    version="0.2.0",
+    version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
@@ -34,7 +34,13 @@ app = FastAPI(
 # Cross-Origin Resource Sharing (CORS) for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "https://eterpay.pages.dev",
+        "https://*.eterpay.pages.dev",
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
@@ -48,6 +54,7 @@ async def health_check():
     return {
         "status": "healthy",
         "project": settings.PROJECT_NAME,
+        "version": "1.0.0",
         "paypal_environment": settings.PAYPAL_ENVIRONMENT,
         "currency_provider": "Frankfurter (European Central Bank)",
         "database": "SQLite (Async SQLAlchemy)"

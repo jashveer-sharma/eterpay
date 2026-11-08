@@ -32,7 +32,7 @@ async def create_cross_border_order(amount: float, currency: str):
         }]
     }
     async with httpx.AsyncClient() as client:
-        res = await client.post("http://localhost:8000/api/paypal/create-order", json=payload, headers=headers)
+        res = await client.post("/api/paypal/create-order", json=payload, headers=headers)
         return res.json()`;
 
   const ecbFxCode = `# Fetch European Central Bank Free FX Rates

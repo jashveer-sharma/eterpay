@@ -78,7 +78,7 @@ export default function TravelPage() {
     setAlertSet(false);
 
     try {
-      const res = await fetch("http://localhost:8000/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -132,7 +132,7 @@ export default function TravelPage() {
       : `idemp_${Date.now()}`;
 
     try {
-      const createRes = await fetch("http://localhost:8000/api/paypal/create-order", {
+      const createRes = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -147,7 +147,7 @@ export default function TravelPage() {
       const orderData = await createRes.json();
       const orderId = orderData.order_id || orderData.id;
 
-      const capRes = await fetch("http://localhost:8000/api/paypal/capture-order", {
+      const capRes = await fetch("/api/paypal/capture-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order_id: orderId }),

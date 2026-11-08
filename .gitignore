@@ -13,6 +13,10 @@ venv/
 .env
 .env.local
 .env.production
+.env.*
+!.env.example
+!.env.local.example
+!.env.cloudflare.example
 *.pem
 *.key
 
@@ -40,6 +44,8 @@ Thumbs.db
 # Research & Strategic Planning (Private - Do Not Commit)
 research/
 EterPay-Research/
+EterPay-Hackathon-Reports/
+cloudflare/reports/
 *ROADMAP*.md
 *PLAN*.md
 *TRACKER*.md

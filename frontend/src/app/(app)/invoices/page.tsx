@@ -138,7 +138,7 @@ export default function InvoicesPage() {
                             onClick={() => setPayingInvoice(inv)}
                             className="btn btn-primary text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1"
                           >
-                            <CreditCard className="w-3 h-3" /> Pay with PayPal
+                            <CreditCard className="w-3 h-3" /> Pay with EterPay
                           </button>
                         )}
                         <button

@@ -107,7 +107,10 @@ export default function AppSidebar() {
               <path d="M24 38 A14 14 0 0 1 10 24" stroke="#fbf9f5" strokeWidth="2" strokeLinecap="round" fill="none"/>
               <circle cx="38" cy="24" r="2.5" fill="#fbf9f5"/>
             </svg>
-            <span className="font-serif text-lg text-[#fbf9f5]">EterPay</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-serif text-lg text-[#fbf9f5]">EterPay</span>
+              <span className="text-[10px] font-mono text-[#0f4d40] bg-[#0f4d40]/20 px-1.5 py-0.5 rounded border border-[#0f4d40]/40">v1.0</span>
+            </div>
           </Link>
         )}
         {collapsed && (

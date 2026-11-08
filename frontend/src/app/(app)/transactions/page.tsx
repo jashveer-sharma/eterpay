@@ -175,7 +175,7 @@ export default function TransactionsPage() {
   useEffect(() => {
     async function loadTransactions() {
       try {
-        const res = await fetch("http://localhost:8000/api/transactions?limit=100");
+        const res = await fetch("/api/transactions?limit=100");
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
