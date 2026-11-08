@@ -3,15 +3,15 @@
 import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, User, Building2, ArrowRight, ShieldCheck } from "lucide-react";
+import { Sparkles, User, Building2, ArrowRight, ShieldCheck, ArrowLeft } from "lucide-react";
 
 const DEMO_EMAIL = "demo@eterpay.com";
 const DEMO_PASSWORD = "Demo1234!";
 
 function EterPayLogo() {
   return (
-    <div className="flex items-center gap-3">
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <Link href="/" className="flex items-center gap-3 group" title="Return to EterPay Homepage">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="transition-transform group-hover:scale-105">
         <circle cx="18" cy="18" r="17" stroke="#0f4d40" strokeWidth="1.5" fill="none" />
         <circle cx="18" cy="18" r="12" stroke="#0f4d40" strokeWidth="1.5" fill="none" strokeDasharray="4 2" />
         <circle cx="18" cy="18" r="6.5" stroke="#0f4d40" strokeWidth="1.5" fill="none" />
@@ -21,7 +21,7 @@ function EterPayLogo() {
       <span className="font-serif text-2xl tracking-tight text-[#111111]" style={{ fontFamily: "var(--font-serif)", letterSpacing: "-0.025em" }}>
         EterPay
       </span>
-    </div>
+    </Link>
   );
 }
 
@@ -99,13 +99,19 @@ export default function LoginPage() {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
-      {/* Demo banner */}
-      <div className="w-full max-w-sm mb-6">
-        <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full text-xs font-medium"
-          style={{ backgroundColor: "rgba(217,119,6,0.07)", border: "1px solid rgba(217,119,6,0.18)", color: "var(--warning)" }}>
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-          Demo Application — No real transactions processed
-        </div>
+      {/* Top Navigation & Status Bar */}
+      <div className="w-full max-w-sm mb-4 flex items-center justify-between">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs text-[#555555] hover:text-[#0f4d40] transition-colors group"
+        >
+          <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
+          Return to Home
+        </Link>
+        <span className="demo-badge text-[10px]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+          Sandbox
+        </span>
       </div>
 
       <div className="card w-full max-w-sm p-8" style={{ borderRadius: "1.25rem" }}>
@@ -254,6 +260,12 @@ export default function LoginPage() {
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="font-medium" style={{ color: "var(--forest)" }}>
             Sign up
+          </Link>
+        </p>
+
+        <p className="text-center text-xs mt-4 text-[#888888]">
+          <Link href="/" className="hover:text-[#0f4d40] transition-colors underline underline-offset-2">
+            ← Back to EterPay Main Website
           </Link>
         </p>
       </div>

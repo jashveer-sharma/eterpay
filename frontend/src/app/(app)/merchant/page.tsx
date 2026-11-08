@@ -100,7 +100,7 @@ export default function BusinessHubPage() {
             <div className="font-serif text-3xl font-medium text-[#16a34a] mt-1 tabular">
               99.9%
             </div>
-            <span className="text-xs text-[#888888] mt-1 block">PayPal Sandbox v2 live</span>
+            <span className="text-xs text-[#888888] mt-1 block">EterPay Multi-Rail Gateway live</span>
           </div>
         </div>
 
@@ -119,7 +119,7 @@ export default function BusinessHubPage() {
                   </span>
                 </div>
                 <p className="text-xs text-[#555555] mt-0.5">
-                  Instant multi-lingual speech audio confirmation when payments clear via PayPal Orders v2 or invoices.
+                  Instant multi-lingual speech audio confirmation when payments clear via EterPay checkout or invoices.
                 </p>
               </div>
             </div>

@@ -20,10 +20,10 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 const QUICK_ACTIONS = [
-  { label: "Send", icon: Send, href: "/pay", color: "#0f4d40" },
-  { label: "Receive", icon: Download, href: "/requests", color: "#0f4d40" },
-  { label: "QR Pay", icon: QrCode, href: "/qr", color: "#0f4d40" },
-  { label: "Exchange", icon: ArrowLeftRight, href: "/currency", color: "#0f4d40" },
+  { label: "Send", sub: "Transfer & Pay", icon: Send, href: "/pay" },
+  { label: "Receive", sub: "Request Money", icon: Download, href: "/requests" },
+  { label: "QR Pay", sub: "Scan & Settle", icon: QrCode, href: "/qr" },
+  { label: "Exchange", sub: "Instant FX Swap", icon: ArrowLeftRight, href: "/currency" },
 ];
 
 function fmt(n: number) {
@@ -45,17 +45,17 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#fbf9f5]">
       {/* Top bar */}
-      <div className="sticky top-0 z-10 bg-[#fbf9f5]/95 backdrop-blur border-b border-[rgba(17,17,17,0.08)] px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-[#111111]">
+      <div className="sticky top-0 z-10 bg-[#fbf9f5]/95 backdrop-blur border-b border-[rgba(17,17,17,0.08)] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-base sm:text-xl font-semibold text-[#111111] truncate">
             Good {getHour()}, {DEMO_USER.firstName} 👋
           </h1>
-          <p className="text-xs text-[#888]">{today}</p>
+          <p className="text-[11px] sm:text-xs text-[#888] truncate">{today}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="demo-badge">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-            Demo Mode
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <span className="demo-badge text-[10px] sm:text-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+            Sandbox
           </span>
           <Link href="/notifications" className="relative p-2 rounded-xl hover:bg-[rgba(17,17,17,0.05)] transition-colors">
             <Bell size={18} className="text-[#555]" />
@@ -69,18 +69,18 @@ export default function DashboardPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
 
         {/* Primary Balance Card */}
-        <div className="card p-6 bg-[#0f4d40] text-white relative overflow-hidden">
+        <div className="card-emerald p-6 text-[#fbf9f5] relative overflow-hidden">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #fff 0%, transparent 60%)" }} />
           <div className="relative">
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-1">Primary Balance</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#fbf9f5]/70 mb-1">Primary Balance</p>
             <div className="flex items-end gap-4 mb-3">
-              <span className="text-5xl font-serif font-light tabular">
+              <span className="text-4xl sm:text-5xl font-serif font-light tabular text-white">
                 ₹{fmt(DEMO_BALANCES.primary.amount)}
               </span>
             </div>
-            <p className="text-sm text-white/70 mb-4">
+            <p className="text-sm text-[#fbf9f5]/80 mb-4">
               Available: <span className="text-white font-medium tabular">₹{(180000).toLocaleString("en-IN")}</span>
-              &nbsp;·&nbsp;In transit: <span className="text-white/70 tabular">₹{(4250.75).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              &nbsp;·&nbsp;In transit: <span className="text-white/80 tabular">₹{(4250.75).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
             </p>
             <div className="flex gap-2 flex-wrap">
               {DEMO_BALANCES.wallet.slice(0, 3).map((w) => (
@@ -95,15 +95,22 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
           {QUICK_ACTIONS.map((a) => {
             const Icon = a.icon;
             return (
-              <Link key={a.label} href={a.href} className="card p-4 flex flex-col items-center gap-2.5 hover:border-[#0f4d40]/30 hover:shadow-sm transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-[rgba(15,77,64,0.08)] flex items-center justify-center group-hover:bg-[rgba(15,77,64,0.15)] transition-colors">
-                  <Icon size={18} className="text-[#0f4d40]" />
+              <Link
+                key={a.label}
+                href={a.href}
+                className="card p-3.5 sm:p-4 flex items-center sm:flex-col sm:items-center justify-start sm:justify-center gap-3 hover:border-[#0f4d40]/40 hover:shadow-md transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[rgba(15,77,64,0.08)] flex items-center justify-center flex-shrink-0 group-hover:bg-[#0f4d40] group-hover:text-white transition-all text-[#0f4d40]">
+                  <Icon size={18} />
                 </div>
-                <span className="text-xs font-medium text-[#111]">{a.label}</span>
+                <div className="text-left sm:text-center min-w-0">
+                  <span className="text-xs font-semibold text-[#111111] block group-hover:text-[#0f4d40] transition-colors">{a.label}</span>
+                  <span className="text-[10px] text-[#666666] block truncate">{a.sub}</span>
+                </div>
               </Link>
             );
           })}

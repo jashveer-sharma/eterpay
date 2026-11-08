@@ -89,7 +89,7 @@ export default function InvestPage() {
         </div>
 
         {/* Portfolio Summary */}
-        <div className="card p-8 bg-[#111111] text-[#fbf9f5] rounded-3xl relative overflow-hidden">
+        <div className="card-dark p-8 rounded-3xl relative overflow-hidden">
           <div className="text-xs uppercase tracking-widest text-[#34d399] font-semibold mb-2">Simulated Net Asset Value</div>
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
             <div>

@@ -39,7 +39,7 @@ export default function WalletPage() {
         </div>
 
         {/* Primary Balances Card */}
-        <div className="card p-8 bg-[#0f4d40] text-[#fbf9f5] rounded-3xl relative overflow-hidden">
+        <div className="card-emerald p-8 rounded-3xl relative overflow-hidden">
           <div className="text-xs uppercase tracking-widest text-[#34d399] font-semibold mb-2">Primary Operating Ledger</div>
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
             <div>

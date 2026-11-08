@@ -26,7 +26,6 @@ const NAV_SECTIONS = [
       { label: "Wallet", href: "/wallet", icon: Wallet },
       { label: "Anywhere Hub", href: "/anywhere-hub", icon: Globe },
       { label: "Global Payments", href: "/global", icon: ArrowLeftRight },
-      { label: "Payment Methods", href: "/wallet#methods", icon: CreditCard },
       { label: "Transactions", href: "/transactions", icon: List },
       { label: "Requests", href: "/requests", icon: FileText },
       { label: "Payment Links", href: "/links", icon: Link2 },
@@ -37,7 +36,6 @@ const NAV_SECTIONS = [
     label: "Business",
     items: [
       { label: "Merchant Hub", href: "/merchant", icon: Briefcase },
-      { label: "Merchant Tools", href: "/merchant#tools", icon: Building2 },
       { label: "Invoices", href: "/invoices", icon: Receipt },
       { label: "Subscriptions", href: "/subscriptions", icon: RefreshCw },
       { label: "Refunds", href: "/refunds", icon: Shield },
@@ -64,7 +62,8 @@ const NAV_SECTIONS = [
 
 function NavItem({ item, collapsed }: { item: { label: string; href: string; icon: React.ElementType }; collapsed: boolean }) {
   const pathname = usePathname();
-  const isActive = pathname === `/${item.href.replace(/^\//, "").split("#")[0]}` || pathname.startsWith(item.href.split("#")[0]);
+  const baseHref = item.href.split("#")[0];
+  const isActive = pathname === baseHref || (baseHref !== "/" && pathname.startsWith(baseHref + "/"));
   const Icon = item.icon;
 
   return (
@@ -182,10 +181,9 @@ export default function AppSidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sticky Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col flex-shrink-0 bg-[#111111] transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
-        style={{ minHeight: "100vh" }}
+        className={`hidden lg:flex flex-col flex-shrink-0 bg-[#111111] sticky top-0 h-screen z-30 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
       >
         <SidebarContent />
       </aside>
