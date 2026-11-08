@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, Globe, Zap, Shield, TrendingUp, ChevronDown, Play, Check, Star } from "lucide-react";
+import Interactive3DToken from "@/components/ui/Interactive3DToken";
 
 // ── Animated 3D-like Globe using CSS ──────────────────────────────
 const ORBIT_CURRENCIES = [
@@ -189,9 +190,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right — 3D globe */}
+            {/* Right — Interactive 3D Payment Token */}
             <div className="flex justify-center">
-              <EterGlobe />
+              <Interactive3DToken />
             </div>
           </div>
         </div>

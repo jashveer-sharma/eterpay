@@ -89,8 +89,13 @@ export default function AppSidebar() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   function handleLogout() {
-    if (typeof window !== "undefined") localStorage.removeItem("eterpay_session");
-    router.push("/login");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("eterpay_session");
+      localStorage.removeItem("eterpay_jwt");
+      localStorage.removeItem("eterpay_user");
+      sessionStorage.removeItem("eterpay_grid_filter");
+    }
+    router.replace("/login");
   }
 
   const SidebarContent = () => (

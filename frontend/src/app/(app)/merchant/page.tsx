@@ -34,9 +34,9 @@ export default function BusinessHubPage() {
     }
     setAnnouncing(true);
     const textMap = {
-      en: "Payment received on PayPal! 2,500 Rupees credited to EterPay Merchant account.",
-      hi: "पेपाल पर दो हज़ार पाँच सौ रुपये प्राप्त हुए। ईटरपे खाते में जमा।",
-      es: "Pago recibido en PayPal! Dos mil quinientos rupias acreditadas a EterPay.",
+      en: "Payment received on EterPay! 2,500 Rupees credited to your EterPay merchant account.",
+      hi: "ईटरपे पर दो हज़ार पाँच सौ रुपये प्राप्त हुए। आपके ईटरपे मर्चेंट खाते में जमा।",
+      es: "¡Pago recibido en EterPay! Dos mil quinientas rupias acreditadas a su cuenta EterPay.",
     };
     const text = textMap[soundboxLanguage];
     setLastAnnouncement(text);

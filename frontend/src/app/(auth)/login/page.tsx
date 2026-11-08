@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Sparkles, User, Building2, ArrowRight, ShieldCheck } from "lucide-react";
 
 const DEMO_EMAIL = "demo@eterpay.com";
 const DEMO_PASSWORD = "Demo1234!";
@@ -30,6 +31,32 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [demoLoadingRole, setDemoLoadingRole] = useState<"personal" | "business" | null>(null);
+
+  async function handleQuickDemoLogin(role: "personal" | "business") {
+    if (demoLoadingRole || loading) return;
+    setDemoLoadingRole(role);
+    setError("");
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("eterpay_session", "demo_active");
+      localStorage.setItem(
+        "eterpay_user",
+        JSON.stringify({
+          email: DEMO_EMAIL,
+          name: role === "business" ? "TechCorp Solutions (Merchant)" : "Alex Rivera",
+          accountType: role,
+          kycStatus: "verified",
+        })
+      );
+    }
+
+    setTimeout(() => {
+      router.push(role === "business" ? "/merchant" : "/dashboard");
+    }, 450);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -95,18 +122,63 @@ export default function LoginPage() {
           Log in to your EterPay account.
         </p>
 
-        {/* Demo credentials info box */}
-        <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: "var(--info-bg)", border: "1px solid rgba(15,77,64,0.14)" }}>
-          <p className="label-eyebrow-forest mb-2">Demo credentials</p>
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs" style={{ color: "var(--ink-muted)" }}>Email</span>
-              <span className="text-xs font-medium tabular" style={{ color: "var(--forest)", fontFamily: "var(--font-sans)" }}>demo@eterpay.com</span>
+        {/* Quick Demo Login Option */}
+        <div className="mb-6 p-4 rounded-2xl bg-[rgba(15,77,64,0.06)] border border-[#0f4d40]/20 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#0f4d40] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" /> 1-Click Quick Demo Login
+            </span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white text-[#0f4d40] border border-[#0f4d40]/30 font-semibold">
+              INSTANT
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => handleQuickDemoLogin("personal")}
+              disabled={!!demoLoadingRole || loading}
+              className="flex flex-col items-start p-2.5 rounded-xl bg-white border border-[rgba(17,17,17,0.09)] hover:border-[#0f4d40] hover:shadow-xs transition-all text-left group disabled:opacity-60 cursor-pointer"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#111111] group-hover:text-[#0f4d40]">
+                <User className="w-3.5 h-3.5" />
+                <span>Personal</span>
+              </div>
+              <span className="text-[10px] text-[#777777] mt-0.5">Alex Rivera</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleQuickDemoLogin("business")}
+              disabled={!!demoLoadingRole || loading}
+              className="flex flex-col items-start p-2.5 rounded-xl bg-white border border-[rgba(17,17,17,0.09)] hover:border-[#0f4d40] hover:shadow-xs transition-all text-left group disabled:opacity-60 cursor-pointer"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#111111] group-hover:text-[#0f4d40]">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Merchant</span>
+              </div>
+              <span className="text-[10px] text-[#777777] mt-0.5">TechCorp Hub</span>
+            </button>
+          </div>
+
+          {demoLoadingRole && (
+            <div className="text-center py-1 text-xs text-[#0f4d40] font-medium flex items-center justify-center gap-2">
+              <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span>Launching {demoLoadingRole === "business" ? "Merchant" : "Personal"} Demo...</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs" style={{ color: "var(--ink-muted)" }}>Password</span>
-              <span className="text-xs font-medium tabular" style={{ color: "var(--forest)" }}>Demo1234!</span>
-            </div>
+          )}
+        </div>
+
+        {/* Or manual login */}
+        <div className="relative my-5">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[rgba(17,17,17,0.09)]" />
+          </div>
+          <div className="relative flex justify-center text-[10px] uppercase font-semibold">
+            <span className="bg-white px-3 text-[#888888]">Or log in with credentials</span>
           </div>
         </div>
 

@@ -10,6 +10,7 @@ export default function InvoicesPage() {
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "paid">("all");
   const [showModal, setShowModal] = useState(false);
   const [payingInvoice, setPayingInvoice] = useState<any | null>(null);
+  const [downloadedPdfId, setDownloadedPdfId] = useState<string | null>(null);
   const [client, setClient] = useState("Venture Studio LLP");
   const [clientEmail, setClientEmail] = useState("billing@venture.llp");
   const [amount, setAmount] = useState("55000");
@@ -92,69 +93,131 @@ export default function InvoicesPage() {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[#fbf9f5] text-[#888888] uppercase font-semibold border-b border-[rgba(17,17,17,0.06)]">
-                  <tr>
-                    <th className="p-4">Invoice #</th>
-                    <th className="p-4">Client / Recipient</th>
-                    <th className="p-4">Issued</th>
-                    <th className="p-4">Due Date</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4 text-right">Amount</th>
-                    <th className="p-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[rgba(17,17,17,0.06)]">
-                  {filteredInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-[#fbf9f5]/60 transition-colors">
-                    <td className="p-4 font-mono font-semibold text-[#111111]">{inv.number}</td>
-                    <td className="p-4">
-                      <div className="font-semibold text-[#111111]">{inv.client}</div>
-                      <div className="text-[11px] text-[#888888]">{inv.clientEmail}</div>
-                    </td>
-                    <td className="p-4 text-[#555555]">{inv.issued}</td>
-                    <td className="p-4 text-[#555555]">{inv.due}</td>
-                    <td className="p-4">
-                      <span
-                        className={`capitalize font-semibold text-[10px] px-2 py-0.5 rounded-full ${
-                          inv.status === "paid"
-                            ? "bg-[#f0fdf4] text-[#16a34a]"
-                            : inv.status === "pending"
-                            ? "bg-[#fffbeb] text-[#d97706]"
-                            : "bg-[#fef2f2] text-[#dc2626]"
-                        }`}
-                      >
-                        {inv.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right font-serif text-sm font-semibold tabular text-[#111111]">
-                      {inv.currency === "INR" ? "₹" : "$"} {inv.amount.toLocaleString("en-IN")} {inv.currency}
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+            <>
+              {/* Desktop: Full Data Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#fbf9f5] text-[#888888] uppercase font-semibold border-b border-[rgba(17,17,17,0.06)]">
+                    <tr>
+                      <th className="p-4">Invoice #</th>
+                      <th className="p-4">Client / Recipient</th>
+                      <th className="p-4">Issued</th>
+                      <th className="p-4">Due Date</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Amount</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[rgba(17,17,17,0.06)]">
+                    {filteredInvoices.map((inv) => (
+                      <tr key={inv.id} className="hover:bg-[#fbf9f5]/60 transition-colors">
+                        <td className="p-4 font-mono font-semibold text-[#111111]">{inv.number}</td>
+                        <td className="p-4">
+                          <div className="font-semibold text-[#111111]">{inv.client}</div>
+                          <div className="text-[11px] text-[#888888]">{inv.clientEmail}</div>
+                        </td>
+                        <td className="p-4 text-[#555555]">{inv.issued}</td>
+                        <td className="p-4 text-[#555555]">{inv.due}</td>
+                        <td className="p-4">
+                          <span
+                            className={`capitalize font-semibold text-[10px] px-2 py-0.5 rounded-full ${
+                              inv.status === "paid"
+                                ? "bg-[#f0fdf4] text-[#16a34a]"
+                                : inv.status === "pending"
+                                ? "bg-[#fffbeb] text-[#d97706]"
+                                : "bg-[#fef2f2] text-[#dc2626]"
+                            }`}
+                          >
+                            {inv.status}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right font-serif text-sm font-semibold tabular text-[#111111]">
+                          {inv.currency === "INR" ? "₹" : "$"} {inv.amount.toLocaleString("en-IN")} {inv.currency}
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {inv.status === "pending" && (
+                              <button
+                                onClick={() => setPayingInvoice(inv)}
+                                className="btn btn-primary text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1"
+                              >
+                                <CreditCard className="w-3 h-3" /> Pay with EterPay
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {
+                                setDownloadedPdfId(inv.id);
+                                setTimeout(() => setDownloadedPdfId(null), 2000);
+                              }}
+                              className="text-[#0f4d40] hover:underline font-semibold text-xs"
+                            >
+                              {downloadedPdfId === inv.id ? "Downloaded ✓" : "PDF"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile: Dedicated Responsive Invoice Cards */}
+              <div className="md:hidden divide-y divide-[rgba(17,17,17,0.06)] p-3 space-y-3">
+                {filteredInvoices.map((inv) => (
+                  <div key={inv.id} className="pt-3 first:pt-0 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="font-mono text-[10px] text-[#888888]">{inv.number}</span>
+                        <h4 className="font-semibold text-xs text-[#111111]">{inv.client}</h4>
+                        <p className="text-[10px] text-[#777777]">{inv.clientEmail}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-serif text-sm font-semibold text-[#111111] tabular">
+                          {inv.currency === "INR" ? "₹" : "$"} {inv.amount.toLocaleString("en-IN")}
+                        </span>
+                        <div>
+                          <span
+                            className={`inline-block capitalize font-semibold text-[9px] px-2 py-0.5 rounded-full mt-1 ${
+                              inv.status === "paid"
+                                ? "bg-[#f0fdf4] text-[#16a34a]"
+                                : inv.status === "pending"
+                                ? "bg-[#fffbeb] text-[#d97706]"
+                                : "bg-[#fef2f2] text-[#dc2626]"
+                            }`}
+                          >
+                            {inv.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] text-[#777777] pt-1">
+                      <span>Due: {inv.due}</span>
+                      <div className="flex items-center gap-2">
                         {inv.status === "pending" && (
                           <button
                             onClick={() => setPayingInvoice(inv)}
-                            className="btn btn-primary text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1"
+                            className="btn btn-primary text-[10px] px-2.5 py-1 rounded-md flex items-center gap-1"
                           >
-                            <CreditCard className="w-3 h-3" /> Pay with EterPay
+                            <CreditCard className="w-3 h-3" /> Pay
                           </button>
                         )}
                         <button
-                          onClick={() => alert(`Invoice ${inv.number} downloaded as PDF (simulation).`)}
-                          className="text-[#0f4d40] hover:underline font-semibold text-xs"
+                          onClick={() => {
+                            setDownloadedPdfId(inv.id);
+                            setTimeout(() => setDownloadedPdfId(null), 2000);
+                          }}
+                          className="text-[#0f4d40] font-semibold"
                         >
-                          PDF
+                          {downloadedPdfId === inv.id ? "Downloaded ✓" : "PDF"}
                         </button>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              </div>
+            </>
+          )}
       </div>
 
         {/* Modal */}

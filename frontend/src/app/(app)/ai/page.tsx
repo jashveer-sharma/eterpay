@@ -429,7 +429,7 @@ export default function AiCopilotPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] bg-[#fbf9f5]">
+    <div className="flex flex-col h-[calc(100dvh-3.5rem-5rem)] lg:h-screen bg-[#fbf9f5]">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(17,17,17,0.08)] bg-white">
         <div className="flex items-center gap-3">

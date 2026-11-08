@@ -7,6 +7,8 @@ import { DEMO_USER } from "@/lib/demo-data";
 export default function QrPaymentsPage() {
   const [activeTab, setActiveTab] = useState<"receive" | "scan">("receive");
   const [fixedAmount, setFixedAmount] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(false);
 
@@ -99,19 +101,29 @@ export default function QrPaymentsPage() {
 
             <div className="flex justify-center gap-3 pt-2">
               <button
-                onClick={() => alert("QR asset downloaded to device (PNG simulation).")}
+                type="button"
+                onClick={() => {
+                  setDownloaded(true);
+                  setTimeout(() => setDownloaded(false), 2000);
+                }}
                 className="btn btn-secondary text-xs px-4 py-2"
               >
-                <Download className="w-3.5 h-3.5 mr-1 inline" /> Save QR Code
+                <Download className="w-3.5 h-3.5 mr-1 inline" />
+                {downloaded ? "Saved!" : "Save QR Code"}
               </button>
               <button
+                type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText("alex@eterpay");
-                  alert("UPI VPA copied to clipboard!");
+                  if (typeof navigator !== "undefined" && navigator.clipboard) {
+                    navigator.clipboard.writeText("alex@eterpay");
+                  }
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
                 }}
                 className="btn btn-primary text-xs px-4 py-2"
               >
-                <Copy className="w-3.5 h-3.5 mr-1 inline" /> Copy VPA
+                <Copy className="w-3.5 h-3.5 mr-1 inline" />
+                {copied ? "Copied VPA!" : "Copy VPA"}
               </button>
             </div>
           </div>

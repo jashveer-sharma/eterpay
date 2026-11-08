@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import StartupIntro from "@/components/ui/StartupIntro";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased min-h-screen">
+        <StartupIntro />
         {children}
       </body>
     </html>

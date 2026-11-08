@@ -53,7 +53,10 @@ export default function DashboardPage() {
           <p className="text-xs text-[#888]">{today}</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="demo-badge">Demo Mode</span>
+          <span className="demo-badge">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            Demo Mode
+          </span>
           <Link href="/notifications" className="relative p-2 rounded-xl hover:bg-[rgba(17,17,17,0.05)] transition-colors">
             <Bell size={18} className="text-[#555]" />
             {unreadNotifs.length > 0 && (

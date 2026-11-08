@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Download, Sparkles } from "lucide-react";
+import { Download, Sparkles, ArrowDownLeft, ArrowUpRight, Calendar, Tag } from "lucide-react";
 import { AgGridReact } from "@ag-grid-community/react";
 import type {
   ColDef,
@@ -309,8 +309,8 @@ export default function TransactionsPage() {
             </div>
           )}
 
-          {/* AG Grid */}
-          <div className="card bg-white overflow-hidden shadow-xs">
+          {/* Desktop: AG Grid Table */}
+          <div className="hidden md:block card bg-white overflow-hidden shadow-xs">
             <div
               className="eterpay-grid ag-theme-quartz"
               style={{ height: 540, width: "100%" }}
@@ -337,6 +337,67 @@ export default function TransactionsPage() {
                 )}
               />
             </div>
+          </div>
+
+          {/* Mobile: Dedicated Responsive Transaction Cards */}
+          <div className="md:hidden space-y-3">
+            {gridData.map((txn) => {
+              const isCredit = txn.type === "credit";
+              return (
+                <div
+                  key={txn.id}
+                  className="card p-4 bg-white border border-[rgba(17,17,17,0.08)] rounded-2xl shadow-xs space-y-2.5 active:bg-[#fbf9f5] transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          isCredit ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-[#f4f0e8] text-[#111111]"
+                        }`}
+                      >
+                        {isCredit ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold text-[#111111] leading-snug">{txn.title}</h4>
+                        <p className="text-[10px] text-[#777777]">{txn.counterparty}</p>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <span
+                        className={`font-serif text-sm font-semibold tabular-nums ${
+                          isCredit ? "text-[#16a34a]" : "text-[#111111]"
+                        }`}
+                      >
+                        {isCredit ? "+" : "−"} {txn.symbol}
+                        {txn.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-[rgba(17,17,17,0.05)] text-[10px] text-[#666666]">
+                    <div className="flex items-center gap-2">
+                      <span className="capitalize px-2 py-0.5 rounded-full font-medium bg-[rgba(15,77,64,0.07)] text-[#0f4d40]">
+                        {txn.category}
+                      </span>
+                      <span className="flex items-center gap-1 font-mono text-[9px] text-[#888888]">
+                        <Calendar size={10} /> {txn.date}
+                      </span>
+                    </div>
+                    <span
+                      className={`capitalize font-semibold text-[9px] px-2 py-0.5 rounded-full ${
+                        txn.status === "completed"
+                          ? "bg-[#f0fdf4] text-[#16a34a]"
+                          : txn.status === "pending"
+                          ? "bg-[#fffbeb] text-[#d97706]"
+                          : "bg-[#fef2f2] text-[#dc2626]"
+                      }`}
+                    >
+                      {txn.status}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
         </div>
