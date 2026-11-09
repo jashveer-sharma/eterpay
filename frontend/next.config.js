@@ -5,16 +5,15 @@ const BACKEND_URL =
   "http://localhost:8000";
 
 const nextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_URL}/api/:path*`,
-      },
-    ];
-  },
+  output: "export",
   images: {
-    domains: ["images.unsplash.com"],
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
   },
 };
 
