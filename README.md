@@ -1,15 +1,13 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/logo-horizontal.svg">
-  <img src="docs/brand/logo-horizontal.svg" alt="EterPay Logo" width="260" />
-</picture>
+  <h1>
+    <img src="docs/brand/logo-icon.svg" alt="EterPay Logo" width="46" height="46" align="center" style="vertical-align: middle; margin-right: 8px;" />
+    ETERPAY
+  </h1>
 
-# ETERPAY
+  <p><strong><em>Beyond Borders. Beyond Payments.</em></strong></p>
 
-### *Beyond Borders. Beyond Payments.*
-
-**An AI-powered global financial platform concept exploring smarter cross-border payments, currency intelligence, and institutional-grade ledger transparency.**
+  <p><strong>An AI-powered global financial platform concept exploring smarter cross-border payments, currency intelligence, and institutional-grade ledger transparency.</strong></p>
 
 ---
 
@@ -149,20 +147,50 @@ EterPay's core architectural contribution is reconciling generative AI with the 
 
 <div align="center">
 
-| Executive Dashboard & FX Matrix | AG Grid High-Performance Audit Ledger |
-|:---:|:---:|
-| <img src="docs/screenshots/dashboard.png" alt="Executive Dashboard" width="440" /> | <img src="docs/screenshots/transactions.png" alt="AG Grid Ledger" width="440" /> |
-| *Real-time multi-currency balances across 9 global reserve currencies with 1-click active currency switching.* | *Enterprise ledger featuring uniform status dots, subtle category tags, dynamic AI filtering, and instant CSV export.* |
-
-| Eter AI Context-Aware Financial Copilot | ReserveLien™ FD-Backed Credit Portal |
-|:---:|:---:|
-| <img src="docs/screenshots/eter-ai.png" alt="Eter AI Copilot" width="440" /> | <img src="docs/screenshots/fd-loans.png" alt="FD-Backed Credit" width="440" /> |
-| *Subscription leak auditor, travel budget builder, and remittance fee comparison engine.* | *Capital preservation engine calculating effective net borrowing costs (1.25% p.a.) backed by fixed deposits.* |
-
-| European Central Bank FX Matrix (Frankfurter v1) | Universal Payment & Commerce Terminal |
-|:---:|:---:|
-| <img src="docs/screenshots/currency-fx.png" alt="ECB FX Rates" width="440" /> | <img src="docs/screenshots/home-hero.png" alt="Universal Terminal" width="440" /> |
-| *Live interbank reference quotes, historical volatility calculations, and custom rate alert triggers.* | *Integrated PayPal Orders v2 sandbox checkout with dual-layer safety barriers.* |
+<table width="100%">
+  <tr>
+    <th width="50%" align="center">Executive Dashboard & FX Matrix</th>
+    <th width="50%" align="center">AG Grid High-Performance Audit Ledger</th>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/dashboard.png" width="100%" alt="Executive Dashboard" style="border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);" />
+      <p align="center"><em>Real-time multi-currency balances across 9 global reserve currencies with 1-click active currency switching.</em></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/transactions.png" width="100%" alt="AG Grid Ledger" style="border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);" />
+      <p align="center"><em>Enterprise ledger featuring uniform status dots, subtle category tags, dynamic AI filtering, and instant CSV export.</em></p>
+    </td>
+  </tr>
+  <tr>
+    <th width="50%" align="center">Eter AI Context-Aware Financial Copilot</th>
+    <th width="50%" align="center">ReserveLien™ FD-Backed Credit Portal</th>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/eter-ai.png" width="100%" alt="Eter AI Copilot" style="border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);" />
+      <p align="center"><em>Subscription leak auditor, travel budget builder, and remittance fee comparison engine.</em></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/fd-loans.png" width="100%" alt="FD-Backed Credit" style="border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);" />
+      <p align="center"><em>Capital preservation engine calculating effective net borrowing costs (1.25% p.a.) backed by fixed deposits.</em></p>
+    </td>
+  </tr>
+  <tr>
+    <th width="50%" align="center">European Central Bank FX Matrix (Frankfurter v1)</th>
+    <th width="50%" align="center">Universal Payment & Commerce Terminal</th>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/currency-fx.png" width="100%" alt="ECB FX Rates" style="border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);" />
+      <p align="center"><em>Live interbank reference quotes, historical volatility calculations, and custom rate alert triggers.</em></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/home-hero.png" width="100%" alt="Universal Terminal" style="border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);" />
+      <p align="center"><em>Integrated PayPal Orders v2 sandbox checkout with dual-layer safety barriers.</em></p>
+    </td>
+  </tr>
+</table>
 
 </div>
 
