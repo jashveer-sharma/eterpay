@@ -29,7 +29,7 @@ export function PayPalCheckoutButton({
 
   const clientId =
     process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ||
-    "AarBKUm2Az4FwM5TuvFFmrtDekBxpj5UN6_O5LRQ6Bw-_CfjeuTCVIVbuLg7JShbigWWkuWKHuRLILQI";
+    "sb";
 
   const apiBase = "";
 
