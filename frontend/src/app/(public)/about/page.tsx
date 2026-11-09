@@ -13,7 +13,7 @@ export default function AboutPage() {
   const values = [
     { icon: <Shield className="w-6 h-6 text-[#0f4d40]" />, title: "Non-Custodial Transparency", desc: "Clear fee disclosures, real-time central bank reference rates, and zero hidden markup." },
     { icon: <Globe className="w-6 h-6 text-[#0f4d40]" />, title: "Universal Interoperability", desc: "Neutral protocol bridge unifying PayPal, local card rails, instant bank transfers, and QR standards." },
-    { icon: <Zap className="w-6 h-6 text-[#0f4d40]" />, title: "Autonomous Intelligence", desc: "Local and cloud AI agents providing real-time routing optimization and personal financial copiloting." },
+    { icon: <Zap className="w-6 h-6 text-[#0f4d40]" />, title: "Autonomous Intelligence", desc: "Local and cloud AI agents providing real-time routing optimization and personal financial intelligence with Eter AI." },
     { icon: <Award className="w-6 h-6 text-[#0f4d40]" />, title: "Institutional Rigor", desc: "Strict adherence to PCI-DSS, double-entry idempotency, and defense-in-depth telemetry." },
   ];
 

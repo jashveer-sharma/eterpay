@@ -27,7 +27,7 @@ export default function PersonalPage() {
     },
     {
       icon: <Bot className="w-5 h-5 text-[#0f4d40]" />,
-      title: "AI Financial Copilot",
+      title: "Eter AI Financial Assistant",
       desc: "Conversational cashflow forecasting, subscription anomaly flags, and intelligent currency timing signals.",
       pill: "Free Tier Intelligence",
     },
@@ -48,7 +48,7 @@ export default function PersonalPage() {
   const faqs = [
     { q: "How does EterPay execute international transfers?", a: "EterPay integrates with the PayPal Orders v2 API and regulated local clearing providers to execute deterministic settlement while applying European Central Bank mid-market rates." },
     { q: "Can I hold balances in foreign currencies?", a: "Yes. Your EterPay multi-currency wallet permits holding balances in INR, USD, EUR, GBP, JPY, and SGD with automated conversion simulation." },
-    { q: "Is the AI allowed to move money autonomously?", a: "Never. By design, our AI copilot only proposes intents. Every transfer, conversion, and payment requires explicit user authentication and approval." },
+    { q: "Is the AI allowed to move money autonomously?", a: "Never. By design, Eter AI only proposes intents. Every transfer, conversion, and payment requires explicit user authentication and approval." },
     { q: "What fees does EterPay charge personal users?", a: "Personal peer-to-peer transfers within the domestic network are free. Cross-border transfers display transparent network and conversion fees before confirmation." },
   ];
 

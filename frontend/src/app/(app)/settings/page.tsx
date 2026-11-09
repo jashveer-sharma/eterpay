@@ -97,7 +97,7 @@ export default function SettingsPage() {
 
               <div className="p-3.5 rounded-xl bg-[#fbf9f5] border border-[rgba(17,17,17,0.06)] flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-semibold text-[#111111]">Google Gemini 1.5 Flash Copilot</div>
+                  <div className="text-xs font-semibold text-[#111111]">Google Gemini 1.5 Flash Eter AI</div>
                   <div className="text-[11px] text-[#888888]">Multi-Tier Free Model Fallback Engine</div>
                 </div>
                 <span className="text-[10px] uppercase font-bold text-[#16a34a] bg-[#f0fdf4] px-2 py-0.5 rounded-full">

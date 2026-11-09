@@ -12,7 +12,7 @@ export default function SecurityPage() {
     {
       icon: <EyeOff className="w-5 h-5 text-[#0f4d40]" />,
       title: "Deterministic Payment Approval Gate",
-      desc: "Our AI copilots have zero capability to unilaterally execute funds transfers. Every financial mutation requires explicit biometric or user cryptographic confirmation.",
+      desc: "Our Eter AI agents have zero capability to unilaterally execute funds transfers. Every financial mutation requires explicit biometric or user cryptographic confirmation.",
     },
     {
       icon: <KeyRound className="w-5 h-5 text-[#0f4d40]" />,

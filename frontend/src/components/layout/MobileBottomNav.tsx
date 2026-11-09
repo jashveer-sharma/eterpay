@@ -11,7 +11,7 @@ export default function MobileBottomNav() {
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { label: "Transfer", href: "/pay", icon: Send },
     { label: "QR Pay", href: "/qr", icon: QrCode, highlight: true },
-    { label: "Copilot", href: "/ai", icon: Bot },
+    { label: "Eter AI", href: "/ai", icon: Bot },
     { label: "Wallet", href: "/wallet", icon: Wallet },
   ];
 

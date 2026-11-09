@@ -126,13 +126,13 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   return (
     <div className="border-b border-[rgba(17,17,17,0.09)] last:border-b-0">
       <button
-        className="w-full flex items-center justify-between gap-4 py-5 text-left"
+        className="w-full flex items-center justify-between gap-4 py-5 px-6 sm:px-8 text-left hover:bg-[rgba(17,17,17,0.02)] transition-colors"
         onClick={() => setOpen(!open)}
       >
         <span className="text-base font-medium text-[#111111]">{q}</span>
         <ChevronDown size={18} className={`flex-shrink-0 text-[#888888] transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <p className="pb-5 text-sm text-[#555555] leading-relaxed">{a}</p>}
+      {open && <p className="pb-5 px-6 sm:px-8 text-sm text-[#555555] leading-relaxed">{a}</p>}
     </div>
   );
 }
@@ -319,7 +319,7 @@ export default function HomePage() {
                     <span className="font-serif text-xl text-[#34d399] tabular">$119.80</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-[rgba(251,249,245,0.35)]">
-                    <span>Rate: 1 USD = ₹83.47</span>
+                    <span>Rate: 1 USD = ₹93.92</span>
                     <span>Fee: ₹0 (demo)</span>
                   </div>
                 </div>

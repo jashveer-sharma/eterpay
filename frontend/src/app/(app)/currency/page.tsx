@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { DEMO_CURRENCIES_FX } from "@/lib/demo-data";
+import CurrencySwitcher from "@/components/shared/CurrencySwitcher";
 
 interface ConversionData {
   rate: number;
@@ -85,7 +86,7 @@ export default function CurrencyExchangePage() {
         setConversion(data);
       } else {
         // Fallback calculation using cached/demo rates
-        const rate = rates[toCurr] || 0.01198;
+        const rate = rates[toCurr] || 0.01065;
         const target = sourceAmount * rate;
         const bankFee = sourceAmount * 0.045;
         const savings = bankFee - sourceAmount * 0.004;
@@ -100,7 +101,7 @@ export default function CurrencyExchangePage() {
         });
       }
     } catch {
-      const rate = rates[toCurr] || 0.01198;
+      const rate = rates[toCurr] || 0.01065;
       const target = sourceAmount * rate;
       const bankFee = sourceAmount * 0.045;
       const savings = bankFee - sourceAmount * 0.004;
@@ -135,7 +136,7 @@ export default function CurrencyExchangePage() {
     setTimeout(() => setSwappedSuccess(false), 3000);
   };
 
-  const currentRate = conversion?.rate || rates[toCurr] || 0.01198;
+  const currentRate = conversion?.rate || rates[toCurr] || 0.01065;
   const converted = conversion ? conversion.amount_target.toFixed(2) : (sourceAmount * currentRate).toFixed(2);
 
   return (

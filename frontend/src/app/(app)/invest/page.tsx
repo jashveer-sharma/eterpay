@@ -415,7 +415,7 @@ export default function InvestPage() {
           </div>
 
           <div className="text-[11px] text-[#888888] flex items-center justify-between border-t border-[rgba(17,17,17,0.06)] pt-3">
-            <span>Powered by Gemini &amp; Groq Fintech Copilot • Theoretical models only.</span>
+            <span>Powered by Gemini &amp; Groq Eter AI • Theoretical models only.</span>
             <span className="font-semibold text-[#d97706]">[No Capital at Risk]</span>
           </div>
         </div>

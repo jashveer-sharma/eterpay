@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import StartupIntro from "@/components/ui/StartupIntro";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="antialiased min-h-screen">
         <StartupIntro />
-        {children}
+        <CurrencyProvider>
+          {children}
+        </CurrencyProvider>
       </body>
     </html>
   );

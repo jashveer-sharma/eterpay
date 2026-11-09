@@ -216,10 +216,17 @@ GROQ_TOOLS = [
 ]
 
 SYSTEM_PROMPT = (
-    "You are EterPay AI, an intelligent global fintech copilot and financial advisor. "
+    "You are Eter AI (EterPay AI), an intelligent, context-aware global fintech assistant and financial copilot. "
     "You assist users with cross-border payments, currency conversions, travel budgeting, "
     "commerce discovery, AG Grid financial data analysis, and ReserveLien asset-backed liquidity. "
-    "Supported destinations include Tokyo, Paris, London, Dubai, Singapore, Bali, New York, Bangkok. "
+    "USER FINANCIAL CONTEXT: "
+    "• User Name: Alex Rivera (alex.rivera@eterpay.demo). "
+    "• Primary Wallet: ₹2,34,750 INR (~$2,500 USD equivalent across multi-currency pockets). "
+    "• Term Deposit Collateral: ₹5,00,000 SBI Fixed Deposit earning 7.20% p.a. compound yield. "
+    "• ReserveLien Overdraft Capability: ₹4,25,000 instant credit line at 8.45% borrow rate (1.25% net cost) with 85% LTV cap. "
+    "• Monthly Subscriptions: Alex spent ₹5,117 on 4 active subscriptions this month (8% of total monthly spend). "
+    "  Adobe Creative Cloud is largest at ₹4,230. Figma Professional is ₹1,200/mo and has not been used in 18 days (recommend pausing to save ₹1,200/mo). Netflix is ₹649/mo, Spotify is ₹179/mo. "
+    "• Supported travel destinations: Tokyo, Paris, London, Dubai, Singapore, Bali, New York, Bangkok. "
     "Tool routing rules: "
     "convert currency -> call convert_currency; "
     "shop/buy/find products -> call search_products_channel3; "
@@ -539,14 +546,14 @@ class AIAgentOrchestrator:
             messages.append({"role": role, "content": h.get("content", "")})
         messages.append({"role": "user", "content": msg})
         payload = {
-            "model": "qwen/qwen3.8-27b",
+            "model": "openai/gpt-oss-120b",
             "messages": messages,
             "tools": GROQ_TOOLS,
             "tool_choice": "auto",
             "temperature": 0.2
         }
 
-        async with httpx.AsyncClient(timeout=4.0) as client:
+        async with httpx.AsyncClient(timeout=8.0) as client:
             res = await client.post(url, headers=headers, json=payload)
             if res.status_code != 200:
                 logger.warning(f"Groq API returned status {res.status_code}: {res.text}")
@@ -694,24 +701,32 @@ class AIAgentOrchestrator:
                 )
             )
 
-        # 10. Subscriptions intent
-        if any(w in lower_msg for w in ["subscription", "subscriptions", "recurring", "monthly plan"]):
+        # 10. Subscriptions & Audit Intent
+        if any(w in lower_msg for w in ["pause", "cancel sub", "unused"]):
+            return ChatResponse(
+                reply="Based on your usage patterns, Figma Professional hasn't been used in 18 days. Pausing it would save ₹1,200/month. Want me to arrange that?"
+            )
+
+        if "subscription" in lower_msg or "subscriptions" in lower_msg or "recurring" in lower_msg:
+            if any(w in lower_msg for w in ["how much", "spend", "spent", "total", "cost"]):
+                return ChatResponse(
+                    reply="You've spent ₹5,117 on 4 active subscriptions this month. That's 8% of your total spend. Adobe Creative Cloud is your largest at ₹4,230."
+                )
             return ChatResponse(
                 reply=(
-                    "Active Subscriptions (Alex M.):\n\n"
-                    "  Netflix Premium - \u20b9649/month ($7.80 USD)\n"
-                    "  Spotify Family - \u20b9179/month ($2.15 USD)\n"
-                    "  Adobe Creative Cloud - \u20b95,432/month ($65.18 USD)\n"
-                    "  GitHub Pro - \u20b9400/month ($4.80 USD)\n\n"
-                    "Total monthly: \u20b96,660 (~$79.93 USD)\n"
-                    "EterPay handles FX at live ECB interbank rates - no hidden spread."
+                    "Active Subscriptions (Alex Rivera):\n\n"
+                    "• Adobe Creative Cloud - ₹4,230/month\n"
+                    "• Figma Professional - ₹1,200/month (Unused for 18 days — pause recommended)\n"
+                    "• Netflix Premium - ₹649/month\n"
+                    "• Spotify Family - ₹179/month\n\n"
+                    "Total Monthly: ₹5,117 (8% of your total monthly spend)."
                 )
             )
 
         # Default fallback
         return ChatResponse(
             reply=(
-                "I am EterPay AI, your global fintech copilot.\n\n"
+                "I am EterPay AI, your global fintech assistant.\n\n"
                 "Try asking me:\n"
                 "- 'Can I get a loan against my ₹5,00,000 Fixed Deposit?'\n"
                 "- 'Compare PayPal vs Wise vs Airtm fees for $1,000'\n"

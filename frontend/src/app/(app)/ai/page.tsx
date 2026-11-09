@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Bot, Send, Sparkles, User, RefreshCw, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Bot, Send, Sparkles, User, RefreshCw, ArrowRight, AlertCircle, CheckCircle2, Zap } from "lucide-react";
 import { PayPalCheckoutButton } from "@/components/paypal/PayPalCheckoutButton";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -338,7 +338,7 @@ export default function AiCopilotPage() {
     {
       role: "assistant",
       content:
-        "Hello Alex. I am your EterPay Financial Copilot.\n\nTry asking me:\n• \"Filter my transactions by Travel\"\n• \"Plan my Tokyo trip with ₹1,50,000\"\n• \"Convert 50,000 INR to EUR\"\n• \"Find me a universal travel adapter\"",
+        "Hello Alex. I am EterPay AI, your global financial intelligence assistant.\n\nTry asking me:\n• \"How much did I spend on subscriptions this month?\"\n• \"Can I get a loan against my ₹5,00,000 Fixed Deposit?\"\n• \"Filter my transactions by Travel\"\n• \"Convert 50,000 INR to EUR\"\n• \"Find me a universal travel adapter\"",
     },
   ]);
   const [input, setInput] = useState("");
@@ -430,26 +430,26 @@ export default function AiCopilotPage() {
 
   return (
     <div className="flex flex-col h-[calc(100dvh-3.5rem-5rem)] lg:h-screen bg-[#fbf9f5] w-full max-w-full overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-4 border-b border-[rgba(17,17,17,0.08)] bg-white flex-shrink-0 w-full max-w-full overflow-hidden">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <div className="w-8 h-8 rounded-lg bg-[rgba(15,77,64,0.08)] flex items-center justify-center text-[#0f4d40] flex-shrink-0">
-            <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
+      {/* Header — Exact Match with Homepage EterPay AI */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-[rgba(17,17,17,0.08)] bg-white flex-shrink-0 w-full max-w-full overflow-hidden">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-8 h-8 rounded-full bg-[#0f4d40] flex items-center justify-center text-[#fbf9f5] flex-shrink-0">
+            <Zap size={15} />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="font-serif text-sm sm:text-lg font-semibold text-[#111111] truncate max-w-[160px] sm:max-w-none">
-              EterPay Copilot
+            <h1 className="font-serif text-base sm:text-lg font-semibold text-[#111111] truncate max-w-[180px] sm:max-w-none">
+              EterPay AI
             </h1>
-            <p className="text-[10px] sm:text-[11px] text-[#555555] truncate max-w-[160px] sm:max-w-none">
-              AI Financial Assistant · Connected to PayPal Orders v2 &amp; AG Grid
+            <p className="text-[11px] text-[#555555] truncate max-w-[200px] sm:max-w-none">
+              Financial intelligence · Connected to PayPal Orders v2 &amp; AG Grid
             </p>
           </div>
         </div>
-        <span className="demo-badge text-[9px] sm:text-xs flex-shrink-0 ml-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
-          <span className="hidden sm:inline">Gemini + Groq</span>
-          <span className="sm:hidden">Copilot</span>
-        </span>
+        <div className="flex items-center gap-2 text-xs text-[#555555] font-medium flex-shrink-0 ml-2">
+          <span className="w-2 h-2 rounded-full bg-[#16a34a] animate-pulse" />
+          <span className="hidden sm:inline">Gemini 1.5 Flash</span>
+          <span className="sm:hidden text-[11px]">Online</span>
+        </div>
       </div>
 
       {/* Message List */}
@@ -460,15 +460,15 @@ export default function AiCopilotPage() {
             className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "assistant" && (
-              <div className="w-7 h-7 rounded-full bg-[rgba(15,77,64,0.1)] flex items-center justify-center text-[#0f4d40] flex-shrink-0 mt-0.5">
-                <Bot className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-full bg-[#0f4d40] flex items-center justify-center text-[#fbf9f5] flex-shrink-0 mt-0.5 shadow-xs">
+                <Zap size={14} />
               </div>
             )}
             <div
-              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${
+              className={`max-w-[85%] sm:max-w-[78%] px-4 py-3 text-sm leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-[#0f4d40] text-white"
-                  : "bg-white border border-[rgba(17,17,17,0.08)] text-[#111111] shadow-xs"
+                  ? "bg-[#111111] text-[#fbf9f5] rounded-2xl rounded-br-sm shadow-xs"
+                  : "bg-[#f4f0e8] border border-[rgba(15,77,64,0.12)] text-[#111111] rounded-2xl rounded-bl-sm shadow-xs"
               }`}
             >
               {msg.role === "assistant" ? (
@@ -484,7 +484,7 @@ export default function AiCopilotPage() {
               {msg.grid_filter && <GridFilterBadge filter={msg.grid_filter} />}
             </div>
             {msg.role === "user" && (
-              <div className="w-7 h-7 rounded-full bg-[rgba(17,17,17,0.08)] flex items-center justify-center text-[#555555] flex-shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-full bg-[#111111] flex items-center justify-center text-white flex-shrink-0 mt-0.5 shadow-xs">
                 <User className="w-4 h-4" />
               </div>
             )}
@@ -493,10 +493,10 @@ export default function AiCopilotPage() {
 
         {isLoading && (
           <div className="flex gap-3 items-center text-xs text-[#555555]">
-            <div className="w-7 h-7 rounded-full bg-[rgba(15,77,64,0.1)] flex items-center justify-center text-[#0f4d40] flex-shrink-0">
-              <RefreshCw className="w-4 h-4 animate-spin" />
+            <div className="w-8 h-8 rounded-full bg-[#0f4d40] flex items-center justify-center text-[#fbf9f5] flex-shrink-0">
+              <Zap size={14} className="animate-pulse" />
             </div>
-            <span>Copilot is reasoning and selecting financial tools...</span>
+            <span>Eter AI is reasoning and selecting financial tools...</span>
           </div>
         )}
 
@@ -519,6 +519,7 @@ export default function AiCopilotPage() {
               <Sparkles className="w-3 h-3 text-[#0f4d40]" /> Try:
             </span>
             {[
+              { label: "Subscriptions Audit", prompt: "How much did I spend on subscriptions this month?" },
               { label: "Loan Against FD", prompt: "Can I get a loan against my ₹5,00,000 Fixed Deposit?" },
               { label: "Compare Fees", prompt: "Compare PayPal vs Wise vs Airtm fees for $1,000 to INR" },
               { label: "Plan Tokyo Trip", prompt: "Plan my Tokyo trip with ₹1,50,000" },
@@ -529,7 +530,7 @@ export default function AiCopilotPage() {
                 key={chip.label}
                 type="button"
                 onClick={() => {
-                  setInput(chip.prompt);
+                  sendMessage(chip.prompt);
                 }}
                 className="flex-shrink-0 px-2.5 py-1 rounded-full bg-[#fbf9f5] border border-[rgba(17,17,17,0.08)] text-[11px] text-[#333333] hover:border-[#0f4d40]/40 hover:text-[#0f4d40] transition-colors"
               >
@@ -545,7 +546,7 @@ export default function AiCopilotPage() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask Copilot (e.g. Loan against FD)..."
+              placeholder="Ask Eter AI (e.g. Loan against FD)..."
               className="input text-xs py-2.5 pl-3.5 pr-11 bg-[#fbf9f5] w-full"
               disabled={isLoading}
             />

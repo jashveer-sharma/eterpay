@@ -56,7 +56,7 @@ export default function NotFound() {
             </Link>
             <span className="text-[#cccccc]">·</span>
             <Link href="/ai" className="hover:underline">
-              AI Copilot
+              Eter AI Assistant
             </Link>
           </div>
         </div>

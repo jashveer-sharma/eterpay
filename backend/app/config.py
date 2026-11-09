@@ -32,8 +32,8 @@ class Settings(BaseSettings):
     MAX_SINGLE_ORDER_INR: float = 25000.00
     MAX_SINGLE_ORDER_USD: float = 300.00
     
-    # Currency Rates Provider
-    FRANKFURTER_BASE_URL: str = "https://api.frankfurter.app"
+    # Currency Rates Provider (ECB reference rates)
+    FRANKFURTER_BASE_URL: str = "https://api.frankfurter.dev/v1"
     
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./eterpay.db"

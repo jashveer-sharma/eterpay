@@ -3,12 +3,14 @@ import Link from "next/link";
 import {
   Send, Download, QrCode, ArrowLeftRight, TrendingUp, TrendingDown,
   ShoppingBag, Repeat, Plane, CreditCard, Zap, Bell, Sparkles,
-  ArrowUpRight, ArrowDownLeft, ChevronRight, Wallet,
+  ArrowUpRight, ArrowDownLeft, ChevronRight, Wallet, ShieldCheck,
 } from "lucide-react";
 import {
   DEMO_USER, DEMO_BALANCES, DEMO_TRANSACTIONS, DEMO_PORTFOLIO,
   DEMO_NOTIFICATIONS, DEMO_ANALYTICS,
 } from "@/lib/demo-data";
+import { useCurrency } from "@/context/CurrencyContext";
+import CurrencySwitcher from "@/components/shared/CurrencySwitcher";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   transfer: <ArrowLeftRight size={14} />,
@@ -38,6 +40,7 @@ function getHour() {
 }
 
 export default function DashboardPage() {
+  const { formatAmount } = useCurrency();
   const recentTxns = DEMO_TRANSACTIONS.slice(0, 6);
   const unreadNotifs = DEMO_NOTIFICATIONS.filter((n) => !n.read).slice(0, 2);
   const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -53,6 +56,7 @@ export default function DashboardPage() {
           <p className="text-[11px] sm:text-xs text-[#888] truncate">{today}</p>
         </div>
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <CurrencySwitcher />
           <span className="demo-badge text-[10px] sm:text-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
             Sandbox
@@ -75,12 +79,12 @@ export default function DashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-widest text-[#fbf9f5]/70 mb-1">Primary Balance</p>
             <div className="flex items-end gap-4 mb-3">
               <span className="text-4xl sm:text-5xl font-serif font-light tabular text-white">
-                ₹{fmt(DEMO_BALANCES.primary.amount)}
+                {formatAmount(DEMO_BALANCES.primary.amount)}
               </span>
             </div>
             <p className="text-sm text-[#fbf9f5]/80 mb-4">
-              Available: <span className="text-white font-medium tabular">₹{(180000).toLocaleString("en-IN")}</span>
-              &nbsp;·&nbsp;In transit: <span className="text-white/80 tabular">₹{(4250.75).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              Available: <span className="text-white font-medium tabular">{formatAmount(180000)}</span>
+              &nbsp;·&nbsp;In transit: <span className="text-white/80 tabular">{formatAmount(4250.75)}</span>
             </p>
             <div className="flex gap-2 flex-wrap">
               {DEMO_BALANCES.wallet.slice(0, 3).map((w) => (
@@ -116,6 +120,34 @@ export default function DashboardPage() {
           })}
         </div>
 
+        {/* FD-Backed Credit Line Highlight */}
+        <div className="card p-4 sm:p-5 bg-white border border-[rgba(15,77,64,0.18)] rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[rgba(15,77,64,0.08)] flex items-center justify-center text-[#0f4d40] flex-shrink-0">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-[#111111]">
+                  FD-Backed Credit Line Available
+                </span>
+                <span className="text-[10px] font-mono font-bold text-[#16a34a] bg-[#f0fdf4] px-1.5 py-0.5 rounded border border-[#16a34a]/30">
+                  85% LTV Cap
+                </span>
+              </div>
+              <p className="text-xs text-[#555555]">
+                Borrow up to {formatAmount(425000)} against your fixed deposit collateral at 1.25% net cost without breaking interest.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/loans"
+            className="btn btn-primary text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 self-start sm:self-auto flex-shrink-0"
+          >
+            Access Credit Line <ChevronRight size={13} />
+          </Link>
+        </div>
+
         {/* Middle Row: Transactions + Wallet Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Transactions */}
@@ -142,14 +174,30 @@ export default function DashboardPage() {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className={`text-sm font-semibold tabular ${txn.type === "credit" ? "text-[#0f4d40]" : "text-[#111]"}`}>
-                      {txn.type === "credit" ? "+" : "−"}{txn.symbol}{txn.amount.toLocaleString("en-IN")}
+                      {txn.type === "credit" ? "+" : "−"}{formatAmount(txn.amount)}
                     </p>
-                    <span className={`text-[0.625rem] font-medium px-1.5 py-0.5 rounded-full ${
-                      txn.status === "completed" ? "bg-green-50 text-green-700" :
-                      txn.status === "pending" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
-                    }`}>
-                      {txn.status}
-                    </span>
+                    <div className="flex items-center justify-end gap-1 mt-0.5">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          txn.status === "completed"
+                            ? "bg-[#16a34a]"
+                            : txn.status === "pending"
+                            ? "bg-[#d97706]"
+                            : "bg-[#dc2626]"
+                        }`}
+                      />
+                      <span
+                        className={`text-[10px] font-medium capitalize ${
+                          txn.status === "completed"
+                            ? "text-[#15803d]"
+                            : txn.status === "pending"
+                            ? "text-[#b45309]"
+                            : "text-[#b91c1c]"
+                        }`}
+                      >
+                        {txn.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -191,7 +239,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <p className="text-3xl font-serif font-light tabular text-[#111] mb-1">
-              ₹{DEMO_PORTFOLIO.totalValue.toLocaleString("en-IN")}
+              {formatAmount(DEMO_PORTFOLIO.totalValue)}
             </p>
             <div className="flex items-center gap-1.5 mb-4">
               <TrendingUp size={13} className="text-[#0f4d40]" />
@@ -266,17 +314,17 @@ export default function DashboardPage() {
           <div className="grid grid-cols-3 gap-6 divide-x divide-[rgba(17,17,17,0.07)]">
             <div>
               <p className="label-eyebrow mb-1">Spent this month</p>
-              <p className="text-2xl font-semibold tabular text-[#dc2626]">₹{DEMO_ANALYTICS.totalSpentThisMonth.toLocaleString("en-IN")}</p>
+              <p className="text-2xl font-semibold tabular text-[#dc2626]">{formatAmount(DEMO_ANALYTICS.totalSpentThisMonth)}</p>
             </div>
             <div className="pl-6">
               <p className="label-eyebrow mb-1">Received this month</p>
-              <p className="text-2xl font-semibold tabular text-[#0f4d40]">₹{DEMO_ANALYTICS.totalReceivedThisMonth.toLocaleString("en-IN")}</p>
+              <p className="text-2xl font-semibold tabular text-[#0f4d40]">{formatAmount(DEMO_ANALYTICS.totalReceivedThisMonth)}</p>
             </div>
             <div className="pl-6">
               <p className="label-eyebrow mb-1">Net cash flow</p>
               <div className="flex items-center gap-1.5">
                 <TrendingUp size={16} className="text-[#0f4d40]" />
-                <p className="text-2xl font-semibold tabular text-[#0f4d40]">+₹{DEMO_ANALYTICS.netCashFlow.toLocaleString("en-IN")}</p>
+                <p className="text-2xl font-semibold tabular text-[#0f4d40]">+{formatAmount(DEMO_ANALYTICS.netCashFlow)}</p>
               </div>
             </div>
           </div>

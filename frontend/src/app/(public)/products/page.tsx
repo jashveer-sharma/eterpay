@@ -60,7 +60,7 @@ export default function ProductsPage() {
     },
     {
       id: "ai",
-      title: "EterPay AI Copilot",
+      title: "Eter AI Financial Intelligence",
       tagline: "Conversational Financial Intelligence",
       desc: "State-of-the-art multi-tier reasoning agent powered by Gemini 1.5 Flash. Delivers cashflow audits, expense optimization, and contextual guidance.",
       icon: <Bot className="w-6 h-6 text-[#0f4d40]" />,

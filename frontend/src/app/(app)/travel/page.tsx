@@ -271,7 +271,7 @@ export default function TravelPage() {
                   href="/ai"
                   className="text-xs text-[#0f4d40] font-medium hover:underline flex items-center gap-1"
                 >
-                  Chat with Copilot regarding this trip <ArrowRight className="w-3 h-3" />
+                  Chat with Eter AI regarding this trip <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>

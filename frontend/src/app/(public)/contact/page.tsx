@@ -39,7 +39,7 @@ export default function ContactPage() {
               <div className="p-3 bg-[rgba(15,77,64,0.06)] rounded-xl w-fit mb-3">
                 <MessageSquare className="w-5 h-5 text-[#0f4d40]" />
               </div>
-              <h3 className="font-semibold text-sm text-[#111111] mb-1">Interactive AI Copilot</h3>
+              <h3 className="font-semibold text-sm text-[#111111] mb-1">Interactive Eter AI</h3>
               <p className="text-xs text-[#666666] mb-3">Real-time troubleshooting and routing assistance.</p>
               <Link href="/ai" className="text-xs font-semibold text-[#0f4d40] hover:underline">
                 Chat with Assistant →

@@ -54,7 +54,7 @@ export default function BusinessPage() {
         "Unlimited invoices & smart payment links",
         "Recurring subscription & proration engine",
         "AG Grid high-density live telemetry",
-        "Multi-agent AI financial copilot",
+        "Multi-agent Eter AI financial engine",
         "Priority cross-border routing",
         "Automated customer tax reconciliation",
       ],

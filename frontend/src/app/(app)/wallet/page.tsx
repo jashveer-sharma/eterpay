@@ -1,10 +1,13 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Wallet, Plus, ArrowUpRight, ArrowDownLeft, RefreshCw, CreditCard, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Wallet, Plus, ArrowUpRight, ArrowDownLeft, RefreshCw, CreditCard, ShieldCheck, CheckCircle2, ArrowRight } from "lucide-react";
 import { DEMO_BALANCES, DEMO_PAYMENT_METHODS } from "@/lib/demo-data";
+import { useCurrency } from "@/context/CurrencyContext";
+import CurrencySwitcher from "@/components/shared/CurrencySwitcher";
 
 export default function WalletPage() {
+  const { formatAmount } = useCurrency();
   const [showAddMethod, setShowAddMethod] = useState(false);
   const [methodType, setMethodType] = useState("card");
   const [methodAdded, setMethodAdded] = useState(false);
@@ -28,7 +31,7 @@ export default function WalletPage() {
             <h1 className="font-serif text-3xl text-[#111111]">Digital Wallet & Funding Rails</h1>
           </div>
           <div className="flex items-center gap-3">
-            <span className="demo-badge">Multi-Asset Ledger</span>
+            <CurrencySwitcher />
             <button
               onClick={() => setShowAddMethod(true)}
               className="btn btn-primary text-xs px-4 py-2.5 rounded-full"
@@ -44,10 +47,10 @@ export default function WalletPage() {
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
             <div>
               <div className="font-serif text-4xl sm:text-5xl tabular font-medium text-white">
-                ₹ {DEMO_BALANCES.primary.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                {formatAmount(DEMO_BALANCES.primary.amount)}
               </div>
               <p className="text-xs text-[rgba(251,249,245,0.7)] mt-1">
-                Settled & instantly accessible across connected routing networks.
+                Settled &amp; instantly accessible across connected routing networks.
               </p>
             </div>
             <div className="flex gap-3">
@@ -59,6 +62,33 @@ export default function WalletPage() {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* FD-Backed Credit Line Feature Card */}
+        <div className="card p-6 bg-white border border-[rgba(15,77,64,0.2)] rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xs">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[rgba(15,77,64,0.1)] text-[#0f4d40]">
+                EterPay ReserveLien™
+              </span>
+              <span className="text-[10px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[#f0fdf4] text-[#16a34a] border border-[#16a34a]/30">
+                85% LTV Hard Cap
+              </span>
+            </div>
+            <h3 className="font-serif text-xl text-[#111111]">
+              Fixed Deposit Backed Credit Line
+            </h3>
+            <p className="text-xs text-[#555555] max-w-xl">
+              Borrow up to {formatAmount(425000)} against your {formatAmount(500000)} SBI Fixed Deposit at a net cost of only 1.25% p.a. Your principal continues compounding at 7.20% without liquidation.
+            </p>
+          </div>
+          <Link
+            href="/loans"
+            className="btn btn-primary text-xs px-5 py-3 rounded-xl flex items-center gap-1.5 flex-shrink-0"
+          >
+            <ShieldCheck size={14} />
+            Manage FD Credit Line <ArrowRight size={14} />
+          </Link>
         </div>
 
         {/* Multi-Currency Foreign Ledgers */}

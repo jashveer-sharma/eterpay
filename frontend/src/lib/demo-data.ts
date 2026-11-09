@@ -135,14 +135,14 @@ export const DEMO_TRAVEL = [
 ];
 
 export const DEMO_CURRENCIES_FX = [
-  { from: "INR", to: "USD", rate: 0.01198, change: +0.12 },
-  { from: "INR", to: "EUR", rate: 0.01102, change: -0.08 },
-  { from: "INR", to: "GBP", rate: 0.00947, change: +0.04 },
-  { from: "INR", to: "JPY", rate: 1.806, change: -0.21 },
-  { from: "INR", to: "SGD", rate: 0.01603, change: +0.09 },
-  { from: "INR", to: "AED", rate: 0.04399, change: 0.00 },
-  { from: "INR", to: "CAD", rate: 0.01657, change: +0.07 },
-  { from: "INR", to: "AUD", rate: 0.01841, change: -0.14 },
+  { from: "INR", to: "USD", rate: 0.01065, change: +0.18 },
+  { from: "INR", to: "EUR", rate: 0.00954, change: -0.06 },
+  { from: "INR", to: "GBP", rate: 0.00795, change: +0.05 },
+  { from: "INR", to: "JPY", rate: 1.6858, change: -0.25 },
+  { from: "INR", to: "SGD", rate: 0.01365, change: +0.11 },
+  { from: "INR", to: "AED", rate: 0.03911, change: 0.00 },
+  { from: "INR", to: "CAD", rate: 0.01498, change: +0.07 },
+  { from: "INR", to: "AUD", rate: 0.01550, change: -0.12 },
 ];
 
 export const DEMO_PAYMENT_NETWORKS_ANYWHERE = [

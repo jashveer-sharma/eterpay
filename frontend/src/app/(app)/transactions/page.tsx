@@ -1,16 +1,23 @@
 "use client";
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Download, Sparkles, ArrowDownLeft, ArrowUpRight, Calendar, Tag } from "lucide-react";
+import { Download, Sparkles, ArrowDownLeft, ArrowUpRight, Calendar, Tag, RefreshCw } from "lucide-react";
 import { AgGridReact } from "@ag-grid-community/react";
-import type {
-  ColDef,
-  GridApi,
-  GridReadyEvent,
-  ICellRendererParams,
+import {
+  ModuleRegistry,
+  type ColDef,
+  type GridApi,
+  type GridReadyEvent,
+  type ICellRendererParams,
 } from "@ag-grid-community/core";
+import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
+import { CsvExportModule } from "@ag-grid-community/csv-export";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { DEMO_TRANSACTIONS } from "@/lib/demo-data";
+import { useCurrency } from "@/context/CurrencyContext";
+
+// Register AG Grid Community modules
+ModuleRegistry.registerModules([ClientSideRowModelModule, CsvExportModule]);
 
 // Cast demo data to our typed interface (demo-data.ts uses widened string literals)
 const ROW_DATA = DEMO_TRANSACTIONS as Transaction[];
@@ -43,18 +50,10 @@ function TitleCell({ data }: ICellRendererParams<Transaction>) {
 }
 
 function CategoryCell({ value }: ICellRendererParams<Transaction>) {
-  const palettes: Record<string, string> = {
-    travel:       "bg-[#eff6ff] text-[#1d4ed8]",
-    commerce:     "bg-[#fdf4ff] text-[#9333ea]",
-    subscription: "bg-[#f0f9ff] text-[#0369a1]",
-    transfer:     "bg-[rgba(17,17,17,0.05)] text-[#555555]",
-    invest:       "bg-[#f0fdf4] text-[#15803d]",
-    refund:       "bg-[#fff7ed] text-[#c2410c]",
-  };
-  const cls = palettes[value as string] ?? "bg-[rgba(17,17,17,0.05)] text-[#555555]";
+  if (!value) return null;
   return (
     <div className="flex items-center h-full">
-      <span className={`capitalize px-2 py-0.5 rounded-full font-semibold text-[10px] ${cls}`}>
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium text-[#4b5563] bg-[rgba(17,17,17,0.04)] border border-[rgba(17,17,17,0.06)] capitalize leading-normal">
         {value}
       </span>
     </div>
@@ -62,29 +61,34 @@ function CategoryCell({ value }: ICellRendererParams<Transaction>) {
 }
 
 function StatusCell({ value }: ICellRendererParams<Transaction>) {
-  const styles: Record<string, string> = {
-    completed: "bg-[#f0fdf4] text-[#16a34a]",
-    pending:   "bg-[#fffbeb] text-[#d97706]",
-    failed:    "bg-[#fef2f2] text-[#dc2626]",
+  const status = (value as string)?.toLowerCase();
+  const configs: Record<string, { dot: string; text: string; label: string }> = {
+    completed: { dot: "bg-[#16a34a]", text: "text-[#15803d]", label: "Completed" },
+    pending:   { dot: "bg-[#d97706]", text: "text-[#b45309]", label: "Pending" },
+    failed:    { dot: "bg-[#dc2626]", text: "text-[#b91c1c]", label: "Failed" },
   };
-  const cls = styles[value as string] ?? "bg-[rgba(17,17,17,0.05)] text-[#555555]";
+  const config = configs[status] ?? { dot: "bg-[#6b7280]", text: "text-[#4b5563]", label: status };
+
   return (
     <div className="flex items-center h-full">
-      <span className={`capitalize font-semibold text-[10px] px-2 py-0.5 rounded-full ${cls}`}>
-        {value}
+      <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${config.text}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+        {config.label}
       </span>
     </div>
   );
 }
 
 function AmountCell({ data }: ICellRendererParams<Transaction>) {
+  const { formatAmount, rates } = useCurrency();
   if (!data) return null;
   const isCredit = data.type === "credit";
+  const amountInInr = data.currency === "USD" ? data.amount / (rates["USD"] || 0.01065) : data.amount;
+  const formatted = formatAmount(amountInInr);
   return (
     <div className="flex items-center justify-end h-full">
       <span className={`font-serif text-sm font-semibold tabular-nums ${isCredit ? "text-[#16a34a]" : "text-[#111111]"}`}>
-        {isCredit ? "+" : "−"}&nbsp;{data.symbol}&nbsp;
-        {data.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+        {isCredit ? "+" : "−"}&nbsp;{formatted}
       </span>
     </div>
   );
@@ -167,6 +171,7 @@ const GRID_STYLE = `
 
 // ─── Page Component ──────────────────────────────────────────────────────────
 export default function TransactionsPage() {
+  const { formatAmount, rates } = useCurrency();
   const gridApiRef = useRef<GridApi<Transaction> | null>(null);
   const [gridData, setGridData] = useState<Transaction[]>(ROW_DATA);
   const [aiFilterActive, setAiFilterActive] = useState<string | null>(null);
@@ -226,7 +231,7 @@ export default function TransactionsPage() {
 
   const onGridReady = useCallback((e: GridReadyEvent<Transaction>) => {
     gridApiRef.current = e.api;
-    // Apply cross-route filter if passed from AI Copilot
+    // Apply cross-route filter if passed from Eter AI
     if (typeof window !== "undefined") {
       let filterCol: string | null = null;
       let filterVal: string | null = null;
@@ -368,15 +373,14 @@ export default function TransactionsPage() {
                           isCredit ? "text-[#16a34a]" : "text-[#111111]"
                         }`}
                       >
-                        {isCredit ? "+" : "−"} {txn.symbol}
-                        {txn.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        {isCredit ? "+" : "−"} {formatAmount(txn.currency === "USD" ? txn.amount / (rates["USD"] || 0.01065) : txn.amount)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-[rgba(17,17,17,0.05)] text-[10px] text-[#666666]">
+                  <div className="flex items-center justify-between pt-2 border-t border-[rgba(17,17,17,0.05)] text-[10px]">
                     <div className="flex items-center gap-2">
-                      <span className="capitalize px-2 py-0.5 rounded-full font-medium bg-[rgba(15,77,64,0.07)] text-[#0f4d40]">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium text-[#4b5563] bg-[rgba(17,17,17,0.04)] border border-[rgba(17,17,17,0.06)] capitalize">
                         {txn.category}
                       </span>
                       <span className="flex items-center gap-1 font-mono text-[9px] text-[#888888]">
@@ -384,15 +388,24 @@ export default function TransactionsPage() {
                       </span>
                     </div>
                     <span
-                      className={`capitalize font-semibold text-[9px] px-2 py-0.5 rounded-full ${
+                      className={`inline-flex items-center gap-1.5 text-[10px] font-medium ${
                         txn.status === "completed"
-                          ? "bg-[#f0fdf4] text-[#16a34a]"
+                          ? "text-[#15803d]"
                           : txn.status === "pending"
-                          ? "bg-[#fffbeb] text-[#d97706]"
-                          : "bg-[#fef2f2] text-[#dc2626]"
+                          ? "text-[#b45309]"
+                          : "text-[#b91c1c]"
                       }`}
                     >
-                      {txn.status}
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          txn.status === "completed"
+                            ? "bg-[#16a34a]"
+                            : txn.status === "pending"
+                            ? "bg-[#d97706]"
+                            : "bg-[#dc2626]"
+                        }`}
+                      />
+                      <span className="capitalize">{txn.status}</span>
                     </span>
                   </div>
                 </div>

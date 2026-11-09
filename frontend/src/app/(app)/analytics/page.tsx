@@ -2,17 +2,23 @@
 import Link from "next/link";
 import { BarChart2, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, PieChart } from "lucide-react";
 import { DEMO_ANALYTICS } from "@/lib/demo-data";
+import { useCurrency } from "@/context/CurrencyContext";
+import CurrencySwitcher from "@/components/shared/CurrencySwitcher";
 
 export default function AnalyticsPage() {
+  const { formatAmount } = useCurrency();
   return (
     <div className="min-h-screen bg-[#fbf9f5] p-6 sm:p-10">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex items-center justify-between pb-6 border-b border-[rgba(17,17,17,0.08)]">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-[#0f4d40]">Financial Intelligence</div>
-            <h1 className="font-serif text-3xl text-[#111111]">Reports & Cashflow Analytics</h1>
+            <h1 className="font-serif text-3xl text-[#111111]">Reports &amp; Cashflow Analytics</h1>
           </div>
-          <span className="demo-badge">Real-Time Telemetry</span>
+          <div className="flex items-center gap-3">
+            <CurrencySwitcher />
+            <span className="demo-badge">Real-Time Telemetry</span>
+          </div>
         </div>
 
         {/* Top Metric Cards */}
@@ -20,23 +26,23 @@ export default function AnalyticsPage() {
           <div className="card p-6 bg-white">
             <span className="text-xs font-semibold uppercase text-[#888888]">Monthly Inflow</span>
             <div className="font-serif text-3xl font-medium text-[#16a34a] mt-1 tabular">
-              +₹ {DEMO_ANALYTICS.totalReceivedThisMonth.toLocaleString("en-IN")}
+              +{formatAmount(DEMO_ANALYTICS.totalReceivedThisMonth)}
             </div>
-            <span className="text-xs text-[#888888] mt-1 block">Settled peer & merchant credits</span>
+            <span className="text-xs text-[#888888] mt-1 block">Settled peer &amp; merchant credits</span>
           </div>
 
           <div className="card p-6 bg-white">
             <span className="text-xs font-semibold uppercase text-[#888888]">Monthly Outflow</span>
             <div className="font-serif text-3xl font-medium text-[#111111] mt-1 tabular">
-              -₹ {DEMO_ANALYTICS.totalSpentThisMonth.toLocaleString("en-IN")}
+              -{formatAmount(DEMO_ANALYTICS.totalSpentThisMonth)}
             </div>
-            <span className="text-xs text-[#888888] mt-1 block">Across commerce & transfers</span>
+            <span className="text-xs text-[#888888] mt-1 block">Across commerce &amp; transfers</span>
           </div>
 
           <div className="card p-6 bg-white">
             <span className="text-xs font-semibold uppercase text-[#888888]">Net Operating Cashflow</span>
             <div className="font-serif text-3xl font-medium text-[#0f4d40] mt-1 tabular">
-              +₹ {DEMO_ANALYTICS.netCashFlow.toLocaleString("en-IN")}
+              +{formatAmount(DEMO_ANALYTICS.netCashFlow)}
             </div>
             <span className="text-xs text-[#16a34a] mt-1 block">Positive liquidity surplus</span>
           </div>
@@ -75,7 +81,7 @@ export default function AnalyticsPage() {
                 <div className="flex justify-between text-xs font-semibold text-[#111111]">
                   <span>{cat.category}</span>
                   <span className="tabular">
-                    ₹ {cat.amount.toLocaleString("en-IN")} ({cat.percent}%)
+                    {formatAmount(cat.amount)} ({cat.percent}%)
                   </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-[rgba(17,17,17,0.06)] overflow-hidden">

@@ -1,21 +1,22 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Send, Wallet, Globe, ArrowLeftRight, CreditCard, List,
   FileText, Link2, QrCode, Briefcase, Receipt, RefreshCw, Shield,
   TrendingUp, ShoppingBag, Plane, Bot, BarChart2, Bell, User,
-  Settings, LogOut, ChevronRight, Menu, X, Zap, Building2
+  Settings, LogOut, ChevronRight, Menu, X, Zap, Building2, ShieldCheck
 } from "lucide-react";
 import { DEMO_USER, isAuthenticated } from "@/lib/demo-data";
+import CurrencySwitcher from "@/components/shared/CurrencySwitcher";
 
 const NAV_SECTIONS = [
   {
     label: "Overview",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { label: "AI Assistant", href: "/ai", icon: Bot },
+      { label: "Eter AI", href: "/ai", icon: Zap },
       { label: "Notifications", href: "/notifications", icon: Bell },
     ],
   },
@@ -24,6 +25,7 @@ const NAV_SECTIONS = [
     items: [
       { label: "Pay & Transfer", href: "/pay", icon: Send },
       { label: "Wallet", href: "/wallet", icon: Wallet },
+      { label: "FD Loans & Credit", href: "/loans", icon: ShieldCheck },
       { label: "Anywhere Hub", href: "/anywhere-hub", icon: Globe },
       { label: "Global Payments", href: "/global", icon: ArrowLeftRight },
       { label: "Transactions", href: "/transactions", icon: List },
@@ -69,6 +71,7 @@ function NavItem({ item, collapsed }: { item: { label: string; href: string; ico
   return (
     <Link
       href={item.href}
+      scroll={false}
       title={collapsed ? item.label : undefined}
       className={`sidebar-link ${isActive ? "active" : ""}`}
     >
@@ -84,8 +87,22 @@ export default function AppSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const desktopNavRef = useRef<HTMLElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
 
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
+  useEffect(() => {
+    setMobileOpen(false);
+    const saved = sessionStorage.getItem("eterpay_sidebar_scroll");
+    if (saved) {
+      const top = Number(saved);
+      if (desktopNavRef.current) desktopNavRef.current.scrollTop = top;
+      if (mobileNavRef.current) mobileNavRef.current.scrollTop = top;
+    }
+  }, [pathname]);
+
+  const handleNavScroll = (e: React.UIEvent<HTMLElement>) => {
+    sessionStorage.setItem("eterpay_sidebar_scroll", e.currentTarget.scrollTop.toString());
+  };
 
   function handleLogout() {
     if (typeof window !== "undefined") {
@@ -97,7 +114,7 @@ export default function AppSidebar() {
     router.replace("/login");
   }
 
-  const SidebarContent = () => (
+  const renderSidebar = (isMobile = false) => (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center justify-between p-4 border-b border-[rgba(255,255,255,0.08)]">
@@ -137,8 +154,22 @@ export default function AppSidebar() {
         </button>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-6">
+      {/* 1-Click Global Currency Switcher */}
+      {!collapsed && (
+        <div className="px-3 py-2 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] flex items-center justify-between">
+          <span className="text-[10px] uppercase font-semibold text-[rgba(251,249,245,0.4)] tracking-wider">
+            Currency
+          </span>
+          <CurrencySwitcher />
+        </div>
+      )}
+
+      {/* Nav with scroll preservation */}
+      <nav
+        ref={isMobile ? mobileNavRef : desktopNavRef}
+        onScroll={handleNavScroll}
+        className="flex-1 overflow-y-auto py-4 px-2 space-y-6"
+      >
         {NAV_SECTIONS.map((section) => (
           <div key={section.label}>
             {!collapsed && (
@@ -181,12 +212,18 @@ export default function AppSidebar() {
 
   return (
     <>
-      {/* Desktop Sticky Sidebar */}
+      {/* Desktop Fixed Sidebar — 100% Locked to Viewport Top/Left, Never Scrolls With Window */}
       <aside
-        className={`hidden lg:flex flex-col flex-shrink-0 bg-[#111111] sticky top-0 h-screen z-30 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
+        className={`hidden lg:flex flex-col fixed top-0 bottom-0 left-0 h-screen z-30 bg-[#111111] transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
       >
-        <SidebarContent />
+        {renderSidebar(false)}
       </aside>
+
+      {/* Desktop spacer to prevent main content from sliding underneath the fixed sidebar */}
+      <div
+        className={`hidden lg:block flex-shrink-0 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
+        aria-hidden="true"
+      />
 
       {/* Mobile Header Bar & Sidebar Drawer */}
       <div className="lg:hidden">
@@ -211,14 +248,14 @@ export default function AppSidebar() {
             <span className="font-serif text-base text-[#fbf9f5]">EterPay</span>
           </Link>
 
-          <div className="w-8" />
+          <CurrencySwitcher />
         </header>
 
         {mobileOpen && (
           <>
             <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 pt-14" onClick={() => setMobileOpen(false)} />
             <aside className="fixed left-0 top-14 bottom-0 w-64 bg-[#111111] z-50 overflow-y-auto shadow-2xl">
-              <SidebarContent />
+              {renderSidebar(true)}
             </aside>
           </>
         )}
