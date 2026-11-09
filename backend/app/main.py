@@ -50,6 +50,16 @@ app.add_middleware(
 # Mount all API endpoints
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+@app.get("/", tags=["Root"])
+async def root():
+    return {
+        "status": "online",
+        "service": settings.PROJECT_NAME,
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "health_check": "/health"
+    }
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {
