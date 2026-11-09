@@ -12,9 +12,9 @@ class CurrencyClient:
         # Offline fallback rates (ECB reference, Nov 2026 approximate)
         self._offline_rates = {
             "INR": {
-                "USD": 0.01188, "EUR": 0.01095, "GBP": 0.00921,
-                "JPY": 1.8240,  "SGD": 0.01570, "AED": 0.04360,
-                "CAD": 0.01650
+                "USD": 0.01065, "EUR": 0.00954, "GBP": 0.00795,
+                "JPY": 1.6858,  "SGD": 0.01365, "AED": 0.03911,
+                "CAD": 0.01498
             }
         }
 
@@ -30,7 +30,7 @@ class CurrencyClient:
                 return cached_data
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(follow_redirects=True) as client:
                 resp = await client.get(
                     f"{self.base_url}/latest?from={base}",
                     timeout=5.0

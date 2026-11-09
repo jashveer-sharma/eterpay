@@ -1,4 +1,4 @@
-# EterPay — Hackathon Demo Script
+# EterPay — platform deployment Demo Script
 
 **Duration:** ~2 minutes 45 seconds  
 **Format:** Screen recording with voiceover  
@@ -10,7 +10,7 @@
 
 **Screen:** EterPay dashboard loads — Hallmark Dusk dark theme, ECB live rates in header ticker.
 
-> "EterPay is an AI-powered cross-border financial platform built for the PayPal AI Hackathon.
+> "EterPay is an AI-powered cross-border financial platform built for the PayPal AI platform deployment.
 > It connects real PayPal payments, live ECB exchange rates, conversational AI, and an AG Grid transaction ledger — all in one financial cockpit."
 
 **Show:** Live ECB ticker in header — 4 currencies ticking with today's date.

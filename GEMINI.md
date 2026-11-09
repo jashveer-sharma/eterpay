@@ -2,7 +2,7 @@
 
 > **Antigravity Rule Scope:** Project Root (`c:\Users\Admin\Desktop\unipay`)  
 > **Project:** ETERPAY (Eternal Payments)  
-> **Target:** PayPal "Build What's Next with PayPal and AI Hackathon 2026"  
+> **Target:** EterPay — AI-Powered Global Financial Platform  
 > **Trigger:** `always_on`
 
 ---

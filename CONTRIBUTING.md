@@ -1,6 +1,6 @@
 # Contributing to EterPay
 
-Thank you for contributing to EterPay! This project is being actively developed for the **PayPal AI Hackathon 2026**.
+Thank you for contributing to EterPay! This project is being actively developed as an open financial architecture.
 
 ## 1. Branching Strategy
 * `main`: Protected production branch. Represents tested, stable milestone releases.

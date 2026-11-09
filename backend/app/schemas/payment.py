@@ -27,3 +27,25 @@ class CaptureOrderResponse(BaseModel):
     currency: str
     payer_email: Optional[str] = None
     transaction_time: str
+
+class RefundRequest(BaseModel):
+    capture_id: str = Field(..., description="PayPal Capture ID to refund")
+    amount: Optional[float] = Field(None, gt=0, description="Amount to refund (default: full refund)")
+    currency: Optional[str] = Field("USD", min_length=3, max_length=3)
+    note: Optional[str] = Field("Refund requested via EterPay", max_length=255)
+
+class RefundResponse(BaseModel):
+    refund_id: str
+    status: str
+    amount: float
+    currency: str
+    capture_id: str
+    create_time: str
+
+class OrderDetailsResponse(BaseModel):
+    id: str
+    status: str
+    currency: str
+    amount: float
+    payer_email: Optional[str] = None
+    create_time: Optional[str] = None

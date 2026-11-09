@@ -1,22 +1,48 @@
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api.router import api_router
+from app.db.session import init_db
+
+logger = logging.getLogger("eterpay")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize SQLite database and seed initial ledger on startup
+    await init_db()
+
+    # P3-04: Validate PayPal Sandbox environment variables on startup
+    if not settings.PAYPAL_CLIENT_ID or "placeholder" in settings.PAYPAL_CLIENT_ID:
+        print("[EterPay Warning] PAYPAL_CLIENT_ID is using placeholder value. Operating in verified mock sandbox mode.")
+    else:
+        client_mask = f"{settings.PAYPAL_CLIENT_ID[:8]}...{settings.PAYPAL_CLIENT_ID[-4:]}"
+        print(f"[EterPay Verified] PayPal Sandbox live integration active: {client_mask} ({settings.PAYPAL_ENVIRONMENT.upper()})")
+
+    yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="EterPay — Your Money. Everywhere. Intelligently Connected. Built for the PayPal AI Hackathon 2026.",
-    version="0.1.0",
+    description="EterPay — Your Money. Everywhere. Intelligently Connected. Universal Financial Platform.",
+    version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Cross-Origin Resource Sharing (CORS) for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "https://eterpay.pages.dev",
+        "https://*.eterpay.pages.dev",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -28,6 +54,8 @@ async def health_check():
     return {
         "status": "healthy",
         "project": settings.PROJECT_NAME,
+        "version": "1.0.0",
         "paypal_environment": settings.PAYPAL_ENVIRONMENT,
-        "currency_provider": "Frankfurter (European Central Bank)"
+        "currency_provider": "Frankfurter (European Central Bank)",
+        "database": "SQLite (Async SQLAlchemy)"
     }

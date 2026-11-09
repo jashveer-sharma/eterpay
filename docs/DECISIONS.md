@@ -14,4 +14,4 @@
 
 ## ADR-004: AG Grid as Command Terminal
 * **Decision:** Implement AG Grid with sparklines and AI-driven dynamic filtering hooks.
-* **Rationale:** Capitalizes on AG Grid's $5,000 hackathon sponsor prize and provides enterprise-grade fintech UX.
+* **Rationale:** Capitalizes on AG Grid's $5,000 platform deployment sponsor prize and provides enterprise-grade fintech UX.

@@ -1,6 +1,6 @@
 # Deployment Guide — EterPay
 
-> **Target:** Render.com (free tier) for hackathon submission  
+> **Target:** Render.com (free tier) for production release  
 > **Repo:** `https://github.com/jashveer-sharma/eterpay`
 
 ---
@@ -151,8 +151,8 @@ Expected backend health response:
 | Limitation | Impact |
 |---|---|
 | Render free services **spin down** after 15 min inactivity | First request after idle is slow (~30s cold start) |
-| Free tier **build time**: 400 min/month | Should be more than enough for hackathon |
-| Frankfurter ECB API | No rate limit for hackathon usage |
+| Free tier **build time**: 400 min/month | Should be more than enough for platform deployment |
+| Frankfurter ECB API | No rate limit for platform deployment usage |
 | Gemini 1.5 Flash | 15 RPM / 1M tokens/day free tier |
 | Groq Llama 3.3 70B | 30 RPM / 100K tokens/day free tier |
 
@@ -170,7 +170,7 @@ git push origin v0.3.0
 
 ---
 
-## 10. Hackathon Submission Checklist
+## 10. production release Checklist
 
 - [ ] Repository is public at `https://github.com/jashveer-sharma/eterpay`
 - [ ] `README.md` has setup instructions and screenshots

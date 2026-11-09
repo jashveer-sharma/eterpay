@@ -40,7 +40,7 @@ EterPay Commerce connects destination discovery with cross-border shopping. When
 ---
 
 ## 2. Verified Fallback Product Catalog
-To ensure 100% demo reliability during live hackathon judging, the backend includes an offline catalog in `app/api/endpoints/commerce.py`:
+To ensure 100% demo reliability during live platform deployment judging, the backend includes an offline catalog in `app/api/endpoints/commerce.py`:
 1. **Anker Universal Travel Adapter:** Type A Japanese Pins, 65W GaN charging, ₹1,499 INR ($17.80 USD).
 2. **Airalo Japan eSIM 10GB:** 30-day SoftBank LTE data, ₹1,250 INR ($14.90 USD).
 3. **Peak Design Tech Pouch:** Weatherproof recycled nylon, ₹4,999 INR ($59.50 USD).
