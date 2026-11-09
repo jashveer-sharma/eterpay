@@ -354,9 +354,8 @@ export default function AiCopilotPage() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const query = input.trim();
+  const sendMessage = async (text: string) => {
+    const query = text.trim();
     if (!query || isLoading) return;
 
     setError(null);
@@ -426,6 +425,11 @@ export default function AiCopilotPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await sendMessage(input);
   };
 
   return (
