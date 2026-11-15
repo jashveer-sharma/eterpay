@@ -1,6 +1,9 @@
 # Deployment Guide — EterPay
 
-> **Target:** Render.com (free tier) for production release  
+> **Target:** Dual-Cloud (Netlify Edge Frontend + Render Web Service Backend)  
+> **Live Domain:** [https://eterpay.runs-on.dev](https://eterpay.runs-on.dev)  
+> **Live Backend:** [https://eterpay.onrender.com](https://eterpay.onrender.com)  
+> **Official Demo Video:** [https://youtu.be/lWKvmb_5pug](https://youtu.be/lWKvmb_5pug)  
 > **Repo:** `https://github.com/jashveer-sharma/eterpay`
 
 ---

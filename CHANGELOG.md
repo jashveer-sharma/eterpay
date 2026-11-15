@@ -8,6 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.0] — 2026-11-15 — Official PayPal + AI Global Hackathon Submission Release
+
+### Added
+- **Official YouTube Demonstration Video**: Full audio/video walkthrough available at [https://youtu.be/lWKvmb_5pug](https://youtu.be/lWKvmb_5pug).
+- **Production Dual-Cloud Deployment**:
+  - Frontend hosted on Netlify Edge with Next.js Runtime v5 at [https://eterpay.runs-on.dev](https://eterpay.runs-on.dev) (and [https://eterpay.netlify.app](https://eterpay.netlify.app)).
+  - Backend hosted on Render Web Service at [https://eterpay.onrender.com](https://eterpay.onrender.com) with interactive Swagger UI at /docs.
+- **Eter AI 8-Tool Financial Orchestrator**:
+  - Gemini 1.5 Flash + Groq Llama 3.3 70B failover with JSON schema tool calling: convert_currency, 	ravel_budget_plan, search_commerce, ilter_transactions_grid, propose_payment, get_balance_breakdown, get_spending_digest, udit_subscriptions.
+- **AG Grid v32 Institutional Audit Ledger**:
+  - High-performance data grid with dynamic natural language AI filtering bridge, instant CSV compliance export, and sorting/filtering.
+- **ReserveLien™ Capital Preservation Engine**:
+  - Fixed-deposit collateral liquidity portal with 85% LTV cap, 1.25% effective net borrowing cost calculation, and 2FA security gate.
+- **Live Interbank Currency Feeds**:
+  - European Central Bank reference exchange rates via Frankfurter API v1 with zero bank markup.
+- **Deterministic Payment Gate**:
+  - Strict human-in-the-loop payment gate: AI proposes payment intent → Backend Pydantic validation → Explicit user modal click → PayPal Orders v2 sandbox checkout → Webhook signature validation.
+- **Comprehensive Automated Test Suite**:
+  - 35/35 pytest integration and security tests passing.
+
+### Changed
+- Standardized transaction category badges to uniform rectangular tags across all screen sizes.
+- Replaced bulky status elements with minimalist high-trust status indicator dots (• Completed, • Pending, • Failed).
+- Redesigned repository README.md with responsive visual showcase, Mermaid architecture diagrams, and official branding.
+
+---
+
 ## [0.3.0] — 2026-11-05 — Full-Stack MVP + Hallmark Dusk Redesign
 
 ### Added

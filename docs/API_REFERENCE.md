@@ -1,6 +1,9 @@
 # API Reference — EterPay
 
-## Base URL: `http://localhost:8000/api`
+> **Production Base URL:** [`https://eterpay.onrender.com/api`](https://eterpay.onrender.com/api)  
+> **Interactive Swagger UI:** [`https://eterpay.onrender.com/docs`](https://eterpay.onrender.com/docs)  
+> **Interactive ReDoc:** [`https://eterpay.onrender.com/redoc`](https://eterpay.onrender.com/redoc)  
+> **Local Base URL:** `http://localhost:8000/api`
 
 ### 1. Chat & AI Orchestration
 * `POST /chat`

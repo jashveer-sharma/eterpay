@@ -1,8 +1,11 @@
-# EterPay — platform deployment Demo Script
+# EterPay — Official Platform Demo Script
 
 **Duration:** ~2 minutes 45 seconds  
 **Format:** Screen recording with voiceover  
-**URL:** `http://localhost:3000` (or deployed Render URL)
+**Official Video Walkthrough:** [`https://youtu.be/lWKvmb_5pug`](https://youtu.be/lWKvmb_5pug)  
+**Live Platform:** [`https://eterpay.runs-on.dev`](https://eterpay.runs-on.dev)  
+**Swagger API Docs:** [`https://eterpay.onrender.com/docs`](https://eterpay.onrender.com/docs)  
+**Local Development:** `http://localhost:3000`
 
 ---
 
@@ -132,6 +135,6 @@ Typically:
 | Prize | Requirement Demonstrated |
 |---|---|
 | **Main Prize** | Full AI + PayPal integration, production-quality build |
-| **AG Grid (\$5K)** | AG Grid Community v32, AI-driven filter, custom renderers |
-| **Agentic Commerce (\$5K)** | Channel3 catalog, AI purchase proposal, PayPal modal |
-| **Channel3 (\$1.5K)** | Channel3 REST API product search + fallback catalog |
+| **AG Grid ($5K)** | AG Grid Community v32, AI-driven filter, custom renderers |
+| **Agentic Commerce ($5K)** | Channel3 catalog, AI purchase proposal, PayPal modal |
+| **Channel3 ($1.5K)** | Channel3 REST API product search + fallback catalog |
