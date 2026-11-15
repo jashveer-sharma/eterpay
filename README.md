@@ -12,7 +12,9 @@
 ---
 
 [![Live Demo](https://img.shields.io/badge/Live%20Platform-eterpay.runs--on.dev-0f4d40?style=for-the-badge&logo=fastapi&logoColor=white)](https://eterpay.runs-on.dev)
+[![Video Walkthrough](https://img.shields.io/badge/YouTube-Video%20Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/lWKvmb_5pug)
 [![API Documentation](https://img.shields.io/badge/Swagger%20Docs-eterpay.onrender.com-00B0FF?style=for-the-badge&logo=swagger&logoColor=white)](https://eterpay.onrender.com/docs)
+[![Release: v1.0.0](https://img.shields.io/badge/Release-v1.0.0-00E676?style=for-the-badge&logo=github)](https://github.com/jashveer-sharma/eterpay/releases/tag/v1.0.0)
 [![CI Pipeline](https://img.shields.io/badge/CI%20Status-Passing-00E676?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/jashveer-sharma/eterpay/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-gray?style=for-the-badge)](LICENSE)
 
@@ -43,16 +45,17 @@
 ## Table of Contents
 
 - [1. Executive Summary](#1-executive-summary)
-- [2. Problem, Solution & Value](#2-problem-solution--value)
-- [3. PayPal + AI Hackathon Integration](#3-paypal--ai-hackathon-integration)
-- [4. Visual Showcase](#4-visual-showcase)
-- [5. Implemented Features & Core Capabilities](#5-implemented-features--core-capabilities)
-- [6. Technical Architecture](#6-technical-architecture)
-- [7. Technology Stack](#7-technology-stack)
-- [8. Installation & Local Development](#8-installation--local-development)
-- [9. Financial Safety & Security Boundaries](#9-financial-safety--security-boundaries)
-- [10. Project Roadmap](#10-project-roadmap)
-- [11. Contributors & Acknowledgements](#11-contributors--acknowledgements)
+- [2. Video Demonstration](#2-video-demonstration)
+- [3. Problem, Solution & Value](#3-problem-solution--value)
+- [4. PayPal + AI Hackathon Integration](#4-paypal--ai-hackathon-integration)
+- [5. Visual Showcase](#5-visual-showcase)
+- [6. Implemented Features & Core Capabilities](#6-implemented-features--core-capabilities)
+- [7. Technical Architecture](#7-technical-architecture)
+- [8. Technology Stack](#8-technology-stack)
+- [9. Installation & Local Development](#9-installation--local-development)
+- [10. Financial Safety & Security Boundaries](#10-financial-safety--security-boundaries)
+- [11. Project Roadmap](#11-project-roadmap)
+- [12. Contributors & Acknowledgements](#12-contributors--acknowledgements)
 
 ---
 
@@ -64,7 +67,22 @@ Developed specifically for the **PayPal + AI Global Hackathon**, EterPay establi
 
 ---
 
-## 2. Problem, Solution & Value
+## 2. Video Demonstration
+
+Watch the complete end-to-end video walkthrough demonstrating EterPay's live PayPal Sandbox checkout, conversational AI copilot (Google Gemini 1.5 Flash + Groq Llama 3.3 70B), real-time European Central Bank foreign exchange feeds, and AG Grid high-throughput audit ledgers:
+
+<div align="center">
+
+[![Watch EterPay Platform Walkthrough on YouTube](https://img.youtube.com/vi/lWKvmb_5pug/maxresdefault.jpg)](https://youtu.be/lWKvmb_5pug)
+
+**[Click here to watch the full walkthrough on YouTube (https://youtu.be/lWKvmb_5pug)](https://youtu.be/lWKvmb_5pug)**  
+*Demonstrating real PayPal Orders v2 sandbox checkout, multi-tier AI tool calling, live ECB rate conversion, and ReserveLien™ FD-backed credit lines.*
+
+</div>
+
+---
+
+## 3. Problem, Solution & Value
 
 ```
 ┌─────────────────────────────────┐       ┌──────────────────────────────────┐       ┌──────────────────────────────────┐
@@ -87,7 +105,7 @@ Traditional international commerce suffers from predatory Dynamic Currency Conve
 
 ---
 
-## 3. PayPal + AI Hackathon Integration
+## 4. PayPal + AI Hackathon Integration
 
 EterPay's core architectural contribution is reconciling generative AI with the non-negotiable security requirements of production financial infrastructure.
 
@@ -143,7 +161,7 @@ EterPay's core architectural contribution is reconciling generative AI with the 
 
 ---
 
-## 4. Visual Showcase
+## 5. Visual Showcase
 
 <div align="center">
 
@@ -196,7 +214,7 @@ EterPay's core architectural contribution is reconciling generative AI with the 
 
 ---
 
-## 5. Implemented Features & Core Capabilities
+## 6. Implemented Features & Core Capabilities
 
 | Feature Module | Route | Implementation Status | Technical Highlights |
 |---|:---:|:---:|---|
@@ -213,7 +231,7 @@ EterPay's core architectural contribution is reconciling generative AI with the 
 
 ---
 
-## 6. Technical Architecture
+## 7. Technical Architecture
 
 ### Complete System Workflow
 
@@ -265,7 +283,7 @@ flowchart TD
 
 ---
 
-## 7. Technology Stack
+## 8. Technology Stack
 
 ### Frontend Architecture
 * **Framework:** Next.js 15.5.29 (React 19, App Router architecture)
@@ -292,7 +310,7 @@ flowchart TD
 
 ---
 
-## 8. Installation & Local Development
+## 9. Installation & Local Development
 
 ### 1. Prerequisites
 * **Node.js** v20.x or higher
@@ -397,7 +415,7 @@ npm run build
 
 ---
 
-## 9. Financial Safety & Security Boundaries
+## 10. Financial Safety & Security Boundaries
 
 * **Zero Committed Secrets:** All production credentials, PayPal secrets, and LLM API keys are managed exclusively via environment variables and excluded via `.gitignore`.
 * **Idempotency Enforcement:** Every PayPal payment creation request automatically attaches a unique UUID v4 `PayPal-Request-Id` header, eliminating the risk of accidental double-charges during client retry loops.
@@ -408,7 +426,7 @@ npm run build
 
 ---
 
-## 10. Project Roadmap
+## 11. Project Roadmap
 
 ### Phase 1: Core Foundation & Ledger (`Completed`)
 - [x] Complete Next.js 15 App Router frontend with responsive neon-dark styling.
@@ -432,7 +450,7 @@ npm run build
 
 ---
 
-## 11. Contributors & Acknowledgements
+## 12. Contributors & Acknowledgements
 
 ### Project Creator
 * **Jashveer Sharma** ([@jashveer-sharma](https://github.com/jashveer-sharma)) — Full-Stack Fintech Architect & AI Engineer.
